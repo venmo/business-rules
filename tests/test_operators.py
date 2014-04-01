@@ -4,9 +4,17 @@ from unittest2 import TestCase
 
 class StringOperatorTests(TestCase):
 
+    def test_operator_decorator(self):
+        self.assertTrue(StringType("foo").equal_to.is_operator)
+
     def test_string_equal_to(self):
         self.assertTrue(StringType("foo").equal_to("foo"))
         self.assertFalse(StringType("foo").equal_to("Foo"))
+
+    def test_string_equal_to_case_insensitive(self):
+        self.assertTrue(StringType("foo").equal_to_case_insensitive("FOo"))
+        self.assertTrue(StringType("foo").equal_to_case_insensitive("foo"))
+        self.assertFalse(StringType("foo").equal_to_case_insensitive("blah"))
 
     def test_string_starts_with(self):
         self.assertTrue(StringType("hello").starts_with("he"))

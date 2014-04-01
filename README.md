@@ -153,7 +153,7 @@ NB: For numerics, `equal_to` will cast to a float and then do an almost equal co
 @select_multiple_rule_variable - a set of items
   Operators:
 
-    * containts_one_of
+    * contains_one_of
     * contains_all
     * does_not_contain
     * containts_at_least_one_of?

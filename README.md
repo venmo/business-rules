@@ -125,6 +125,7 @@ Rule variable definitions:
 
 @numeric_rule_variable - the decorated function returns a numeric type - an integer, fixed-point decimal or float
   Operators:
+
     - equal_to
     - greater_than
     - less_than
@@ -155,3 +156,14 @@ Rule variable definitions:
 @boolean_rule_variable - True/False
   Operators:
     - is
+
+
+## Contributing
+
+Open up a pull request, making sure to add tests for any new functionality. To set up the dev environment (assuming you're using [virtualenvwrapper](http://docs.python-guide.org/en/latest/dev/virtualenvs/#virtualenvwrapper)):
+
+```bash
+$ mkvirtualenv business-rules
+$ pip install -r dev-requirements.txt
+$ nosetests
+```

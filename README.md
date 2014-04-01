@@ -144,7 +144,7 @@ NB: For numerics, `equal_to` will cast to a float and then do an almost equal co
     * matches_regex
     * non_empty
 
-@select_rule_variable - the decorated function returns a 
+@select_rule_variable - the decorated function returns a list of values
   Operators:
 
     * contains

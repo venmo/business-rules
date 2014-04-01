@@ -17,6 +17,7 @@ class BaseVariables(object):
                  'options': m[1].options,
                 } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
+
 def rule_variable(return_type, description=None, options=None):
     """ Decorator to make a function into a rule variable
     """

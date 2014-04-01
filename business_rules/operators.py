@@ -10,7 +10,7 @@ class StringType(BaseType):
         value = value or ""
         super(StringType, self).__init__(value)
 
-    def equals(self, other_string):
+    def equal_to(self, other_string):
         return self.value == other_string
 
     def starts_with(self, other_string):
@@ -27,6 +27,25 @@ class StringType(BaseType):
 
     def non_empty(self):
         return bool(self.value)
+
+class NumericType(BaseType):
+    EPSILON = 0.000001
+
+    def __init__(self, value):
+        value = self._assert_numeric_and_cast(value)
+        super(NumericType, self).__init__(value)
+    
+    @staticmethod
+    def _assert_numeric_and_cast(value):
+        if not isinstance(value, (float, int)):
+            raise Exception("{0} is not a valid numeric type.".format(value))
+        return float(value)
+
+    def equal_to(self, other_numeric):
+        return abs(self.value - self._assert_numeric_and_cast(other_numeric)) <= self.EPSILON
+
+    def greater_than(self, other_numeric):
+        return self.value > other_numeric
 
 # def do_comparison(comparison, type_object1, type_object2):
 #     def fallback(type_object2):

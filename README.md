@@ -126,36 +126,42 @@ Rule variable definitions:
 @numeric_rule_variable - the decorated function returns a numeric type - an integer, fixed-point decimal or float
   Operators:
 
-    - equal_to
-    - greater_than
-    - less_than
-    - greater_than_or_equal_to
-    - less_than_or_equal_to
+    * equal_to
+    * greater_than
+    * less_than
+    * greater_than_or_equal_to
+    * less_than_or_equal_to
+
+NB: For numerics, `equal_to` will cast to a float and then do an almost equal comparison (with epsilon = 0.000001).  So basically everything is a float.
 
 @string_rule_variable
   Operators:
-    - equal_to
-    - starts_with
-    - ends_with
-    - contains
-    - matches_regex
-    - non_empty
+
+    * equal_to
+    * starts_with
+    * ends_with
+    * contains
+    * matches_regex
+    * non_empty
 
 @select_rule_variable - the decorated function returns a 
   Operators:
-    - contains
-    - does_not_contain
+
+    * contains
+    * does_not_contain
 
 @select_multiple_rule_variable - a set of items
   Operators:
-    - containts_one_of
-    - contains_all
-    - does_not_contain
-    - containts_at_least_one_of?
+
+    * containts_one_of
+    * contains_all
+    * does_not_contain
+    * containts_at_least_one_of?
 
 @boolean_rule_variable - True/False
   Operators:
-    - is
+
+    * is
 
 
 ## Contributing

@@ -1,12 +1,12 @@
-from business_rules.operators import StringType
+from business_rules.operators import StringType, NumericType
 
 from unittest2 import TestCase
 
 class StringOperatorTests(TestCase):
 
-    def test_string_equality(self):
-        self.assertTrue(StringType("foo").equals("foo"))
-        self.assertFalse(StringType("foo").equals("Foo"))
+    def test_string_equal_to(self):
+        self.assertTrue(StringType("foo").equal_to("foo"))
+        self.assertFalse(StringType("foo").equal_to("Foo"))
 
     def test_string_starts_with(self):
         self.assertTrue(StringType("hello").starts_with("he"))
@@ -33,3 +33,20 @@ class StringOperatorTests(TestCase):
         self.assertTrue(StringType("hello").non_empty())
         self.assertFalse(StringType("").non_empty())
         self.assertFalse(StringType(None).non_empty())
+
+class NumericOperatorTests(TestCase):
+
+    def test_numeric_equal_to(self):
+        self.assertTrue(NumericType(10).equal_to(10))
+        self.assertTrue(NumericType(10).equal_to(10.0))
+        self.assertTrue(NumericType(10).equal_to(10.000001))
+        self.assertTrue(NumericType(10.000001).equal_to(10))
+        self.assertFalse(NumericType(10).equal_to(10.00001))
+        self.assertFalse(NumericType(10).equal_to(11))
+        with self.assertRaises(Exception):
+            NumericType(10).equal_to("10")
+
+    def test_numeric_greater_than(self):
+        self.assertTrue(NumericType(10).greater_than(1))
+        self.assertFalse(NumericType(10).greater_than(11))
+        self.assertTrue(NumericType(10.1).greater_than(10))

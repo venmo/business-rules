@@ -33,6 +33,12 @@ def rule_variable(return_type, description=None, options=None):
         return func
     return wrapper
 
+def numeric_rule_variable(description=None):
+    return rule_variable(TYPE_NUMERIC, description=description)
+
+def string_rule_variable(description=None):
+    return rule_variable(TYPE_STRING, description=description)
+
 def _memoize_return_values(func):
     """ Simple memoization (cacheing) decorator, copied from
     http://code.activestate.com/recipes/577219-minimalistic-memoization/

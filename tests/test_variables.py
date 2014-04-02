@@ -1,4 +1,4 @@
-from business_rules.variables import rule_variable, TYPE_STRING, TYPE_NUMERIC
+from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, TYPE_STRING, TYPE_NUMERIC
 from business_rules.utils import fn_name_to_pretty_description
 
 from unittest import TestCase
@@ -43,3 +43,23 @@ class RuleVariableTests(TestCase):
         self.assertEqual(foo_func(), 1)
         foo = 2
         self.assertEqual(foo_func(), 1)
+
+    ###
+    ### rule_variable wrappers for each variable type
+    ###
+
+    def test_numeric_rule_variable(self):
+
+        @numeric_rule_variable()
+        def numeric_var(): pass
+        
+        self.assertTrue(getattr(numeric_var, 'is_rule_variable'))
+        self.assertEqual(getattr(numeric_var, 'return_type'), TYPE_NUMERIC)
+
+    def test_string_rule_variable(self):
+
+        @string_rule_variable()
+        def string_var(): pass
+        
+        self.assertTrue(getattr(string_var, 'is_rule_variable'))
+        self.assertEqual(getattr(string_var, 'return_type'), TYPE_STRING)

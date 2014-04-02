@@ -142,6 +142,24 @@ class EngineTests(TestCase):
         with self.assertRaises(AssertionError):
             engine.check_conditions_recursively(conditions, variables)
 
+    @patch.object(engine, 'check_condition')
+    def test_nested_all_and_any(self, *args):
+        conditions = {'all': [
+            {'any': [{'name': 1}, {'name': 2}]},
+            {'name': 3}]}
+        bv = BaseVariables()
+
+        def side_effect(condition, _):
+            return condition['name'] in [2,3]
+        engine.check_condition.side_effect = side_effect
+
+        engine.check_conditions_recursively(conditions, bv)
+        self.assertEqual(engine.check_condition.call_count, 3)
+        engine.check_condition.assert_any_call({'name': 1}, bv)
+        engine.check_condition.assert_any_call({'name': 2}, bv)
+        engine.check_condition.assert_any_call({'name': 3}, bv)
+
+
     ###
     ### Operator comparisons
     ###

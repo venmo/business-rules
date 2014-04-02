@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from .utils import _fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_description
 
 TYPE_NUMERIC = 'numeric'
 TYPE_STRING = 'string'
@@ -27,7 +27,7 @@ def rule_variable(return_type, description=None, options=None):
         func = _memoize_return_values(func)
         func.is_rule_variable = True
         func.description = description \
-                or _fn_name_to_pretty_description(func.__name__)
+                or fn_name_to_pretty_description(func.__name__)
         func.return_type = return_type
         func.options = options
         return func

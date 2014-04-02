@@ -1,5 +1,5 @@
-from business_rules.variables import rule_variable, _fn_name_to_pretty_description, TYPE_STRING, TYPE_NUMERIC
-
+from business_rules.variables import rule_variable, TYPE_STRING, TYPE_NUMERIC
+from business_rules.utils import fn_name_to_pretty_description
 from unittest2 import TestCase
 
 class RuleVariableTests(TestCase):
@@ -8,9 +8,9 @@ class RuleVariableTests(TestCase):
 
     def test_pretty_description(self):
         self.assertEqual(
-                _fn_name_to_pretty_description('some_name_Of_a_thing'),
+                fn_name_to_pretty_description('some_name_Of_a_thing'),
                 'Some Name Of A Thing')
-        self.assertEqual(_fn_name_to_pretty_description('hi'), 'Hi')
+        self.assertEqual(fn_name_to_pretty_description('hi'), 'Hi')
 
     def test_rule_variable_decorator_internals(self):
         """ Make sure that the expected attributes are attached to a function

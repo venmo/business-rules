@@ -1,7 +1,7 @@
 import inspect
 import re
 
-from .utils import _fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_description
 
 
 TYPE_TEXT = 'text'
@@ -26,7 +26,7 @@ def type_operator(input_type, description=None):
     def wrapper(func):
         func.is_operator = True
         func.description = description \
-                or _fn_name_to_pretty_description(func.__name__)
+                or fn_name_to_pretty_description(func.__name__)
         func.input_type = input_type
         return func
     return wrapper

@@ -1,5 +1,5 @@
 import inspect
-from .utils import _fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_description
 
 
 class BaseActions(object):
@@ -19,6 +19,6 @@ def rule_action(description=None):
     def wrapper(func):
         func.is_rule_action = True
         func.description = description \
-                or _fn_name_to_pretty_description(func.__name__)
+                or fn_name_to_pretty_description(func.__name__)
         return func
     return wrapper

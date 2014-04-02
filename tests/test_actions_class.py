@@ -13,7 +13,7 @@ class ActionsClassTests(TestCase):
         """
         class SomeActions(BaseActions):
 
-            @rule_action()
+            @rule_action(params={'foo':'text'})
             def some_action(self):
                 return "blah"
 
@@ -24,6 +24,7 @@ class ActionsClassTests(TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0]['name'], 'some_action')
         self.assertEqual(actions[0]['description'], 'Some Action')
+        self.assertEqual(actions[0]['params'], {'foo': 'text'})
 
         # should work on an instance of the class too
         self.assertEqual(len(SomeActions().get_all_actions()), 1)

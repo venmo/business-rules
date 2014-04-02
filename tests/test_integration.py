@@ -31,10 +31,11 @@ class IntegrationTests(TestCase):
         self.assertFalse(check_condition(condition, SomeVariables()))
 
     def test_check_incorrect_method_name(self):
-        condition = {'name': 'fooasfdasdf',
+        condition = {'name': 'food',
                      'operator': 'equal_to',
                      'value': 'm'}
-        with self.assertRaises(AssertionError):
+        err_string = 'Variable food is not defined in class SomeVariables'
+        with self.assertRaisesRegexp(AssertionError, err_string):
             check_condition(condition, SomeVariables())
 
     def test_check_incorrect_operator_name(self):

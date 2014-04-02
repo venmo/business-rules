@@ -1,3 +1,17 @@
+def run_all(rule_list,
+            defined_variables,
+            defined_actions,
+            stop_on_first_trigger=False):
+
+    rule_was_triggered = False
+    for rule in rule_list:
+        result = run(rule, defined_variables, defined_actions)
+        if result:
+            rule_was_triggered = True
+            if stop_on_first_trigger:
+                return True
+    return rule_was_triggered
+
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
@@ -45,8 +59,8 @@ def _get_variable_value(defined_variables, name):
     Returns an instance of operators.BaseType
     """
     def fallback(*args, **kwargs):
-        raise AssertionError("Found variable {0} in a condition that is not " \
-                "defined on defined_variables object".format(name))
+        raise AssertionError("Variable {0} is not defined in class {1}".format(
+                name, defined_variables.__class__.__name__))
     method = getattr(defined_variables, name, fallback)
     val = method()
     return method.return_type(val)
@@ -67,4 +81,11 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
 
 
 def do_actions(actions, defined_actions):
-    pass
+    for action in actions:
+        method_name = action['name']
+        def fallback(*args, **kwargs):
+            raise AssertionError("Action {0} is not defined in class {1}"\
+                    .format(method_name, defined_actions.__class__.__name__))
+        params = action.get('params') or {}
+        method = getattr(defined_actions, method_name, fallback)
+        method(**params)

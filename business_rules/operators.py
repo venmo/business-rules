@@ -1,6 +1,9 @@
 import inspect
 import re
 
+from .utils import _fn_name_to_pretty_description
+
+
 TYPE_TEXT = 'text'
 TYPE_NUMERIC = 'numeric'
 TYPE_NO_INPUT = None
@@ -27,9 +30,6 @@ def type_operator(input_type, description=None):
         func.input_type = input_type
         return func
     return wrapper
-
-def _fn_name_to_pretty_description(name):
-    return ' '.join([w.title() for w in name.split('_')])
 
 class StringType(BaseType):
 

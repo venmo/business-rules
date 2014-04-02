@@ -1,5 +1,5 @@
 from business_rules.actions import BaseActions, rule_action
-from unittest2 import TestCase
+from unittest import TestCase
 
 class ActionsClassTests(TestCase):
     """ Test methods on classes that inherit from BaseActions.

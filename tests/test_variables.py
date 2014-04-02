@@ -1,6 +1,7 @@
 from business_rules.variables import rule_variable, TYPE_STRING, TYPE_NUMERIC
 from business_rules.utils import fn_name_to_pretty_description
-from unittest2 import TestCase
+
+from unittest import TestCase
 
 class RuleVariableTests(TestCase):
     """ Tests for the base rule_variable decorator.

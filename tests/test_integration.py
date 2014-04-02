@@ -2,7 +2,7 @@ from business_rules.engine import check_condition
 from business_rules.operators import StringType, NumericType
 from business_rules.variables import BaseVariables, rule_variable
 
-from unittest2 import TestCase
+from unittest import TestCase
 
 class SomeVariables(BaseVariables):
 

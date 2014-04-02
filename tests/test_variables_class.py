@@ -1,5 +1,5 @@
 from business_rules.variables import BaseVariables, rule_variable, TYPE_STRING
-from unittest2 import TestCase
+from unittest import TestCase
 
 class VariablesClassTests(TestCase):
     """ Test methods on classes that inherit from BaseVariables

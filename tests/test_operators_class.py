@@ -1,5 +1,5 @@
 from business_rules.operators import BaseType, type_operator
-from unittest2 import TestCase
+from unittest import TestCase
 
 class OperatorsClassTests(TestCase):
     """ Test methods on classes that inherit from BaseType.

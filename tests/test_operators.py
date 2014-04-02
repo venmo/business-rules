@@ -1,6 +1,6 @@
 from business_rules.operators import StringType, NumericType
 
-from unittest2 import TestCase
+from unittest import TestCase
 
 class StringOperatorTests(TestCase):
 

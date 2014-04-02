@@ -14,7 +14,7 @@ class BaseType(object):
 
     @classmethod
     def get_all_operators(cls):
-        methods = inspect.getmembers(cls, predicate=inspect.ismethod)
+        methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description,
                  'input_type': m[1].input_type

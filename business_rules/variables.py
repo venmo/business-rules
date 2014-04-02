@@ -11,7 +11,7 @@ class BaseVariables(object):
     """
     @classmethod
     def get_all_variables(cls):
-        methods = inspect.getmembers(cls, predicate=inspect.ismethod)
+        methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description,
                  'return_type': m[1].return_type,
@@ -40,7 +40,7 @@ def _memoize_return_values(func):
     cache= {}
     @wraps(func)
     def memf(*args, **kwargs):
-        key = (args, frozenset(kwargs.iteritems()))
+        key = (args, frozenset(kwargs.items()))
         if key not in cache:
             cache[key] = func(*args, **kwargs)
         return cache[key]

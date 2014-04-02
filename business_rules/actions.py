@@ -8,7 +8,7 @@ class BaseActions(object):
     """
     @classmethod
     def get_all_actions(cls):
-        methods = inspect.getmembers(cls, predicate=inspect.ismethod)
+        methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description
                 } for m in methods if getattr(m[1], 'is_rule_action', False)]

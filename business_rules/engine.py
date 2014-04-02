@@ -22,14 +22,15 @@ def run(rule, defined_variables, defined_actions):
 
 
 def check_conditions_recursively(conditions, defined_variables):
-    if conditions.keys() == ['all']:
+    keys = list(conditions.keys())
+    if keys == ['all']:
         assert len(conditions['all']) >= 1
         for condition in conditions['all']:
             if not check_conditions_recursively(condition, defined_variables):
                 return False
         return True
 
-    elif conditions.keys() == ['any']:
+    elif keys == ['any']:
         assert len(conditions['any']) >= 1
         for condition in conditions['any']:
             if check_conditions_recursively(condition, defined_variables):
@@ -39,7 +40,7 @@ def check_conditions_recursively(conditions, defined_variables):
     else:
         # help prevent errors - any and all can only be in the condition dict
         # if they're the only item
-        assert not ('any' in conditions.keys() or 'all' in conditions.keys())
+        assert not ('any' in keys or 'all' in keys)
         return check_condition(conditions, defined_variables)
 
 def check_condition(condition, defined_variables):

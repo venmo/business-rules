@@ -4,7 +4,7 @@ from business_rules.operators import StringType
 from business_rules.actions import BaseActions
 
 from mock import patch, MagicMock
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 class EngineTests(TestCase):

@@ -1,3 +1,17 @@
+def run_all(rule_list,
+            defined_variables,
+            defined_actions,
+            stop_on_first_trigger=False):
+
+    rule_was_triggered = False
+    for rule in rule_list:
+        result = run(rule, defined_variables, defined_actions)
+        if result:
+            rule_was_triggered = True
+            if stop_on_first_trigger:
+                return True
+    return rule_was_triggered
+
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)

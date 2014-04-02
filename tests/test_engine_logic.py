@@ -9,6 +9,50 @@ from unittest2 import TestCase
 
 class EngineTests(TestCase):
 
+    ###
+    ### Run
+    ###
+
+    def test_run_all_some_rule_triggered(self):
+        """ By default, does not stop on first triggered rule. Returns True if
+        any rule was triggered, otherwise False
+        """
+        rule1 = {'conditions': 'condition1', 'actions': 'action name 1'}
+        rule2 = {'conditions': 'condition2', 'actions': 'action name 2'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        engine.run = MagicMock()
+        def return_action1(rule, *args, **kwargs):
+            return rule['actions'] == 'action name 1'
+        engine.run.side_effect = return_action1
+
+        result = engine.run_all([rule1, rule2], variables, actions)
+        self.assertTrue(result)
+        self.assertEqual(engine.run.call_count, 2)
+
+        # switch order and try again
+        engine.run = MagicMock()
+        engine.run.side_effect = return_action1
+
+        result = engine.run_all([rule2, rule1], variables, actions)
+        self.assertTrue(result)
+        self.assertEqual(engine.run.call_count, 2)
+
+
+    def test_run_all_stop_on_first(self):
+        rule1 = {'conditions': 'condition1', 'actions': 'action name 1'}
+        rule2 = {'conditions': 'condition2', 'actions': 'action name 2'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        engine.run = MagicMock(return_value=True)
+        result = engine.run_all([rule1, rule2], variables, actions,
+                stop_on_first_trigger=True)
+        self.assertEqual(result, True)
+        self.assertEqual(engine.run.call_count, 1)
+        engine.run.assert_called_once_with(rule1, variables, actions)
+
     def test_run_that_triggers_rule(self):
         rule = {'conditions': 'blah', 'actions': 'blah2'}
         variables = BaseVariables()
@@ -52,6 +96,9 @@ class EngineTests(TestCase):
         engine.check_condition.assert_called_with({'thing2': ''}, variables)
 
 
+    ###
+    ### Check conditions
+    ###
     def test_check_all_conditions_with_all_false(self):
         conditions = {'all': [{'thing1': ''}, {'thing2': ''}]}
         variables = BaseVariables()
@@ -103,6 +150,9 @@ class EngineTests(TestCase):
         with self.assertRaises(AssertionError):
             engine.check_conditions_recursively(conditions, variables)
 
+    ###
+    ### Operator comparisons
+    ###
     def test_check_operator_comparison(self):
         string_type = StringType('yo yo')
         string_type.contains = MagicMock(return_value=True)
@@ -111,16 +161,8 @@ class EngineTests(TestCase):
         string_type.contains.assert_called_once_with('its mocked')
 
 
-
-class EngineLogicTests(TestCase):
-
-    def test_all_node(self):
-        all_node = { "all": [
-      { "name": "10",
-        "operator": "equal_to",
-        "value": 10,
-      },
-      { "name": "foo",
-        "operator": "contains",
-        "value": "o",
-      }]}
+    ###
+    ### Actions
+    ###
+    def test_do_action(self):
+        pass

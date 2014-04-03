@@ -5,6 +5,8 @@ from .utils import fn_name_to_pretty_description
 TYPE_NUMERIC = 'numeric'
 TYPE_STRING = 'string'
 TYPE_BOOLEAN = 'boolean'
+TYPE_SELECT = 'select'
+TYPE_SELECT_MULTIPLE = 'select_multiple'
 
 class BaseVariables(object):
     """ Classes that hold a collection of variables to use with the rules
@@ -42,6 +44,12 @@ def string_rule_variable(description=None):
 
 def boolean_rule_variable(description=None):
     return rule_variable(TYPE_BOOLEAN, description=description)
+
+def select_rule_variable(description=None, options=None):
+    return rule_variable(TYPE_SELECT, description=description, options=options)
+
+def select_multiple_rule_variable(description=None, options=None):
+    return rule_variable(TYPE_SELECT_MULTIPLE, description=description, options=options)
 
 def _memoize_return_values(func):
     """ Simple memoization (cacheing) decorator, copied from

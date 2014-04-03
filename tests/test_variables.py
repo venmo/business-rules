@@ -1,4 +1,4 @@
-from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, boolean_rule_variable, TYPE_STRING, TYPE_NUMERIC, TYPE_BOOLEAN
+from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, boolean_rule_variable, select_rule_variable, select_multiple_rule_variable, TYPE_STRING, TYPE_NUMERIC, TYPE_BOOLEAN, TYPE_SELECT, TYPE_SELECT_MULTIPLE
 from business_rules.utils import fn_name_to_pretty_description
 
 from unittest import TestCase
@@ -71,3 +71,23 @@ class RuleVariableTests(TestCase):
         
         self.assertTrue(getattr(boolean_var, 'is_rule_variable'))
         self.assertEqual(getattr(boolean_var, 'return_type'), TYPE_BOOLEAN)
+
+    def test_select_rule_variable(self):
+
+        options = {'foo':'bar'}
+        @select_rule_variable(options=options)
+        def select_var(): pass
+        
+        self.assertTrue(getattr(select_var, 'is_rule_variable'))
+        self.assertEqual(getattr(select_var, 'return_type'), TYPE_SELECT)
+        self.assertEqual(getattr(select_var, 'options'), options)
+
+    def test_select_multiple_rule_variable(self):
+
+        options = {'foo':'bar'}
+        @select_multiple_rule_variable(options=options)
+        def select_multiple_var(): pass
+        
+        self.assertTrue(getattr(select_multiple_var, 'is_rule_variable'))
+        self.assertEqual(getattr(select_multiple_var, 'return_type'), TYPE_SELECT_MULTIPLE)
+        self.assertEqual(getattr(select_multiple_var, 'options'), options)

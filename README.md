@@ -149,11 +149,21 @@ that returns
       "params": {"number_to_order": "numeric"}}
   ],
   "variable_type_operators": {
-    "numeric": { "equal_to": "numeric",
-                 "less_than": "numeric",
-                 "greater_than": "numeric",},
-    "string":  { "equal_to": "text",
-                 "non_empty": "none"},
+    "numeric": [ {"name": "equal_to",
+                  "description": "Equal To",
+                  "input_type": "numeric"},
+                 {"name": "less_than",
+                  "description": "Less Than",
+                  "input_type": "numeric"},
+                 {"name": "greater_than",
+                  "descrition":, "Greater Than",
+                  "input_type": "numeric"}],
+    "string": [ { "name": "equal_to",
+                  "description": "Equal To",
+                  "input_type": "text"},
+                { "name": "non_empty",
+                  "description": "Non Empty",
+                  "input_type": "none"}]
   }
 }
 ```

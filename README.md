@@ -50,12 +50,12 @@ class ProductActions(BaseActions):
     def __init__(self, product):
         self.product = product
 
-    @rule_action(field_type=TEXT_FIELD)
+    @rule_action(params={"sale_percentage": FIELD_NUMERIC})
     def put_on_sale(self, sale_percentage):
         self.product.price = (1.0 - sale_percentage) * self.product.price
         self.product.save()
 
-    @rule_action(field_type=TEXT_FIELD)
+    @rule_action(params={"number_to_order": FIELD_NUMERIC})
     def order_more(self, number_to_order):
         ProductOrder.objects.create(product_id=self.product.id,
                                     quantity=number_to_order)
@@ -110,14 +110,61 @@ rules = [
   "actions": [
     { "name": "order_more",
       "fields":[{"name":"number_to_order", "value": 40}]}
-  ],
+  ]
 }]
+```
+
+### Export the available variables, operators and actions
+
+To e.g. send to your client so it knows how to build rules
+
+```python
+from business_rules import export_rule_data
+export_rule_data(ProductVariables, ProductActions)
+```
+
+that returns
+
+```python
+{"variables": [
+    { "name": "expiration_days",
+      "description": "Days until expiration",
+      "variable_type": "numeric",
+      "options": []},
+    { "name": "current_month",
+      "description": "Current Month",
+      "variable_type": "string",
+      "options": []},
+    { "name": "goes_well_with",
+      "description": "Goes Well With",
+      "variable_type": "select",
+      "options": ["Eggnog", "Cookies", "Beef Jerkey"]}
+                ],
+  "actions": [
+    { "name": "put_on_sale",
+      "description": "Put On Sale",
+      "params": {"sale_percentage": "numeric"}},
+    { "name": "order_more",
+      "description": "Order More",
+      "params": {"number_to_order": "numeric"}}
+  ],
+  "variable_type_operators": {
+    "numeric": { "equal_to": "numeric",
+                 "less_than": "numeric",
+                 "greater_than": "numeric",},
+    "string":  { "equal_to": "text",
+                 "non_empty": "none"},
+  }
+}
 ```
 
 ### Run your rules
 
 ```python
 from business_rules import run_all
+
+rules = _some_function_to_receive_from_client()
+
 for product in Products.objects.all():
     run_all(rules=rules,
             variables=ProductVariables(product),
@@ -184,6 +231,9 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_at_least_one_element_with`
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
+
+### Returning data to your client
+
 
 
 ## Contributing

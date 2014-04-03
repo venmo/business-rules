@@ -1,4 +1,4 @@
-from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, TYPE_STRING, TYPE_NUMERIC
+from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, boolean_rule_variable, TYPE_STRING, TYPE_NUMERIC, TYPE_BOOLEAN
 from business_rules.utils import fn_name_to_pretty_description
 
 from unittest import TestCase
@@ -63,3 +63,11 @@ class RuleVariableTests(TestCase):
         
         self.assertTrue(getattr(string_var, 'is_rule_variable'))
         self.assertEqual(getattr(string_var, 'return_type'), TYPE_STRING)
+    
+    def test_boolean_rule_variable(self):
+
+        @boolean_rule_variable()
+        def boolean_var(): pass
+        
+        self.assertTrue(getattr(boolean_var, 'is_rule_variable'))
+        self.assertEqual(getattr(boolean_var, 'return_type'), TYPE_BOOLEAN)

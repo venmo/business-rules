@@ -4,6 +4,7 @@ from .utils import fn_name_to_pretty_description
 
 TYPE_NUMERIC = 'numeric'
 TYPE_STRING = 'string'
+TYPE_BOOLEAN = 'boolean'
 
 class BaseVariables(object):
     """ Classes that hold a collection of variables to use with the rules
@@ -38,6 +39,9 @@ def numeric_rule_variable(description=None):
 
 def string_rule_variable(description=None):
     return rule_variable(TYPE_STRING, description=description)
+
+def boolean_rule_variable(description=None):
+    return rule_variable(TYPE_BOOLEAN, description=description)
 
 def _memoize_return_values(func):
     """ Simple memoization (cacheing) decorator, copied from

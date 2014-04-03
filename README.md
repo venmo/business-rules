@@ -165,7 +165,8 @@ Note: to compare floating point equality we just check that the difference is le
 
 `@boolean_rule_variable` operators:
 
-* `is`
+* `is_true`
+* `is_false`
 
 **select** - a set of values, where the threshold will be a single item.
 

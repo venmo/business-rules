@@ -1,4 +1,4 @@
-from business_rules.operators import StringType, NumericType
+from business_rules.operators import StringType, NumericType, BooleanType
 
 from unittest import TestCase
 
@@ -44,6 +44,11 @@ class StringOperatorTests(TestCase):
 
 class NumericOperatorTests(TestCase):
 
+    def test_instantiate(self):
+        err_string = "foo is not a valid numeric type"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            NumericType("foo")
+
     def test_numeric_equal_to(self):
         self.assertTrue(NumericType(10).equal_to(10))
         self.assertTrue(NumericType(10).equal_to(10.0))
@@ -51,10 +56,29 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10.000001).equal_to(10))
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
-        with self.assertRaises(Exception):
+
+    def test_other_value_not_numeric(self):
+        error_string = "10 is not a valid numeric type"
+        with self.assertRaisesRegexp(AssertionError, error_string):
             NumericType(10).equal_to("10")
 
     def test_numeric_greater_than(self):
         self.assertTrue(NumericType(10).greater_than(1))
         self.assertFalse(NumericType(10).greater_than(11))
         self.assertTrue(NumericType(10.1).greater_than(10))
+
+class BooleanOperatorTests(TestCase):
+
+    def test_instantiate(self):
+        err_string = "foo is not a valid boolean type"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            BooleanType("foo")
+        err_string = "None is not a valid boolean type"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            BooleanType(None)
+
+    def test_boolean_is_true(self):
+        self.assertTrue(BooleanType(True).is_true())
+        self.assertFalse(BooleanType(True).is_false())
+        self.assertFalse(BooleanType(False).is_true())
+        self.assertTrue(BooleanType(False).is_false())

@@ -1,4 +1,5 @@
-from business_rules.operators import StringType, NumericType, BooleanType
+from business_rules.operators import (StringType,
+                                      NumericType, BooleanType, SelectType)
 
 from unittest import TestCase
 
@@ -110,3 +111,16 @@ class BooleanOperatorTests(TestCase):
         self.assertFalse(BooleanType(True).is_false())
         self.assertFalse(BooleanType(False).is_true())
         self.assertTrue(BooleanType(False).is_false())
+
+
+class SelectOperatorTests(TestCase):
+
+    def test_contains(self):
+        self.assertTrue(SelectType([1, 2]).contains(2))
+        self.assertFalse(SelectType([1, 2]).contains(3))
+        self.assertTrue(SelectType([1, 2, "a"]).contains("A"))
+
+    def test_does_not_contain(self):
+        self.assertTrue(SelectType([1, 2]).does_not_contain(3))
+        self.assertFalse(SelectType([1, 2]).does_not_contain(2))
+        self.assertFalse(SelectType([1, 2, "a"]).does_not_contain("A"))

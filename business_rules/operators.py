@@ -2,7 +2,8 @@ import inspect
 import re
 from functools import wraps
 
-from .fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT
+from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
+                     FIELD_SELECT)
 from .utils import fn_name_to_pretty_description
 
 
@@ -130,3 +131,34 @@ class BooleanType(BaseType):
 
     def is_false(self):
         return not self.value
+
+
+class SelectType(BaseType):
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select type".
+                                 format(value))
+        return value
+
+    @staticmethod
+    def _case_insensitive_equal_to(value_from_list, other_value):
+        if isinstance(value_from_list, basestring) and \
+                isinstance(other_value, basestring):
+                    return value_from_list.lower() == other_value.lower()
+        else:
+            return value_from_list == other_value
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def contains(self, other_value):
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
+                return True
+        return False
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def does_not_contain(self, other_value):
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
+                return False
+        return True

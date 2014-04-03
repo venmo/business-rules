@@ -3,7 +3,7 @@ import re
 from functools import wraps
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT)
+                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_description
 
 
@@ -162,3 +162,48 @@ class SelectType(BaseType):
             if self._case_insensitive_equal_to(val, other_value):
                 return False
         return True
+
+
+class SelectMultipleType(BaseType):
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select multiple type".
+                                 format(value))
+        return value
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def contains_all(self, other_value):
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if not select.contains(other_val):
+                return False
+        return True
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def is_contained_by(self, other_value):
+        other_select_multiple = SelectMultipleType(other_value)
+        return other_select_multiple.contains_all(self.value)
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_at_least_one_element_with(self, other_value):
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if select.contains(other_val):
+                return True
+        return False
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_exactly_one_element_with(self, other_value):
+        found_one = False
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if select.contains(other_val):
+                if found_one:
+                    return False
+                found_one = True
+        return found_one
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_no_elements_with(self, other_value):
+        return not self.shares_at_least_one_element_with(other_value)

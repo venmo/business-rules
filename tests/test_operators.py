@@ -1,5 +1,6 @@
 from business_rules.operators import (StringType,
-                                      NumericType, BooleanType, SelectType)
+                                      NumericType, BooleanType, SelectType,
+                                      SelectMultipleType)
 
 from unittest import TestCase
 
@@ -124,3 +125,46 @@ class SelectOperatorTests(TestCase):
         self.assertTrue(SelectType([1, 2]).does_not_contain(3))
         self.assertFalse(SelectType([1, 2]).does_not_contain(2))
         self.assertFalse(SelectType([1, 2, "a"]).does_not_contain("A"))
+
+
+class SelectMultipleOperatorTests(TestCase):
+
+    def test_contains_all(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        contains_all([2, 1]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         contains_all([2, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        contains_all([2, 1, "A"]))
+
+    def test_is_contained_by(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        is_contained_by([2, 1, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         is_contained_by([2, 3, 4]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        is_contained_by([2, 1, "A"]))
+
+    def test_shares_at_least_one_element_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_at_least_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_at_least_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        shares_at_least_one_element_with([4, "A"]))
+
+    def test_shares_exactly_one_element_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_exactly_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_exactly_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        shares_exactly_one_element_with([4, "A"]))
+
+    def test_shares_no_elements_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_no_elements_with([4, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_no_elements_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2, "a"]).
+                         shares_no_elements_with([4, "A"]))

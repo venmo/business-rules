@@ -5,6 +5,7 @@ from functools import wraps
 from .fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT
 from .utils import fn_name_to_pretty_description
 
+
 class BaseType(object):
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
@@ -17,10 +18,12 @@ class BaseType(object):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description,
-                 'input_type': m[1].input_type
-                } for m in methods if getattr(m[1], 'is_operator', False)]
+                 'input_type': m[1].input_type}
+                for m in methods if getattr(m[1], 'is_operator', False)]
 
-def type_operator(input_type, description=None, assert_type_for_arguments=True):
+
+def type_operator(input_type, description=None,
+                  assert_type_for_arguments=True):
     """ Decorator to make a function into a type operator.
 
     - assert_type_for_arguments - if True this patches the operator function
@@ -30,24 +33,27 @@ def type_operator(input_type, description=None, assert_type_for_arguments=True):
     def wrapper(func):
         func.is_operator = True
         func.description = description \
-                or fn_name_to_pretty_description(func.__name__)
+            or fn_name_to_pretty_description(func.__name__)
         func.input_type = input_type
+
         @wraps(func)
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v)) \
-                        for k, v in kwargs.items())
+                kwargs = dict((k, self._assert_valid_value_and_cast(v))
+                              for k, v in kwargs.items())
             return func(self, *args, **kwargs)
         return inner
     return wrapper
+
 
 class StringType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
         if not isinstance(value, basestring):
-            raise AssertionError("{0} is not a valid string type.".format(value))
+            raise AssertionError("{0} is not a valid string type.".
+                                 format(value))
         return value
 
     @type_operator(FIELD_TEXT)
@@ -85,24 +91,37 @@ class NumericType(BaseType):
     @staticmethod
     def _assert_valid_value_and_cast(value):
         if not isinstance(value, (float, int)):
-            raise AssertionError("{0} is not a valid numeric type.".format(value))
+            raise AssertionError("{0} is not a valid numeric type.".
+                                 format(value))
         return float(value)
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
-        return abs(self.value - self._assert_valid_value_and_cast(other_numeric)) <= self.EPSILON
+        return abs(self.value - other_numeric) <= self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than(self, other_numeric):
-        return self.value > self._assert_valid_value_and_cast(other_numeric)
+        return (self.value - other_numeric) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def greater_than_or_equal_to(self, other_numeric):
+        return self.greater_than(other_numeric) or self.equal_to(other_numeric)
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than(self, other_numeric):
+        return (other_numeric - self.value) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than_or_equal_to(self, other_numeric):
+        return self.less_than(other_numeric) or self.equal_to(other_numeric)
 
 
 class BooleanType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         if type(value) != bool:
-            raise AssertionError(
-                    "{0} is not a valid boolean type".format(value))
+            raise AssertionError("{0} is not a valid boolean type".
+                                 format(value))
         return value
 
     @type_operator(FIELD_NO_INPUT)

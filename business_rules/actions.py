@@ -1,4 +1,6 @@
 import inspect
+
+from . import fields
 from .utils import fn_name_to_pretty_description
 
 
@@ -18,6 +20,15 @@ def rule_action(description=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
+        # Verify field name is valid
+        valid_fields = [getattr(fields, f) for f in dir(fields) \
+                if f.startswith("FIELD_")]
+        for param_name, field_type in params.items():
+            if field_type not in valid_fields:
+                raise AssertionError("Unknown field type {0} specified for"\
+                        " action {1} param {2}".format(
+                        field_type, func.__name__, param_name))
+
         func.is_rule_action = True
         func.description = description \
                 or fn_name_to_pretty_description(func.__name__)

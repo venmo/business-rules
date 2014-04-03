@@ -1,6 +1,9 @@
-from business_rules.operators import StringType, NumericType, BooleanType
+from business_rules.operators import (StringType,
+                                      NumericType, BooleanType, SelectType,
+                                      SelectMultipleType)
 
 from unittest import TestCase
+
 
 class StringOperatorTests(TestCase):
 
@@ -42,6 +45,7 @@ class StringOperatorTests(TestCase):
         self.assertFalse(StringType("").non_empty())
         self.assertFalse(StringType(None).non_empty())
 
+
 class NumericOperatorTests(TestCase):
 
     def test_instantiate(self):
@@ -66,6 +70,32 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).greater_than(1))
         self.assertFalse(NumericType(10).greater_than(11))
         self.assertTrue(NumericType(10.1).greater_than(10))
+        self.assertFalse(NumericType(10.000001).greater_than(10))
+        self.assertTrue(NumericType(10.000002).greater_than(10))
+
+    def test_numeric_greater_than_or_equal_to(self):
+        self.assertTrue(NumericType(10).greater_than_or_equal_to(1))
+        self.assertFalse(NumericType(10).greater_than_or_equal_to(11))
+        self.assertTrue(NumericType(10.1).greater_than_or_equal_to(10))
+        self.assertTrue(NumericType(10.000001).greater_than_or_equal_to(10))
+        self.assertTrue(NumericType(10.000002).greater_than_or_equal_to(10))
+        self.assertTrue(NumericType(10).greater_than_or_equal_to(10))
+
+    def test_numeric_less_than(self):
+        self.assertTrue(NumericType(1).less_than(10))
+        self.assertFalse(NumericType(11).less_than(10))
+        self.assertTrue(NumericType(10).less_than(10.1))
+        self.assertFalse(NumericType(10).less_than(10.000001))
+        self.assertTrue(NumericType(10).less_than(10.000002))
+
+    def test_numeric_less_than_or_equal_to(self):
+        self.assertTrue(NumericType(1).less_than_or_equal_to(10))
+        self.assertFalse(NumericType(11).less_than_or_equal_to(10))
+        self.assertTrue(NumericType(10).less_than_or_equal_to(10.1))
+        self.assertTrue(NumericType(10).less_than_or_equal_to(10.000001))
+        self.assertTrue(NumericType(10).less_than_or_equal_to(10.000002))
+        self.assertTrue(NumericType(10).less_than_or_equal_to(10))
+
 
 class BooleanOperatorTests(TestCase):
 
@@ -82,3 +112,61 @@ class BooleanOperatorTests(TestCase):
         self.assertFalse(BooleanType(True).is_false())
         self.assertFalse(BooleanType(False).is_true())
         self.assertTrue(BooleanType(False).is_false())
+
+
+class SelectOperatorTests(TestCase):
+
+    def test_contains(self):
+        self.assertTrue(SelectType([1, 2]).contains(2))
+        self.assertFalse(SelectType([1, 2]).contains(3))
+        self.assertTrue(SelectType([1, 2, "a"]).contains("A"))
+
+    def test_does_not_contain(self):
+        self.assertTrue(SelectType([1, 2]).does_not_contain(3))
+        self.assertFalse(SelectType([1, 2]).does_not_contain(2))
+        self.assertFalse(SelectType([1, 2, "a"]).does_not_contain("A"))
+
+
+class SelectMultipleOperatorTests(TestCase):
+
+    def test_contains_all(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        contains_all([2, 1]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         contains_all([2, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        contains_all([2, 1, "A"]))
+
+    def test_is_contained_by(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        is_contained_by([2, 1, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         is_contained_by([2, 3, 4]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        is_contained_by([2, 1, "A"]))
+
+    def test_shares_at_least_one_element_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_at_least_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_at_least_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        shares_at_least_one_element_with([4, "A"]))
+
+    def test_shares_exactly_one_element_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_exactly_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_exactly_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        shares_exactly_one_element_with([4, "A"]))
+        self.assertFalse(SelectMultipleType([1, 2, 3]).
+                         shares_exactly_one_element_with([2, 3, "a"]))
+
+    def test_shares_no_elements_with(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        shares_no_elements_with([4, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         shares_no_elements_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2, "a"]).
+                         shares_no_elements_with([4, "A"]))

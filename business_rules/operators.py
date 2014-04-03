@@ -2,8 +2,10 @@ import inspect
 import re
 from functools import wraps
 
-from .fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT
+from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
+                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_description
+
 
 class BaseType(object):
     def __init__(self, value):
@@ -17,10 +19,12 @@ class BaseType(object):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description,
-                 'input_type': m[1].input_type
-                } for m in methods if getattr(m[1], 'is_operator', False)]
+                 'input_type': m[1].input_type}
+                for m in methods if getattr(m[1], 'is_operator', False)]
 
-def type_operator(input_type, description=None, assert_type_for_arguments=True):
+
+def type_operator(input_type, description=None,
+                  assert_type_for_arguments=True):
     """ Decorator to make a function into a type operator.
 
     - assert_type_for_arguments - if True this patches the operator function
@@ -30,24 +34,27 @@ def type_operator(input_type, description=None, assert_type_for_arguments=True):
     def wrapper(func):
         func.is_operator = True
         func.description = description \
-                or fn_name_to_pretty_description(func.__name__)
+            or fn_name_to_pretty_description(func.__name__)
         func.input_type = input_type
+
         @wraps(func)
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v)) \
-                        for k, v in kwargs.items())
+                kwargs = dict((k, self._assert_valid_value_and_cast(v))
+                              for k, v in kwargs.items())
             return func(self, *args, **kwargs)
         return inner
     return wrapper
+
 
 class StringType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
         if not isinstance(value, basestring):
-            raise AssertionError("{0} is not a valid string type.".format(value))
+            raise AssertionError("{0} is not a valid string type.".
+                                 format(value))
         return value
 
     @type_operator(FIELD_TEXT)
@@ -85,24 +92,37 @@ class NumericType(BaseType):
     @staticmethod
     def _assert_valid_value_and_cast(value):
         if not isinstance(value, (float, int)):
-            raise AssertionError("{0} is not a valid numeric type.".format(value))
+            raise AssertionError("{0} is not a valid numeric type.".
+                                 format(value))
         return float(value)
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
-        return abs(self.value - self._assert_valid_value_and_cast(other_numeric)) <= self.EPSILON
+        return abs(self.value - other_numeric) <= self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than(self, other_numeric):
-        return self.value > self._assert_valid_value_and_cast(other_numeric)
+        return (self.value - other_numeric) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def greater_than_or_equal_to(self, other_numeric):
+        return self.greater_than(other_numeric) or self.equal_to(other_numeric)
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than(self, other_numeric):
+        return (other_numeric - self.value) > self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def less_than_or_equal_to(self, other_numeric):
+        return self.less_than(other_numeric) or self.equal_to(other_numeric)
 
 
 class BooleanType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         if type(value) != bool:
-            raise AssertionError(
-                    "{0} is not a valid boolean type".format(value))
+            raise AssertionError("{0} is not a valid boolean type".
+                                 format(value))
         return value
 
     @type_operator(FIELD_NO_INPUT)
@@ -111,3 +131,79 @@ class BooleanType(BaseType):
 
     def is_false(self):
         return not self.value
+
+
+class SelectType(BaseType):
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select type".
+                                 format(value))
+        return value
+
+    @staticmethod
+    def _case_insensitive_equal_to(value_from_list, other_value):
+        if isinstance(value_from_list, basestring) and \
+                isinstance(other_value, basestring):
+                    return value_from_list.lower() == other_value.lower()
+        else:
+            return value_from_list == other_value
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def contains(self, other_value):
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
+                return True
+        return False
+
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def does_not_contain(self, other_value):
+        for val in self.value:
+            if self._case_insensitive_equal_to(val, other_value):
+                return False
+        return True
+
+
+class SelectMultipleType(BaseType):
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select multiple type".
+                                 format(value))
+        return value
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def contains_all(self, other_value):
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if not select.contains(other_val):
+                return False
+        return True
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def is_contained_by(self, other_value):
+        other_select_multiple = SelectMultipleType(other_value)
+        return other_select_multiple.contains_all(self.value)
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_at_least_one_element_with(self, other_value):
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if select.contains(other_val):
+                return True
+        return False
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_exactly_one_element_with(self, other_value):
+        found_one = False
+        select = SelectType(self.value)
+        for other_val in other_value:
+            if select.contains(other_val):
+                if found_one:
+                    return False
+                found_one = True
+        return found_one
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
+    def shares_no_elements_with(self, other_value):
+        return not self.shares_at_least_one_element_with(other_value)

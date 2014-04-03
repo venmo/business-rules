@@ -160,6 +160,8 @@ class SelectMultipleOperatorTests(TestCase):
                          shares_exactly_one_element_with([4, 3]))
         self.assertTrue(SelectMultipleType([1, 2, "a"]).
                         shares_exactly_one_element_with([4, "A"]))
+        self.assertFalse(SelectMultipleType([1, 2, 3]).
+                         shares_exactly_one_element_with([2, 3, "a"]))
 
     def test_shares_no_elements_with(self):
         self.assertTrue(SelectMultipleType([1, 2]).

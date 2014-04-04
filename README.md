@@ -14,6 +14,8 @@ marketing logic around when certain customers or items are eligible for a
 discount or to automate emails after users enter a certain state or go through
 a particular sequence of events.
 
+![](http://cdn.memegenerator.net/instances/400x/36514579.jpg)
+
 ## Usage
 
 ### 1. Define Your set of variables

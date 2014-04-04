@@ -1,6 +1,16 @@
-from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, boolean_rule_variable, select_rule_variable, select_multiple_rule_variable, TYPE_STRING, TYPE_NUMERIC, TYPE_BOOLEAN, TYPE_SELECT, TYPE_SELECT_MULTIPLE
-from business_rules.utils import fn_name_to_pretty_description
 from . import TestCase
+from business_rules.utils import fn_name_to_pretty_description
+from business_rules.variables import (rule_variable,
+                                      numeric_rule_variable,
+                                      string_rule_variable,
+                                      boolean_rule_variable,
+                                      select_rule_variable,
+                                      select_multiple_rule_variable,
+                                      TYPE_STRING,
+                                      TYPE_NUMERIC,
+                                      TYPE_BOOLEAN,
+                                      TYPE_SELECT,
+                                      TYPE_SELECT_MULTIPLE)
 
 class RuleVariableTests(TestCase):
     """ Tests for the base rule_variable decorator.
@@ -21,7 +31,7 @@ class RuleVariableTests(TestCase):
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
         self.assertEqual(func.description, 'Foo Name')
-        self.assertEqual(func.return_type, TYPE_STRING)
+        self.assertEqual(func.field_type, TYPE_STRING)
         self.assertEqual(func.options, ['op1', 'op2'])
 
     def test_rule_variable_works_as_decorator(self):
@@ -62,7 +72,7 @@ class RuleVariableTests(TestCase):
         def numeric_var(): pass
         
         self.assertTrue(getattr(numeric_var, 'is_rule_variable'))
-        self.assertEqual(getattr(numeric_var, 'return_type'), TYPE_NUMERIC)
+        self.assertEqual(getattr(numeric_var, 'field_type'), TYPE_NUMERIC)
 
     def test_string_rule_variable(self):
 
@@ -70,7 +80,7 @@ class RuleVariableTests(TestCase):
         def string_var(): pass
         
         self.assertTrue(getattr(string_var, 'is_rule_variable'))
-        self.assertEqual(getattr(string_var, 'return_type'), TYPE_STRING)
+        self.assertEqual(getattr(string_var, 'field_type'), TYPE_STRING)
     
     def test_boolean_rule_variable(self):
 
@@ -78,7 +88,7 @@ class RuleVariableTests(TestCase):
         def boolean_var(): pass
         
         self.assertTrue(getattr(boolean_var, 'is_rule_variable'))
-        self.assertEqual(getattr(boolean_var, 'return_type'), TYPE_BOOLEAN)
+        self.assertEqual(getattr(boolean_var, 'field_type'), TYPE_BOOLEAN)
 
     def test_select_rule_variable(self):
 
@@ -87,7 +97,7 @@ class RuleVariableTests(TestCase):
         def select_var(): pass
         
         self.assertTrue(getattr(select_var, 'is_rule_variable'))
-        self.assertEqual(getattr(select_var, 'return_type'), TYPE_SELECT)
+        self.assertEqual(getattr(select_var, 'field_type'), TYPE_SELECT)
         self.assertEqual(getattr(select_var, 'options'), options)
 
     def test_select_multiple_rule_variable(self):
@@ -97,5 +107,5 @@ class RuleVariableTests(TestCase):
         def select_multiple_var(): pass
         
         self.assertTrue(getattr(select_multiple_var, 'is_rule_variable'))
-        self.assertEqual(getattr(select_multiple_var, 'return_type'), TYPE_SELECT_MULTIPLE)
+        self.assertEqual(getattr(select_multiple_var, 'field_type'), TYPE_SELECT_MULTIPLE)
         self.assertEqual(getattr(select_multiple_var, 'options'), options)

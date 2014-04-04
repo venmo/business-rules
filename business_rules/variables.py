@@ -17,12 +17,12 @@ class BaseVariables(object):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'description': m[1].description,
-                 'return_type': m[1].return_type,
+                 'field_type': m[1].field_type,
                  'options': m[1].options,
                 } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
 
-def rule_variable(return_type, description=None, options=None, cache_result=True):
+def rule_variable(field_type, description=None, options=None, cache_result=True):
     """ Decorator to make a function into a rule variable
     """
     options = options or []
@@ -32,7 +32,7 @@ def rule_variable(return_type, description=None, options=None, cache_result=True
         func.is_rule_variable = True
         func.description = description \
                 or fn_name_to_pretty_description(func.__name__)
-        func.return_type = return_type
+        func.field_type = field_type
         func.options = options
         return func
     return wrapper

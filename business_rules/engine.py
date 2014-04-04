@@ -64,7 +64,7 @@ def _get_variable_value(defined_variables, name):
                 name, defined_variables.__class__.__name__))
     method = getattr(defined_variables, name, fallback)
     val = method()
-    return method.return_type(val)
+    return method.field_type(val)
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """ Finds the method on the given operator_type and compares it to the

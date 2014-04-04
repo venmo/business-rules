@@ -22,12 +22,13 @@ class BaseVariables(object):
                 } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
 
-def rule_variable(return_type, description=None, options=None):
+def rule_variable(return_type, description=None, options=None, cache_result=True):
     """ Decorator to make a function into a rule variable
     """
     options = options or []
     def wrapper(func):
-        func = _memoize_return_values(func)
+        if cache_result:
+            func = _memoize_return_values(func)
         func.is_rule_variable = True
         func.description = description \
                 or fn_name_to_pretty_description(func.__name__)

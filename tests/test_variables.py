@@ -1,7 +1,6 @@
 from business_rules.variables import rule_variable, numeric_rule_variable, string_rule_variable, boolean_rule_variable, select_rule_variable, select_multiple_rule_variable, TYPE_STRING, TYPE_NUMERIC, TYPE_BOOLEAN, TYPE_SELECT, TYPE_SELECT_MULTIPLE
 from business_rules.utils import fn_name_to_pretty_description
-
-from unittest import TestCase
+from . import TestCase
 
 class RuleVariableTests(TestCase):
     """ Tests for the base rule_variable decorator.

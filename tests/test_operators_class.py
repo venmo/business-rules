@@ -1,5 +1,5 @@
 from business_rules.operators import BaseType, type_operator
-from unittest import TestCase
+from . import TestCase
 from mock import MagicMock
 
 class OperatorsClassTests(TestCase):

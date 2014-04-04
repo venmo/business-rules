@@ -1,4 +1,5 @@
-from business_rules.variables import BaseVariables, rule_variable, TYPE_STRING
+from business_rules.variables import BaseVariables, rule_variable
+from business_rules.operators import StringType
 from . import TestCase
 
 class VariablesClassTests(TestCase):
@@ -13,7 +14,7 @@ class VariablesClassTests(TestCase):
         """
         class SomeVariables(BaseVariables):
 
-            @rule_variable(TYPE_STRING)
+            @rule_variable(StringType)
             def this_is_rule_1(self):
                 return "blah"
 
@@ -24,7 +25,7 @@ class VariablesClassTests(TestCase):
         self.assertEqual(len(vars), 1)
         self.assertEqual(vars[0]['name'], 'this_is_rule_1')
         self.assertEqual(vars[0]['label'], 'This Is Rule 1')
-        self.assertEqual(vars[0]['field_type'], TYPE_STRING)
+        self.assertEqual(vars[0]['field_type'], 'string')
         self.assertEqual(vars[0]['options'], [])
 
         # should work on an instance of the class too

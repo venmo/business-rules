@@ -51,6 +51,8 @@ def type_operator(input_type, label=None,
 
 class StringType(BaseType):
 
+    name = "string"
+
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
         if not isinstance(value, string_types):
@@ -90,6 +92,8 @@ class StringType(BaseType):
 class NumericType(BaseType):
     EPSILON = 0.000001
 
+    name = "numeric"
+
     @staticmethod
     def _assert_valid_value_and_cast(value):
         if not isinstance(value, (float, int)):
@@ -120,6 +124,8 @@ class NumericType(BaseType):
 
 class BooleanType(BaseType):
 
+    name = "boolean"
+
     def _assert_valid_value_and_cast(self, value):
         if type(value) != bool:
             raise AssertionError("{0} is not a valid boolean type".
@@ -135,6 +141,8 @@ class BooleanType(BaseType):
 
 
 class SelectType(BaseType):
+
+    name = "select"
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
@@ -166,6 +174,8 @@ class SelectType(BaseType):
 
 
 class SelectMultipleType(BaseType):
+
+    name = "select_multiple"
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):

@@ -1,19 +1,33 @@
 from business_rules.engine import check_condition, export_rule_data
+<<<<<<< HEAD
 from business_rules.operators import StringType, NumericType
 from business_rules.variables import BaseVariables, rule_variable
 from business_rules.actions import rule_action, BaseActions
+=======
+from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable
+from business_rules.actions import BaseActions, rule_action
+from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC
+>>>>>>> b4215d618aca5da38346407b447baaf6924a8581
 
 from . import TestCase
 
 class SomeVariables(BaseVariables):
 
-    @rule_variable(StringType)
+    @string_rule_variable()
     def foo(self):
         return "foo"
 
-    @rule_variable(NumericType)
+    @numeric_rule_variable(label="Diez")
     def ten(self):
         return 10
+
+class SomeActions(BaseActions):
+
+    @rule_action(params={"foo": FIELD_NUMERIC})
+    def some_action(self, foo): pass
+
+    @rule_action(label="woohoo", params={"bar": FIELD_TEXT})
+    def some_other_action(self, bar): pass
 
 
 class SomeActions(BaseActions):
@@ -55,7 +69,7 @@ class IntegrationTests(TestCase):
         with self.assertRaises(AssertionError):
             check_condition(condition, SomeVariables())
 
-
+    
     def test_export_rule_data(self):
         """ Tests that export_rule_data has the three expected keys
         in the right format.

@@ -2,7 +2,10 @@ from business_rules.operators import (StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType)
 
-from unittest import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 
 class StringOperatorTests(TestCase):

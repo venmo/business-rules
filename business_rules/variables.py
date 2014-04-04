@@ -1,12 +1,24 @@
 import inspect
 from functools import wraps
 from .utils import fn_name_to_pretty_label
+from .operators import (NumericType,
+                        StringType,
+                        BooleanType,
+                        SelectType,
+                        SelectMultipleType)
 
 TYPE_NUMERIC = 'numeric'
 TYPE_STRING = 'string'
 TYPE_BOOLEAN = 'boolean'
 TYPE_SELECT = 'select'
 TYPE_SELECT_MULTIPLE = 'select_multiple'
+
+TYPE_TO_CLASS_MAPPING = {TYPE_NUMERIC: NumericType,
+                         TYPE_STRING: StringType,
+                         TYPE_BOOLEAN: BooleanType,
+                         TYPE_SELECT: SelectType,
+                         TYPE_SELECT_MULTIPLE: SelectMultipleType}
+
 
 class BaseVariables(object):
     """ Classes that hold a collection of variables to use with the rules

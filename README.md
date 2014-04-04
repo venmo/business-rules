@@ -3,8 +3,16 @@ business-rules
 
 [![Build Status](https://travis-ci.org/venmo/business-rules.svg?branch=master)](https://travis-ci.org/venmo/business-rules)
 
-As your codebase and business grow, eventually everyone needs a way to run business logic.
-TODO: Finish this up.
+As a software system grows in complexity and usage, it can become burdensome if
+every change to the logic/behavior of the system also requires you to write and
+deploy new code. The goal of this business rules engine is to provide a simple
+interface allowing anyone to capture new rules and logic defining the behavior
+of a system, and a way to then process those rules on the backend.
+
+You might, for example, find this is a useful way for analysts to define
+marketing logic around when certain customers or items are eligible for a
+discount or to automate emails after users enter a certain state or go through
+a particular sequence of events.
 
 ## Usage
 

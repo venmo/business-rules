@@ -1,5 +1,3 @@
-from .variables import TYPE_TO_CLASS_MAPPING
-
 def run_all(rule_list,
             defined_variables,
             defined_actions,
@@ -66,8 +64,7 @@ def _get_variable_value(defined_variables, name):
                 name, defined_variables.__class__.__name__))
     method = getattr(defined_variables, name, fallback)
     val = method()
-    field_type = TYPE_TO_CLASS_MAPPING[method.field_type]
-    return field_type(val)
+    return method.field_type(val)
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """ Finds the method on the given operator_type and compares it to the

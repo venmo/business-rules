@@ -90,16 +90,3 @@ def do_actions(actions, defined_actions):
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
         method(**params)
-
-def export_rule_data(variables, actions):
-    """ export_rule_data is used to export all information about the
-    variables, actions, and operators to the client. This will return a
-    dictionary with three keys:
-    - variables: a list of all available variables along with their label, type and options
-    - actions: a list of all actions along with their label and params
-    - variable_type_operators: a dictionary of all field_types -> list of available operators
-    """
-    variables_data = variables.get_all_variables()
-    actions_data = actions.get_all_actions()
-    return {"variables": variables_data,
-            "actions": actions_data}

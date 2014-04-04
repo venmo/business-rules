@@ -1,13 +1,8 @@
-from business_rules.engine import check_condition, export_rule_data
-<<<<<<< HEAD
-from business_rules.operators import StringType, NumericType
-from business_rules.variables import BaseVariables, rule_variable
+from business_rules.engine import check_condition
+from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
-=======
 from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable
-from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC
->>>>>>> b4215d618aca5da38346407b447baaf6924a8581
 
 from . import TestCase
 
@@ -27,15 +22,6 @@ class SomeActions(BaseActions):
     def some_action(self, foo): pass
 
     @rule_action(label="woohoo", params={"bar": FIELD_TEXT})
-    def some_other_action(self, bar): pass
-
-
-class SomeActions(BaseActions):
-
-    @rule_action(params={"foo":"numeric"})
-    def some_action(self, foo): pass
-
-    @rule_action(label="woohoo", params={"bar":"text"})
     def some_other_action(self, bar): pass
 
 
@@ -82,6 +68,7 @@ class IntegrationTests(TestCase):
                  {"name": "some_other_action",
                   "label": "woohoo",
                   "params": {"bar":"text"}}])
+
         self.assertEqual(all_data.get("variables"),
                          [{"name": "foo",
                            "label": "Foo",
@@ -93,18 +80,45 @@ class IntegrationTests(TestCase):
                            "options": []}])
 
         self.assertEqual(all_data.get("variable_type_operators"),
-                         {"numeric": [ {"name": "equal_to",
-                                        "label": "Equal To",
-                                        "input_type": "numeric"},
-                                       {"name": "less_than",
-                                        "label": "Less Than",
-                                        "input_type": "numeric"},
-                                       {"name": "greater_than",
-                                        "label": "Greater Than",
-                                        "input_type": "numeric"}],
-                           "string": [ {"name": "equal_to",
-                                        "label": "Equal To",
-                                        "input_type": "text"},
-                                       {"name": "non_empty",
-                                        "label": "Non Empty",
-                                        "input_type": "none"}]})
+                         {'boolean': [{'input_type': 'none',
+                             'label': 'Is True',
+                             'name': 'is_true'}],
+                           'numeric': [{'input_type': 'numeric',
+                             'label': 'Equal To',
+                             'name': 'equal_to'},
+                            {'input_type': 'numeric', 'label': 'Greater Than', 'name': 'greater_than'},
+                            {'input_type': 'numeric',
+                             'label': 'Greater Than Or Equal To',
+                             'name': 'greater_than_or_equal_to'},
+                            {'input_type': 'numeric', 'label': 'Less Than', 'name': 'less_than'},
+                            {'input_type': 'numeric',
+                             'label': 'Less Than Or Equal To',
+                             'name': 'less_than_or_equal_to'}],
+                           'select': [{'input_type': 'select', 'label': 'Contains', 'name': 'contains'},
+                            {'input_type': 'select',
+                             'label': 'Does Not Contain',
+                             'name': 'does_not_contain'}],
+                           'select_multiple': [{'input_type': 'select_multiple',
+                             'label': 'Contains All',
+                             'name': 'contains_all'},
+                            {'input_type': 'select_multiple',
+                             'label': 'Is Contained By',
+                             'name': 'is_contained_by'},
+                            {'input_type': 'select_multiple',
+                             'label': 'Shares At Least One Element With',
+                             'name': 'shares_at_least_one_element_with'},
+                            {'input_type': 'select_multiple',
+                             'label': 'Shares Exactly One Element With',
+                             'name': 'shares_exactly_one_element_with'},
+                            {'input_type': 'select_multiple',
+                             'label': 'Shares No Elements With',
+                             'name': 'shares_no_elements_with'}],
+                           'string': [{'input_type': 'text', 'label': 'Contains', 'name': 'contains'},
+                            {'input_type': 'text', 'label': 'Ends With', 'name': 'ends_with'},
+                            {'input_type': 'text', 'label': 'Equal To', 'name': 'equal_to'},
+                            {'input_type': 'text',
+                             'label': 'Equal To (case insensitive)',
+                             'name': 'equal_to_case_insensitive'},
+                            {'input_type': 'text', 'label': 'Matches Regex', 'name': 'matches_regex'},
+                            {'input_type': 'none', 'label': 'Non Empty', 'name': 'non_empty'},
+                            {'input_type': 'text', 'label': 'Starts With', 'name': 'starts_with'}]})

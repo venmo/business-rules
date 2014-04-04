@@ -1,6 +1,7 @@
 import inspect
 import re
 from functools import wraps
+from six import string_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
@@ -52,7 +53,7 @@ class StringType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
-        if not isinstance(value, basestring):
+        if not isinstance(value, string_types):
             raise AssertionError("{0} is not a valid string type.".
                                  format(value))
         return value
@@ -143,8 +144,8 @@ class SelectType(BaseType):
 
     @staticmethod
     def _case_insensitive_equal_to(value_from_list, other_value):
-        if isinstance(value_from_list, basestring) and \
-                isinstance(other_value, basestring):
+        if isinstance(value_from_list, string_types) and \
+                isinstance(other_value, string_types):
                     return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value

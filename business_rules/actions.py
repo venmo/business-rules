@@ -24,7 +24,7 @@ def rule_action(description=None, params=None):
         valid_fields = [getattr(fields, f) for f in dir(fields) \
                 if f.startswith("FIELD_")]
         for param_name, field_type in params.items():
-            if param_name not in func.func_code.co_varnames:
+            if param_name not in func.__code__.co_varnames:
                 raise AssertionError("Unknown parameter name {0} specified for action {1}".format(param_name, func.__name__))
 
             if field_type not in valid_fields:

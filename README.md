@@ -14,7 +14,9 @@ marketing logic around when certain customers or items are eligible for a
 discount or to automate emails after users enter a certain state or go through
 a particular sequence of events.
 
-![Haha Business](http://cdn.memegenerator.net/instances/400x/36514579.jpg)
+<p align="center">
+    <img src="http://cdn.memegenerator.net/instances/400x/36514579.jpg" />
+</p>
 
 ## Usage
 

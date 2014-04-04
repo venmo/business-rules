@@ -15,7 +15,7 @@ class ActionsClassTests(TestCase):
         class SomeActions(BaseActions):
 
             @rule_action(params={'foo':FIELD_TEXT})
-            def some_action(self):
+            def some_action(self, foo):
                 return "blah"
 
             def non_action(self):
@@ -33,6 +33,13 @@ class ActionsClassTests(TestCase):
     def test_rule_action_doesnt_allow_unknown_field_types(self):
         err_string = "Unknown field type blah specified for action some_action"\
                 " param foo"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_action(params={'foo': 'blah'})
+            def some_action(self, foo):
+                pass
+    
+    def test_rule_action_doesnt_allow_unknown_parameter_name(self):
+        err_string = "Unknown parameter name foo specified for action some_action"
         with self.assertRaisesRegexp(AssertionError, err_string):
             @rule_action(params={'foo': 'blah'})
             def some_action(self):

@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from .utils import fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_label
 
 TYPE_NUMERIC = 'numeric'
 TYPE_STRING = 'string'
@@ -16,13 +16,13 @@ class BaseVariables(object):
     def get_all_variables(cls):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
-                 'description': m[1].description,
+                 'label': m[1].label,
                  'field_type': m[1].field_type,
                  'options': m[1].options,
                 } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
 
-def rule_variable(field_type, description=None, options=None, cache_result=True):
+def rule_variable(field_type, label=None, options=None, cache_result=True):
     """ Decorator to make a function into a rule variable
     """
     options = options or []
@@ -30,27 +30,27 @@ def rule_variable(field_type, description=None, options=None, cache_result=True)
         if cache_result:
             func = _memoize_return_values(func)
         func.is_rule_variable = True
-        func.description = description \
-                or fn_name_to_pretty_description(func.__name__)
+        func.label = label \
+                or fn_name_to_pretty_label(func.__name__)
         func.field_type = field_type
         func.options = options
         return func
     return wrapper
 
-def numeric_rule_variable(description=None):
-    return rule_variable(TYPE_NUMERIC, description=description)
+def numeric_rule_variable(label=None):
+    return rule_variable(TYPE_NUMERIC, label=label)
 
-def string_rule_variable(description=None):
-    return rule_variable(TYPE_STRING, description=description)
+def string_rule_variable(label=None):
+    return rule_variable(TYPE_STRING, label=label)
 
-def boolean_rule_variable(description=None):
-    return rule_variable(TYPE_BOOLEAN, description=description)
+def boolean_rule_variable(label=None):
+    return rule_variable(TYPE_BOOLEAN, label=label)
 
-def select_rule_variable(description=None, options=None):
-    return rule_variable(TYPE_SELECT, description=description, options=options)
+def select_rule_variable(label=None, options=None):
+    return rule_variable(TYPE_SELECT, label=label, options=options)
 
-def select_multiple_rule_variable(description=None, options=None):
-    return rule_variable(TYPE_SELECT_MULTIPLE, description=description, options=options)
+def select_multiple_rule_variable(label=None, options=None):
+    return rule_variable(TYPE_SELECT_MULTIPLE, label=label, options=options)
 
 def _memoize_return_values(func):
     """ Simple memoization (cacheing) decorator, copied from

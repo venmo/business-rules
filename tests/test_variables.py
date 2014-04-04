@@ -1,5 +1,5 @@
 from . import TestCase
-from business_rules.utils import fn_name_to_pretty_description
+from business_rules.utils import fn_name_to_pretty_label
 from business_rules.variables import (rule_variable,
                                       numeric_rule_variable,
                                       string_rule_variable,
@@ -16,11 +16,11 @@ class RuleVariableTests(TestCase):
     """ Tests for the base rule_variable decorator.
     """
 
-    def test_pretty_description(self):
+    def test_pretty_label(self):
         self.assertEqual(
-                fn_name_to_pretty_description('some_name_Of_a_thing'),
+                fn_name_to_pretty_label('some_name_Of_a_thing'),
                 'Some Name Of A Thing')
-        self.assertEqual(fn_name_to_pretty_description('hi'), 'Hi')
+        self.assertEqual(fn_name_to_pretty_label('hi'), 'Hi')
 
     def test_rule_variable_decorator_internals(self):
         """ Make sure that the expected attributes are attached to a function
@@ -30,7 +30,7 @@ class RuleVariableTests(TestCase):
         wrapper = rule_variable(TYPE_STRING, 'Foo Name', options=['op1', 'op2'])
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
-        self.assertEqual(func.description, 'Foo Name')
+        self.assertEqual(func.label, 'Foo Name')
         self.assertEqual(func.field_type, TYPE_STRING)
         self.assertEqual(func.options, ['op1', 'op2'])
 
@@ -39,10 +39,10 @@ class RuleVariableTests(TestCase):
         def some_test_function(self): pass
         self.assertTrue(some_test_function.is_rule_variable)
 
-    def test_rule_variable_decorator_auto_fills_description(self):
+    def test_rule_variable_decorator_auto_fills_label(self):
         @rule_variable(TYPE_STRING)
         def some_test_function(self): pass
-        self.assertTrue(some_test_function.description, 'Some Test Function')
+        self.assertTrue(some_test_function.label, 'Some Test Function')
 
     def test_rule_variable_decorator_caches_value(self):
         foo = 1

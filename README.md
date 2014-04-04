@@ -26,7 +26,7 @@ class ProductVariables(BaseVariables):
     def current_inventory(self):
         return self.product.current_inventory
 
-    @numeric_rule_variable(description='Days until expiration')
+    @numeric_rule_variable(label='Days until expiration')
     def expiration_days(self)
         last_order = self.product.orders[-1]
         return (last_order.expiration_date - datetime.date.today()).days
@@ -130,41 +130,41 @@ that returns
 ```python
 {"variables": [
     { "name": "expiration_days",
-      "description": "Days until expiration",
-      "variable_type": "numeric",
+      "label": "Days until expiration",
+      "field_type": "numeric",
       "options": []},
     { "name": "current_month",
-      "description": "Current Month",
-      "variable_type": "string",
+      "label": "Current Month",
+      "field_type": "string",
       "options": []},
     { "name": "goes_well_with",
-      "description": "Goes Well With",
-      "variable_type": "select",
+      "label": "Goes Well With",
+      "field_type": "select",
       "options": ["Eggnog", "Cookies", "Beef Jerkey"]}
                 ],
   "actions": [
     { "name": "put_on_sale",
-      "description": "Put On Sale",
+      "label": "Put On Sale",
       "params": {"sale_percentage": "numeric"}},
     { "name": "order_more",
-      "description": "Order More",
+      "label": "Order More",
       "params": {"number_to_order": "numeric"}}
   ],
   "variable_type_operators": {
     "numeric": [ {"name": "equal_to",
-                  "description": "Equal To",
+                  "label": "Equal To",
                   "input_type": "numeric"},
                  {"name": "less_than",
-                  "description": "Less Than",
+                  "label": "Less Than",
                   "input_type": "numeric"},
                  {"name": "greater_than",
                   "descrition":, "Greater Than",
                   "input_type": "numeric"}],
     "string": [ { "name": "equal_to",
-                  "description": "Equal To",
+                  "label": "Equal To",
                   "input_type": "text"},
                 { "name": "non_empty",
-                  "description": "Non Empty",
+                  "label": "Non Empty",
                   "input_type": "none"}]
   }
 }
@@ -192,7 +192,7 @@ for product in Products.objects.all():
 The type represents the type of the value that will be returned for the variable and is necessary since there are different available comparison operators for different types, and the front-end that's generating the rules needs to know which operators are available.
 
 All decorators can optionally take the arguments:
-- `description` - A human-readable description to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
+- `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
 - `cache_result` - Whether to cache the value of the variable for this instance of the variable container object. Defaults to `True` (to avoid re-doing expensive DB queries or computations if you have many rules based on the same variables).
 
 The available types and decorators are:

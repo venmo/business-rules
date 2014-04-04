@@ -5,7 +5,7 @@ from .six import string_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_label
 
 
 class BaseType(object):
@@ -19,12 +19,12 @@ class BaseType(object):
     def get_all_operators(cls):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
-                 'description': m[1].description,
+                 'label': m[1].label,
                  'input_type': m[1].input_type}
                 for m in methods if getattr(m[1], 'is_operator', False)]
 
 
-def type_operator(input_type, description=None,
+def type_operator(input_type, label=None,
                   assert_type_for_arguments=True):
     """ Decorator to make a function into a type operator.
 
@@ -34,8 +34,8 @@ def type_operator(input_type, description=None,
     """
     def wrapper(func):
         func.is_operator = True
-        func.description = description \
-            or fn_name_to_pretty_description(func.__name__)
+        func.label = label \
+            or fn_name_to_pretty_label(func.__name__)
         func.input_type = input_type
 
         @wraps(func)
@@ -62,7 +62,7 @@ class StringType(BaseType):
     def equal_to(self, other_string):
         return self.value == other_string
 
-    @type_operator(FIELD_TEXT, description="Equal To (case insensitive)")
+    @type_operator(FIELD_TEXT, label="Equal To (case insensitive)")
     def equal_to_case_insensitive(self, other_string):
         return self.value.lower() == other_string.lower()
 

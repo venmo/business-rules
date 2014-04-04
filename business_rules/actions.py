@@ -1,7 +1,7 @@
 import inspect
 
 from . import fields
-from .utils import fn_name_to_pretty_description
+from .utils import fn_name_to_pretty_label
 
 
 class BaseActions(object):
@@ -12,11 +12,11 @@ class BaseActions(object):
     def get_all_actions(cls):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
-                 'description': m[1].description,
+                 'label': m[1].label,
                  'params': m[1].params
                 } for m in methods if getattr(m[1], 'is_rule_action', False)]
 
-def rule_action(description=None, params=None):
+def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
@@ -33,8 +33,8 @@ def rule_action(description=None, params=None):
                         field_type, func.__name__, param_name))
 
         func.is_rule_action = True
-        func.description = description \
-                or fn_name_to_pretty_description(func.__name__)
+        func.label = label \
+                or fn_name_to_pretty_label(func.__name__)
         func.params = params
         return func
     return wrapper

@@ -26,7 +26,7 @@ class OperatorsClassTests(TestCase):
         self.assertEqual(len(operators), 1)
         some_operator = operators[0]
         self.assertEqual(some_operator['name'], 'some_operator')
-        self.assertEqual(some_operator['description'], 'Some Operator')
+        self.assertEqual(some_operator['label'], 'Some Operator')
         self.assertEqual(some_operator['input_type'], 'text')
 
 

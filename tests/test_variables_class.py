@@ -23,7 +23,7 @@ class VariablesClassTests(TestCase):
         vars = SomeVariables.get_all_variables()
         self.assertEqual(len(vars), 1)
         self.assertEqual(vars[0]['name'], 'this_is_rule_1')
-        self.assertEqual(vars[0]['description'], 'This Is Rule 1')
+        self.assertEqual(vars[0]['label'], 'This Is Rule 1')
         self.assertEqual(vars[0]['field_type'], TYPE_STRING)
         self.assertEqual(vars[0]['options'], [])
 

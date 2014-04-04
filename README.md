@@ -166,7 +166,7 @@ that returns
                   "label": "Less Than",
                   "input_type": "numeric"},
                  {"name": "greater_than",
-                  "descrition":, "Greater Than",
+                  "label": "Greater Than",
                   "input_type": "numeric"}],
     "string": [ { "name": "equal_to",
                   "label": "Equal To",

@@ -1,6 +1,8 @@
 business-rules
 ==============
 
+[![Build Status](https://travis-ci.org/venmo/business-rules.svg?branch=master)](https://travis-ci.org/venmo/business-rules)
+
 As your codebase and business grow, eventually everyone needs a way to run business logic.
 TODO: Finish this up.
 

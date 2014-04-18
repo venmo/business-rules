@@ -20,17 +20,18 @@ def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
-        # Verify field name is valid
-        valid_fields = [getattr(fields, f) for f in dir(fields) \
-                if f.startswith("FIELD_")]
-        for param_name, field_type in params.items():
-            if param_name not in func.__code__.co_varnames:
-                raise AssertionError("Unknown parameter name {0} specified for action {1}".format(param_name, func.__name__))
+        if params is not None:
+            # Verify field name is valid
+            valid_fields = [getattr(fields, f) for f in dir(fields) \
+                    if f.startswith("FIELD_")]
+            for param_name, field_type in params.items():
+                if param_name not in func.__code__.co_varnames:
+                    raise AssertionError("Unknown parameter name {0} specified for action {1}".format(param_name, func.__name__))
 
-            if field_type not in valid_fields:
-                raise AssertionError("Unknown field type {0} specified for"\
-                        " action {1} param {2}".format(
-                        field_type, func.__name__, param_name))
+                if field_type not in valid_fields:
+                    raise AssertionError("Unknown field type {0} specified for"\
+                            " action {1} param {2}".format(
+                            field_type, func.__name__, param_name))
 
         func.is_rule_action = True
         func.label = label \

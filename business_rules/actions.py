@@ -16,22 +16,30 @@ class BaseActions(object):
                  'params': m[1].params
                 } for m in methods if getattr(m[1], 'is_rule_action', False)]
 
-def rule_action(label=None, params=None):
-    """ Decorator to make a function into a rule action
+def _validate_action_parameters(func, params):
+    """ Verifies that the parameters specified are actual parameters for the
+    function `func`, and that the field types are FIELD_* types in fields.
     """
-    def wrapper(func):
+    if params is not None:
         # Verify field name is valid
         valid_fields = [getattr(fields, f) for f in dir(fields) \
                 if f.startswith("FIELD_")]
         for param_name, field_type in params.items():
             if param_name not in func.__code__.co_varnames:
-                raise AssertionError("Unknown parameter name {0} specified for action {1}".format(param_name, func.__name__))
+                raise AssertionError("Unknown parameter name {0} specified for"\
+                        " action {1}".format(
+                        param_name, func.__name__))
 
             if field_type not in valid_fields:
                 raise AssertionError("Unknown field type {0} specified for"\
                         " action {1} param {2}".format(
                         field_type, func.__name__, param_name))
 
+def rule_action(label=None, params=None):
+    """ Decorator to make a function into a rule action
+    """
+    def wrapper(func):
+        _validate_action_parameters(func, params)
         func.is_rule_action = True
         func.label = label \
                 or fn_name_to_pretty_label(func.__name__)

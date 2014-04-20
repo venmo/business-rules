@@ -16,7 +16,7 @@ class BaseActions(object):
                  'params': m[1].params
                 } for m in methods if getattr(m[1], 'is_rule_action', False)]
 
-def validate_action_parameters(func, params):
+def _validate_action_parameters(func, params):
     """ Verifies that the parameters specified are actual parameters for the
     function `func`, and that the field types are FIELD_* types in fields.
     """
@@ -39,7 +39,7 @@ def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
-        validate_action_parameters(func, params)
+        _validate_action_parameters(func, params)
         func.is_rule_action = True
         func.label = label \
                 or fn_name_to_pretty_label(func.__name__)

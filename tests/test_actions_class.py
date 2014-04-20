@@ -44,3 +44,10 @@ class ActionsClassTests(TestCase):
             @rule_action(params={'foo': 'blah'})
             def some_action(self):
                 pass
+
+    def test_rule_action_with_no_params_or_label(self):
+        """ A rule action should not have to specify paramers or label. """
+        @rule_action()
+        def some_action(self): pass
+
+        self.assertTrue(some_action.is_rule_action)

@@ -81,6 +81,9 @@ class IntegrationTests(TestCase):
 
         self.assertEqual(all_data.get("variable_type_operators"),
                          {'boolean': [{'input_type': 'none',
+                             'label': 'Is False',
+                             'name': 'is_false'},
+                            {'input_type': 'none',
                              'label': 'Is True',
                              'name': 'is_true'}],
                            'numeric': [{'input_type': 'numeric',

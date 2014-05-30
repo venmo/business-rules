@@ -136,6 +136,7 @@ class BooleanType(BaseType):
     def is_true(self):
         return self.value
 
+    @type_operator(FIELD_NO_INPUT)
     def is_false(self):
         return not self.value
 

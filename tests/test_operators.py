@@ -106,7 +106,7 @@ class BooleanOperatorTests(TestCase):
         with self.assertRaisesRegexp(AssertionError, err_string):
             BooleanType(None)
 
-    def test_boolean_is_true(self):
+    def test_boolean_is_true_and_is_false(self):
         self.assertTrue(BooleanType(True).is_true())
         self.assertFalse(BooleanType(True).is_false())
         self.assertFalse(BooleanType(False).is_true())

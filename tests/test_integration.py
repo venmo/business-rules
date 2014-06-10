@@ -1,7 +1,7 @@
 from business_rules.engine import check_condition
 from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
-from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable
+from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC
 
 from . import TestCase
@@ -16,6 +16,10 @@ class SomeVariables(BaseVariables):
     def ten(self):
         return 10
 
+    @boolean_rule_variable()
+    def true_bool(self):
+        return True
+
 class SomeActions(BaseActions):
 
     @rule_action(params={"foo": FIELD_NUMERIC})
@@ -28,12 +32,30 @@ class SomeActions(BaseActions):
 class IntegrationTests(TestCase):
     """ Integration test, using the library like a user would.
     """
+    def test_true_boolean_variable(self):
+        condition = {
+            'name': 'true_bool',
+            'operator': 'is_true',
+            'value': ''
+        }
+        res = check_condition(condition, SomeVariables())
+        self.assertTrue(res)
+
+    def test_false_boolean_variable(self):
+        condition = {
+            'name': 'true_bool',
+            'operator': 'is_false',
+            'value': ''
+        }
+        res = check_condition(condition, SomeVariables())
+        self.assertFalse(res)
+
     def test_check_true_condition_happy_path(self):
         condition = {'name': 'foo',
                      'operator': 'contains',
                      'value': 'o'}
         self.assertTrue(check_condition(condition, SomeVariables()))
-    
+
     def test_check_false_condition_happy_path(self):
         condition = {'name': 'foo',
                      'operator': 'contains',
@@ -55,7 +77,7 @@ class IntegrationTests(TestCase):
         with self.assertRaises(AssertionError):
             check_condition(condition, SomeVariables())
 
-    
+
     def test_export_rule_data(self):
         """ Tests that export_rule_data has the three expected keys
         in the right format.
@@ -77,7 +99,11 @@ class IntegrationTests(TestCase):
                           {"name": "ten",
                            "label": "Diez",
                            "field_type": "numeric",
-                           "options": []}])
+                           "options": []},
+                          {'name': 'true_bool',
+                           'label': 'True Bool',
+                           'field_type': 'boolean',
+                           'options': []}])
 
         self.assertEqual(all_data.get("variable_type_operators"),
                          {'boolean': [{'input_type': 'none',

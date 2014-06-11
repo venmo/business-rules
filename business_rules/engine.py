@@ -1,3 +1,5 @@
+from .fields import FIELD_NO_INPUT
+
 def run_all(rule_list,
             defined_variables,
             defined_actions,
@@ -78,6 +80,8 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
         raise AssertionError("Operator {0} does not exist for type {1}".format(
             operator_name, operator_type.__class__.__name__))
     method = getattr(operator_type, operator_name, fallback)
+    if getattr(method, 'input_type', '') == FIELD_NO_INPUT:
+        return method()
     return method(comparison_value)
 
 

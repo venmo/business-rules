@@ -69,6 +69,8 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).equal_to(10.0))
         self.assertTrue(NumericType(10).equal_to(10.000001))
         self.assertTrue(NumericType(10.000001).equal_to(10))
+        self.assertTrue(NumericType(Decimal('10.0')).equal_to(10))
+        self.assertTrue(NumericType(10).equal_to(Decimal('10.0')))
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
 

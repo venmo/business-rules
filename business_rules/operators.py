@@ -6,7 +6,7 @@ from .six import string_types
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label
-
+from decimal import Decimal
 
 class BaseType(object):
     def __init__(self, value):
@@ -96,10 +96,10 @@ class NumericType(BaseType):
 
     @staticmethod
     def _assert_valid_value_and_cast(value):
-        if not isinstance(value, (float, int)):
+        if not isinstance(value, (float, int, Decimal)):
             raise AssertionError("{0} is not a valid numeric type.".
                                  format(value))
-        return float(value)
+        return Decimal(value)
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):

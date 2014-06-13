@@ -1,12 +1,12 @@
 import inspect
 import re
 from functools import wraps
-from .six import string_types
+from .six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label
-from decimal import Decimal
+from .utils import fn_name_to_pretty_label, float_to_decimal
+from decimal import Decimal, Inexact, Context
 
 class BaseType(object):
     def __init__(self, value):
@@ -90,16 +90,22 @@ class StringType(BaseType):
 
 
 class NumericType(BaseType):
-    EPSILON = 0.000001
+    EPSILON = Decimal('0.000001')
 
     name = "numeric"
 
     @staticmethod
     def _assert_valid_value_and_cast(value):
-        if not isinstance(value, (float, int, Decimal)):
+        if isinstance(value, float):
+            # In python 2.6, casting float to Decimal doesn't work
+            return float_to_decimal(value)
+        if isinstance(value, integer_types):
+            return Decimal(value)
+        if isinstance(value, Decimal):
+            return value
+        else:
             raise AssertionError("{0} is not a valid numeric type.".
                                  format(value))
-        return Decimal(value)
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):

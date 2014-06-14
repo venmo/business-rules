@@ -1,4 +1,3 @@
-from . import operators
 import inspect
 
 def fn_name_to_pretty_label(name):
@@ -12,6 +11,7 @@ def export_rule_data(variables, actions):
     - actions: a list of all actions along with their label and params
     - variable_type_operators: a dictionary of all field_types -> list of available operators
     """
+    from . import operators
     actions_data = actions.get_all_actions()
     variables_data = variables.get_all_variables()
     variable_type_operators = {}

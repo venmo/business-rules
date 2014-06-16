@@ -24,6 +24,12 @@ class BaseType(object):
                 for m in methods if getattr(m[1], 'is_operator', False)]
 
 
+def export_type(cls):
+    """ Decorator to expose the given class to business_rules.export_rule_data. """
+    cls.export_in_rule_data = True
+    return cls
+
+
 def type_operator(input_type, label=None,
                   assert_type_for_arguments=True):
     """ Decorator to make a function into a type operator.
@@ -49,6 +55,7 @@ def type_operator(input_type, label=None,
     return wrapper
 
 
+@export_type
 class StringType(BaseType):
 
     name = "string"
@@ -89,6 +96,7 @@ class StringType(BaseType):
         return bool(self.value)
 
 
+@export_type
 class NumericType(BaseType):
     EPSILON = Decimal('0.000001')
 
@@ -128,6 +136,7 @@ class NumericType(BaseType):
         return self.less_than(other_numeric) or self.equal_to(other_numeric)
 
 
+@export_type
 class BooleanType(BaseType):
 
     name = "boolean"
@@ -146,7 +155,7 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
-
+@export_type
 class SelectType(BaseType):
 
     name = "select"
@@ -180,6 +189,7 @@ class SelectType(BaseType):
         return True
 
 
+@export_type
 class SelectMultipleType(BaseType):
 
     name = "select_multiple"

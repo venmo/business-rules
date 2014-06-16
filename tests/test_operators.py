@@ -3,6 +3,8 @@ from business_rules.operators import (StringType,
                                       SelectMultipleType)
 
 from . import TestCase
+from decimal import Decimal
+import sys
 
 class StringOperatorTests(TestCase):
 
@@ -52,11 +54,30 @@ class NumericOperatorTests(TestCase):
         with self.assertRaisesRegexp(AssertionError, err_string):
             NumericType("foo")
 
+    def test_numeric_type_validates_and_casts_decimal(self):
+        ten_dec = Decimal(10)
+        ten_int = 10
+        ten_float = 10.0
+        if sys.version_info[0] == 2:
+            ten_long = long(10)
+        else:
+            ten_long = int(10) # long and int are same in python3
+        ten_var_dec = NumericType(ten_dec) # this should not throw an exception
+        ten_var_int = NumericType(ten_int)
+        ten_var_float = NumericType(ten_float)
+        ten_var_long = NumericType(ten_long)
+        self.assertTrue(isinstance(ten_var_dec.value, Decimal))
+        self.assertTrue(isinstance(ten_var_int.value, Decimal))
+        self.assertTrue(isinstance(ten_var_float.value, Decimal))
+        self.assertTrue(isinstance(ten_var_long.value, Decimal))
+
     def test_numeric_equal_to(self):
         self.assertTrue(NumericType(10).equal_to(10))
         self.assertTrue(NumericType(10).equal_to(10.0))
         self.assertTrue(NumericType(10).equal_to(10.000001))
         self.assertTrue(NumericType(10.000001).equal_to(10))
+        self.assertTrue(NumericType(Decimal('10.0')).equal_to(10))
+        self.assertTrue(NumericType(10).equal_to(Decimal('10.0')))
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
 

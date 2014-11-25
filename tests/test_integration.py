@@ -86,10 +86,10 @@ class IntegrationTests(TestCase):
         self.assertEqual(all_data.get("actions"),
                 [{"name": "some_action",
                   "label": "Some Action",
-                  "params": {"foo":"numeric"}},
+                  "params": [{'fieldType': 'numeric', 'label': 'Foo', 'name': 'foo'}]},
                  {"name": "some_other_action",
                   "label": "woohoo",
-                  "params": {"bar":"text"}}])
+                  "params": [{'fieldType': 'text', 'label': 'Bar', 'name': 'bar'}]}])
 
         self.assertEqual(all_data.get("variables"),
                          [{"name": "foo",

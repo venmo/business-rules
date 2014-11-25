@@ -25,7 +25,7 @@ class ActionsClassTests(TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0]['name'], 'some_action')
         self.assertEqual(actions[0]['label'], 'Some Action')
-        self.assertEqual(actions[0]['params'], {'foo': FIELD_TEXT})
+        self.assertEqual(actions[0]['params'], [{'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
 
         # should work on an instance of the class too
         self.assertEqual(len(SomeActions().get_all_actions()), 1)
@@ -37,7 +37,7 @@ class ActionsClassTests(TestCase):
             @rule_action(params={'foo': 'blah'})
             def some_action(self, foo):
                 pass
-    
+
     def test_rule_action_doesnt_allow_unknown_parameter_name(self):
         err_string = "Unknown parameter name foo specified for action some_action"
         with self.assertRaisesRegexp(AssertionError, err_string):

@@ -75,6 +75,27 @@ class ProductActions(BaseActions):
                                     quantity=number_to_order)
 ```
 
+If you need a select field for an action parameter, another -more verbose- syntax is available:
+
+```python
+class ProductActions(BaseActions):
+
+    def __init__(self, product):
+        self.product = product
+
+    @rule_action(params=[{'fieldType': FIELD_SELECT,
+                          'name': 'stock_state',
+                          'label': 'Stock state',
+                          'options': [
+                            {'label': 'Available', 'name': 'available'},
+                            {'label': 'Last items', 'name': 'last_items'},
+                            {'label': 'Out of stock', 'name': 'out_of_stock'}
+                        ]}])
+    def change_stock_state(self, stock_state):
+        self.product.stock_state = stock_state
+        self.product.save()
+```
+
 ### 3. Build the rules
 
 A rule is just a JSON object that gets interpreted by the business-rules engine.

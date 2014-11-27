@@ -2,7 +2,7 @@ from business_rules.engine import check_condition
 from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
 from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable
-from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC
+from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT
 
 from . import TestCase
 
@@ -27,6 +27,15 @@ class SomeActions(BaseActions):
 
     @rule_action(label="woohoo", params={"bar": FIELD_TEXT})
     def some_other_action(self, bar): pass
+
+    @rule_action(params=[{'fieldType': FIELD_SELECT,
+                          'name': 'baz',
+                          'label': 'Baz',
+                          'options': [
+                            {'label': 'Chose Me', 'name': 'chose_me'},
+                            {'label': 'Or Me', 'name': 'or_me'}
+                        ]}])
+    def some_select_action(self, baz): pass
 
 
 class IntegrationTests(TestCase):
@@ -86,10 +95,21 @@ class IntegrationTests(TestCase):
         self.assertEqual(all_data.get("actions"),
                 [{"name": "some_action",
                   "label": "Some Action",
-                  "params": {"foo":"numeric"}},
+                  "params": [{'fieldType': 'numeric', 'label': 'Foo', 'name': 'foo'}]},
                  {"name": "some_other_action",
                   "label": "woohoo",
-                  "params": {"bar":"text"}}])
+                  "params": [{'fieldType': 'text', 'label': 'Bar', 'name': 'bar'}]},
+                 {"name": "some_select_action",
+                  "label": "Some Select Action",
+                  "params":[{'fieldType': FIELD_SELECT,
+                             'name': 'baz',
+                             'label': 'Baz',
+                             'options': [
+                                {'label': 'Chose Me', 'name': 'chose_me'},
+                                {'label': 'Or Me', 'name': 'or_me'}
+                            ]}]
+                  }
+                 ])
 
         self.assertEqual(all_data.get("variables"),
                          [{"name": "foo",

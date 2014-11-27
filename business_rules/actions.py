@@ -24,7 +24,8 @@ def _validate_action_parameters(func, params):
         # Verify field name is valid
         valid_fields = [getattr(fields, f) for f in dir(fields) \
                 if f.startswith("FIELD_")]
-        for param_name, field_type in params.items():
+        for param in params:
+            param_name, field_type = param['name'], param['fieldType']
             if param_name not in func.__code__.co_varnames:
                 raise AssertionError("Unknown parameter name {0} specified for"\
                         " action {1}".format(
@@ -39,10 +40,16 @@ def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
-        _validate_action_parameters(func, params)
+        params_ = params
+        if isinstance(params, dict):
+            params_ = [dict(label=fn_name_to_pretty_label(name),
+                           name=name,
+                           fieldType=field_type) \
+                      for name, field_type in params.items()]
+        _validate_action_parameters(func, params_)
         func.is_rule_action = True
         func.label = label \
                 or fn_name_to_pretty_label(func.__name__)
-        func.params = params
+        func.params = params_
         return func
     return wrapper

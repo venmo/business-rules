@@ -1,5 +1,6 @@
 from . import TestCase
 from business_rules.utils import fn_name_to_pretty_label
+from business_rules.fields import FIELD_NUMERIC
 from business_rules.variables import (rule_variable,
                                       numeric_rule_variable,
                                       string_rule_variable,
@@ -34,13 +35,15 @@ class RuleVariableTests(TestCase):
         """ Make sure that the expected attributes are attached to a function
         by the variable decorators.
         """
-        def some_test_function(self): pass
-        wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'])
+        def some_test_function(self, param1): pass
+        params = [{'fieldType': FIELD_NUMERIC, 'name': 'param1', 'label': 'Param1'}]
+        wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'], params=params)
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
         self.assertEqual(func.label, 'Foo Name')
         self.assertEqual(func.field_type, StringType)
         self.assertEqual(func.options, ['op1', 'op2'])
+        self.assertEqual(func.params, params)
 
     def test_rule_variable_works_as_decorator(self):
         @rule_variable(StringType, 'Blah')
@@ -51,6 +54,28 @@ class RuleVariableTests(TestCase):
         @rule_variable(StringType)
         def some_test_function(self): pass
         self.assertTrue(some_test_function.label, 'Some Test Function')
+
+    def test_rule_variable_doesnt_allow_unknown_field_types(self):
+        """ Tests that the variable decorator throws an error if a param
+            is defined with an invalid field type.
+        """
+        params = [{'fieldType': 'blah', 'name': 'foo', 'label': 'Foo'}]
+        err_string = "Unknown field type blah specified for variable "\
+                "some_test_function param foo"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_variable(StringType, params=params)
+            def some_test_function(self, foo): pass
+
+    def test_rule_variable_doesnt_allow_unknown_parameter_name(self):
+        """ Tests that decorator throws an error if a param name does not match
+            an argument in the function definition.
+        """
+        params = [{'fieldType': FIELD_NUMERIC, 'name': 'bar', 'label': 'Bar'}]
+        err_string = "Unknown parameter name bar specified for variable "\
+                "some_test_function"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_variable(StringType, params=params)
+            def some_test_function(self, foo): pass
 
     def test_rule_variable_decorator_caches_value(self):
         foo = 1

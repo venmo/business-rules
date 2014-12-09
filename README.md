@@ -211,9 +211,9 @@ from business_rules import run_all
 rules = _some_function_to_receive_from_client()
 
 for product in Products.objects.all():
-    run_all(rules=rules,
-            variables=ProductVariables(product),
-            actions=ProductActions(product),
+    run_all(rule_list=rules,
+            defined_variables=ProductVariables(product),
+            defined_actions=ProductActions(product),
             stop_on_first_trigger=True
            )
 ```

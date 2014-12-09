@@ -133,7 +133,7 @@ rules = [
     ]},
       { "all": [
         {  "name": "current_month",
-          "operator": "equals",
+          "operator": "equal_to",
           "value": "December",
         },
         { "name": "goes_well_with",

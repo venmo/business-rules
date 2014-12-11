@@ -41,12 +41,18 @@ def rule_variable(field_type, label=None, options=None, cache_result=True):
     return wrapper
 
 def numeric_rule_variable(label=None):
+    if callable(label):
+        return rule_variable(NumericType)(label)
     return rule_variable(NumericType, label=label)
 
 def string_rule_variable(label=None):
+    if callable(label):
+        return rule_variable(StringType)(label)
     return rule_variable(StringType, label=label)
 
 def boolean_rule_variable(label=None):
+    if callable(label):
+        return rule_variable(BooleanType)(label)
     return rule_variable(BooleanType, label=label)
 
 def select_rule_variable(label=None, options=None):

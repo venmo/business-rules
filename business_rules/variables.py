@@ -81,7 +81,7 @@ def _validate_variable_parameters(func, params):
         valid_fields = [getattr(fields, f) for f in dir(fields) \
                 if f.startswith("FIELD_")]
         for param in params:
-            param_name, field_type = param['name'], param['fieldType']
+            param_name, field_type = param['name'], param['field_type']
             if param_name not in func.__code__.co_varnames:
                 raise AssertionError("Unknown parameter name {0} specified for"\
                         " variable {1}".format(

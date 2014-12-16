@@ -12,7 +12,7 @@ class SomeVariables(BaseVariables):
     def foo(self):
         return "foo"
 
-    @numeric_rule_variable(params=[{'fieldType': FIELD_NUMERIC, 'name': 'x', 'label': 'X'}])
+    @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC, 'name': 'x', 'label': 'X'}])
     def x_plus_one(self, x):
         return x + 1
 
@@ -142,7 +142,7 @@ class IntegrationTests(TestCase):
                            'label': 'X Plus One',
                            'field_type': 'numeric',
                            'options': [],
-                           'params': [{'fieldType':'numeric', 'name': 'x', 'label': 'X'}]}])
+                           'params': [{'field_type':'numeric', 'name': 'x', 'label': 'X'}]}])
 
         self.assertEqual(all_data.get("variable_type_operators"),
                          {'boolean': [{'input_type': 'none',

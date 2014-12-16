@@ -36,7 +36,7 @@ class RuleVariableTests(TestCase):
         by the variable decorators.
         """
         def some_test_function(self, param1): pass
-        params = [{'fieldType': FIELD_NUMERIC, 'name': 'param1', 'label': 'Param1'}]
+        params = [{'field_type': FIELD_NUMERIC, 'name': 'param1', 'label': 'Param1'}]
         wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'], params=params)
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
@@ -59,7 +59,7 @@ class RuleVariableTests(TestCase):
         """ Tests that the variable decorator throws an error if a param
             is defined with an invalid field type.
         """
-        params = [{'fieldType': 'blah', 'name': 'foo', 'label': 'Foo'}]
+        params = [{'field_type': 'blah', 'name': 'foo', 'label': 'Foo'}]
         err_string = "Unknown field type blah specified for variable "\
                 "some_test_function param foo"
         with self.assertRaisesRegexp(AssertionError, err_string):
@@ -70,7 +70,7 @@ class RuleVariableTests(TestCase):
         """ Tests that decorator throws an error if a param name does not match
             an argument in the function definition.
         """
-        params = [{'fieldType': FIELD_NUMERIC, 'name': 'bar', 'label': 'Bar'}]
+        params = [{'field_type': FIELD_NUMERIC, 'name': 'bar', 'label': 'Bar'}]
         err_string = "Unknown parameter name bar specified for variable "\
                 "some_test_function"
         with self.assertRaisesRegexp(AssertionError, err_string):

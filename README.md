@@ -168,7 +168,7 @@ rules = [
   ]},
   "actions": [
       { "name": "order_more",
-        "field": [{"name": "number_to_order", "value": 40}]
+        "fields": [{"name": "number_to_order", "value": 40}]
       }
   ]
 }]

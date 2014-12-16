@@ -15,7 +15,7 @@ class VariablesClassTests(TestCase):
         """
         class SomeVariables(BaseVariables):
 
-            @rule_variable(StringType, params=[{'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
+            @rule_variable(StringType, params=[{'field_type': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
             def this_is_rule_1(self, foo):
                 return "blah"
 
@@ -28,7 +28,7 @@ class VariablesClassTests(TestCase):
         self.assertEqual(vars[0]['label'], 'This Is Rule 1')
         self.assertEqual(vars[0]['field_type'], 'string')
         self.assertEqual(vars[0]['options'], [])
-        self.assertEqual(vars[0]['params'], [{'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
+        self.assertEqual(vars[0]['params'], [{'field_type': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
 
         # should work on an instance of the class too
         self.assertEqual(len(SomeVariables().get_all_variables()), 1)

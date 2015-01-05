@@ -1,5 +1,6 @@
 from . import TestCase
 from business_rules.utils import fn_name_to_pretty_label
+from business_rules.fields import FIELD_NUMERIC
 from business_rules.variables import (rule_variable,
                                       numeric_rule_variable,
                                       string_rule_variable,
@@ -34,13 +35,15 @@ class RuleVariableTests(TestCase):
         """ Make sure that the expected attributes are attached to a function
         by the variable decorators.
         """
-        def some_test_function(self): pass
-        wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'])
+        def some_test_function(self, param1): pass
+        params = [{'field_type': FIELD_NUMERIC, 'name': 'param1', 'label': 'Param1'}]
+        wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'], params=params)
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
         self.assertEqual(func.label, 'Foo Name')
         self.assertEqual(func.field_type, StringType)
         self.assertEqual(func.options, ['op1', 'op2'])
+        self.assertEqual(func.params, params)
 
     def test_rule_variable_works_as_decorator(self):
         @rule_variable(StringType, 'Blah')
@@ -51,6 +54,28 @@ class RuleVariableTests(TestCase):
         @rule_variable(StringType)
         def some_test_function(self): pass
         self.assertTrue(some_test_function.label, 'Some Test Function')
+
+    def test_rule_variable_doesnt_allow_unknown_field_types(self):
+        """ Tests that the variable decorator throws an error if a param
+            is defined with an invalid field type.
+        """
+        params = [{'field_type': 'blah', 'name': 'foo', 'label': 'Foo'}]
+        err_string = "Unknown field type blah specified for variable "\
+                "some_test_function param foo"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_variable(StringType, params=params)
+            def some_test_function(self, foo): pass
+
+    def test_rule_variable_doesnt_allow_unknown_parameter_name(self):
+        """ Tests that decorator throws an error if a param name does not match
+            an argument in the function definition.
+        """
+        params = [{'field_type': FIELD_NUMERIC, 'name': 'bar', 'label': 'Bar'}]
+        err_string = "Unknown parameter name bar specified for variable "\
+                "some_test_function"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_variable(StringType, params=params)
+            def some_test_function(self, foo): pass
 
     def test_rule_variable_decorator_caches_value(self):
         foo = 1
@@ -69,7 +94,7 @@ class RuleVariableTests(TestCase):
         self.assertEqual(foo_func(), 1)
         foo = 2
         self.assertEqual(foo_func(), 2)
-    
+
     ###
     ### rule_variable wrappers for each variable type
     ###
@@ -78,7 +103,7 @@ class RuleVariableTests(TestCase):
 
         @numeric_rule_variable()
         def numeric_var(): pass
-        
+
         self.assertTrue(getattr(numeric_var, 'is_rule_variable'))
         self.assertEqual(getattr(numeric_var, 'field_type'), NumericType)
 
@@ -86,15 +111,15 @@ class RuleVariableTests(TestCase):
 
         @string_rule_variable()
         def string_var(): pass
-        
+
         self.assertTrue(getattr(string_var, 'is_rule_variable'))
         self.assertEqual(getattr(string_var, 'field_type'), StringType)
-    
+
     def test_boolean_rule_variable(self):
 
         @boolean_rule_variable()
         def boolean_var(): pass
-        
+
         self.assertTrue(getattr(boolean_var, 'is_rule_variable'))
         self.assertEqual(getattr(boolean_var, 'field_type'), BooleanType)
 
@@ -103,7 +128,7 @@ class RuleVariableTests(TestCase):
         options = {'foo':'bar'}
         @select_rule_variable(options=options)
         def select_var(): pass
-        
+
         self.assertTrue(getattr(select_var, 'is_rule_variable'))
         self.assertEqual(getattr(select_var, 'field_type'), SelectType)
         self.assertEqual(getattr(select_var, 'options'), options)
@@ -113,7 +138,7 @@ class RuleVariableTests(TestCase):
         options = {'foo':'bar'}
         @select_multiple_rule_variable(options=options)
         def select_multiple_var(): pass
-        
+
         self.assertTrue(getattr(select_multiple_var, 'is_rule_variable'))
         self.assertEqual(getattr(select_multiple_var, 'field_type'), SelectMultipleType)
         self.assertEqual(getattr(select_multiple_var, 'options'), options)

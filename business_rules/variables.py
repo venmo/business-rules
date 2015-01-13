@@ -44,14 +44,21 @@ def rule_variable(field_type, label=None, options=None, cache_result=True, param
         return func
     return wrapper
 
+
+def _rule_variable_wrapper(field_type, label, params=None):
+    if callable(label):
+        # Decorator is being called with no args, label is actually the decorated func
+        return rule_variable(field_type, params=params)(label)
+    return rule_variable(field_type, label=label, params=params)
+
 def numeric_rule_variable(label=None, params=None):
-    return rule_variable(NumericType, label=label, params=params)
+    return _rule_variable_wrapper(NumericType, label, params=params)
 
 def string_rule_variable(label=None, params=None):
-    return rule_variable(StringType, label=label, params=params)
+    return _rule_variable_wrapper(StringType, label, params=params)
 
 def boolean_rule_variable(label=None, params=None):
-    return rule_variable(BooleanType, label=label, params=params)
+    return _rule_variable_wrapper(BooleanType, label, params=params)
 
 def select_rule_variable(label=None, options=None, params=None):
     return rule_variable(SelectType, label=label, options=options, params=params)

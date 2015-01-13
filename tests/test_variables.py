@@ -101,7 +101,16 @@ class RuleVariableTests(TestCase):
 
     def test_numeric_rule_variable(self):
 
-        @numeric_rule_variable()
+        @numeric_rule_variable('My Label')
+        def numeric_var(): pass
+
+        self.assertTrue(getattr(numeric_var, 'is_rule_variable'))
+        self.assertEqual(getattr(numeric_var, 'field_type'), NumericType)
+        self.assertEqual(getattr(numeric_var, 'label'), 'My Label')
+
+    def test_numeric_rule_variable_no_parens(self):
+
+        @numeric_rule_variable
         def numeric_var(): pass
 
         self.assertTrue(getattr(numeric_var, 'is_rule_variable'))
@@ -109,7 +118,16 @@ class RuleVariableTests(TestCase):
 
     def test_string_rule_variable(self):
 
-        @string_rule_variable()
+        @string_rule_variable(label='My Label')
+        def string_var(): pass
+
+        self.assertTrue(getattr(string_var, 'is_rule_variable'))
+        self.assertEqual(getattr(string_var, 'field_type'), StringType)
+        self.assertEqual(getattr(string_var, 'label'), 'My Label')
+
+    def test_string_rule_variable_no_parens(self):
+
+        @string_rule_variable
         def string_var(): pass
 
         self.assertTrue(getattr(string_var, 'is_rule_variable'))
@@ -117,7 +135,16 @@ class RuleVariableTests(TestCase):
 
     def test_boolean_rule_variable(self):
 
-        @boolean_rule_variable()
+        @boolean_rule_variable(label='My Label')
+        def boolean_var(): pass
+
+        self.assertTrue(getattr(boolean_var, 'is_rule_variable'))
+        self.assertEqual(getattr(boolean_var, 'field_type'), BooleanType)
+        self.assertEqual(getattr(boolean_var, 'label'), 'My Label')
+
+    def test_boolean_rule_variable_no_parens(self):
+
+        @boolean_rule_variable
         def boolean_var(): pass
 
         self.assertTrue(getattr(boolean_var, 'is_rule_variable'))

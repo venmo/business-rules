@@ -1,7 +1,7 @@
 from business_rules.engine import check_condition
 from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
-from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable
+from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable, date_rule_variable
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT
 
 from . import TestCase
@@ -12,9 +12,17 @@ class SomeVariables(BaseVariables):
     def foo(self):
         return "foo"
 
+    @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC, 'name': 'x', 'label': 'X'}])
+    def x_plus_one(self, x):
+        return x + 1
+
     @numeric_rule_variable(label="Diez")
     def ten(self):
         return 10
+
+    @date_rule_variable(label="MyDate")
+    def january_one_2015(self):
+        return '01/01/2015'
 
     @boolean_rule_variable()
     def true_bool(self):
@@ -71,6 +79,13 @@ class IntegrationTests(TestCase):
                      'value': 'm'}
         self.assertFalse(check_condition(condition, SomeVariables()))
 
+    def test_numeric_variable_with_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {'x': 9}}
+        self.assertTrue(check_condition(condition, SomeVariables()))
+
     def test_check_incorrect_method_name(self):
         condition = {'name': 'food',
                      'operator': 'equal_to',
@@ -112,18 +127,32 @@ class IntegrationTests(TestCase):
                  ])
 
         self.assertEqual(all_data.get("variables"),
-                         [{"name": "foo",
-                           "label": "Foo",
-                           "field_type": "string",
-                           "options": []},
-                          {"name": "ten",
-                           "label": "Diez",
-                           "field_type": "numeric",
-                           "options": []},
-                          {'name': 'true_bool',
+                         [{'field_type': 'string',
+                           'label': 'Foo',
+                           'name': 'foo',
+                           'options': [],
+                           'params': []},
+                          {'field_type': 'date',
+                           'label': 'MyDate',
+                           'name': 'january_one_2015',
+                           'options': [],
+                           'params': []},
+                          {'field_type': 'numeric',
+                           'label': 'Diez',
+                           'name': 'ten',
+                           'options': [],
+                           'params': []},
+                          {'field_type': 'boolean',
                            'label': 'True Bool',
-                           'field_type': 'boolean',
-                           'options': []}])
+                           'name': 'true_bool',
+                           'options': [],
+                           'params': []},
+                          {'field_type': 'numeric',
+                           'label': 'X Plus One',
+                           'name': 'x_plus_one',
+                           'options': [],
+                           'params': [{'field_type': 'numeric', 'label': 'X', 'name': 'x'}]}]
+                         )
 
         self.assertEqual(all_data.get("variable_type_operators"),
                          {'boolean': [{'input_type': 'none',
@@ -132,6 +161,21 @@ class IntegrationTests(TestCase):
                             {'input_type': 'none',
                              'label': 'Is True',
                              'name': 'is_true'}],
+                           'date': [{'input_type': 'date',
+                             'label': 'Equal To',
+                             'name': 'equal_to'},
+                            {'input_type': 'date',
+                             'label': 'Greater Than',
+                             'name': 'greater_than'},
+                            {'input_type': 'date',
+                             'label': 'Greater Than Or Equal To',
+                             'name': 'greater_than_or_equal_to'},
+                            {'input_type': 'date',
+                             'label': 'Less Than',
+                             'name': 'less_than'},
+                            {'input_type': 'date',
+                             'label': 'Less Than Or Equal To',
+                             'name': 'less_than_or_equal_to'}],
                            'numeric': [{'input_type': 'numeric',
                              'label': 'Equal To',
                              'name': 'equal_to'},

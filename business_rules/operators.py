@@ -1,10 +1,11 @@
 import inspect
+import datetime
 import re
 from functools import wraps
 from .six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
+                     FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_DATE)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
 
@@ -137,12 +138,51 @@ class NumericType(BaseType):
 
 
 @export_type
+class DateType(BaseType):
+
+    name = 'date'
+
+    def _assert_valid_value_and_cast(self, value):
+        if isinstance(value, (datetime.date, datetime.datetime)):
+            return value
+        elif isinstance(value, string_types):
+            from dateutil import parser
+            try:
+                return parser.parse(value)
+            except ValueError:
+                raise AssertionError(
+                    "{0} is not a valid date type.".format(value))
+        else:
+            raise AssertionError("{0} is not a valid date type.".format(value))
+
+    @type_operator(FIELD_DATE)
+    def equal_to(self, other_date):
+        return self.value == other_date
+
+    @type_operator(FIELD_DATE)
+    def greater_than(self, other_numeric):
+        return self.value > other_numeric
+
+    @type_operator(FIELD_DATE)
+    def greater_than_or_equal_to(self, other_numeric):
+        return self.value >= other_numeric
+
+    @type_operator(FIELD_DATE)
+    def less_than(self, other_numeric):
+        return self.value < other_numeric
+
+    @type_operator(FIELD_DATE)
+    def less_than_or_equal_to(self, other_numeric):
+        return self.value <= other_numeric
+
+
+@export_type
 class BooleanType(BaseType):
 
     name = "boolean"
 
     def _assert_valid_value_and_cast(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             raise AssertionError("{0} is not a valid boolean type".
                                  format(value))
         return value

@@ -12,5 +12,8 @@ setuptools.setup(
         author_email='open-source@venmo.com',
         url='https://github.com/venmo/business-rules',
         packages=['business_rules'],
+        extras_require={
+            'DateType':  ["dateutil"]
+        },
         license='MIT'
 )

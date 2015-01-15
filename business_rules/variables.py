@@ -4,6 +4,7 @@ from .utils import fn_name_to_pretty_label
 from . import fields
 from .operators import (BaseType,
                         NumericType,
+                        DateType,
                         StringType,
                         BooleanType,
                         SelectType,
@@ -53,6 +54,9 @@ def _rule_variable_wrapper(field_type, label, params=None):
 
 def numeric_rule_variable(label=None, params=None):
     return _rule_variable_wrapper(NumericType, label, params=params)
+
+def date_rule_variable(label=None, params=None):
+    return _rule_variable_wrapper(DateType, label, params=params)
 
 def string_rule_variable(label=None, params=None):
     return _rule_variable_wrapper(StringType, label, params=params)

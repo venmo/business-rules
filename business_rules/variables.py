@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps
 from .utils import fn_name_to_pretty_label
-from . import fields
+from .fields import FIELD_LIST
 from .operators import (BaseType,
                         NumericType,
                         StringType,
@@ -83,9 +83,6 @@ def _validate_variable_parameters(func, params):
     function `func`, and that the field types are FIELD_* types in fields.
     """
     if params is not None:
-        # Verify field name is valid
-        valid_fields = [getattr(fields, f) for f in dir(fields) \
-                if f.startswith("FIELD_")]
         for param in params:
             param_name, field_type = param['name'], param['field_type']
             if param_name not in func.__code__.co_varnames:
@@ -93,7 +90,7 @@ def _validate_variable_parameters(func, params):
                         " variable {1}".format(
                         param_name, func.__name__))
 
-            if field_type not in valid_fields:
+            if field_type not in FIELD_LIST:
                 raise AssertionError("Unknown field type {0} specified for"\
                         " variable {1} param {2}".format(
                         field_type, func.__name__, param_name))

@@ -62,10 +62,11 @@ def _get_variable_value(defined_variables, name, params):
 
     Returns an instance of operators.BaseType
     """
-    def fallback(*args, **kwargs):
+    method = getattr(defined_variables, name, None)
+    if not method:
         raise AssertionError("Variable {0} is not defined in class {1}".format(
                 name, defined_variables.__class__.__name__))
-    method = getattr(defined_variables, name, fallback)
+    _check_params_valid_for_method(method, params, 'variable')
     val = method(**params)
     return method.field_type(val)
 
@@ -89,9 +90,26 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
 def do_actions(actions, defined_actions):
     for action in actions:
         method_name = action['name']
-        def fallback(*args, **kwargs):
+        params = action.get('params') or {}
+        method = getattr(defined_actions, method_name, None)
+        if not method:
             raise AssertionError("Action {0} is not defined in class {1}"\
                     .format(method_name, defined_actions.__class__.__name__))
-        params = action.get('params') or {}
-        method = getattr(defined_actions, method_name, fallback)
+        _check_params_valid_for_method(method, params, 'action')
         method(**params)
+
+def _check_params_valid_for_method(method, given_params, method_type):
+    """ Verifies that the given parameters match the names of those defined in
+    the variable or action decorator. Raise an error if one of the sets contains
+    a parameter that the other does not.
+    """
+    defined_params = [param.get('name') for param in method.params]
+    missing_params = set(defined_params).difference(given_params)
+    if missing_params:
+        raise AssertionError("Missing parameters {0} for {1} {2}"\
+                .format(', '.join(missing_params), method_type, method.__name__))
+
+    invalid_params = set(given_params).difference(defined_params)
+    if invalid_params:
+        raise AssertionError("Invalid parameters {0} for {1} {2}"\
+                .format(', '.join(invalid_params), method_type, method.__name__))

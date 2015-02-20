@@ -37,7 +37,7 @@ def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
-        params_ = params
+        params_ = params or []
         if isinstance(params, dict):
             params_ = [dict(label=fn_name_to_pretty_label(name),
                            name=name,

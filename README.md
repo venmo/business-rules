@@ -51,7 +51,7 @@ class ProductVariables(BaseVariables):
     def goes_well_with(self):
         return products.related_products
 
-    @numeric_rule_variable(params=[{'fieldType': FIELD_NUMERIC,
+    @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC,
                                     'name': 'days,
                                     'label': 'Days'}])
     def orders_sold_in_last_x_days(self, days):
@@ -207,7 +207,7 @@ that returns
       "label": "Orders Sold In Last X Days",
       "field_type": "numeric",
       "options": [],
-      "params": [{"fieldType": "numeric", "name": "days", "label": "Days"}]}
+      "params": [{"field_type": "numeric", "name": "days", "label": "Days"}]}
                 ],
   "actions": [
     { "name": "put_on_sale",
@@ -261,7 +261,7 @@ The type represents the type of the value that will be returned for the variable
 All decorators can optionally take the arguments:
 - `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
 - `cache_result` - Whether to cache the value of the variable for this instance of the variable container object. Defaults to `True` (to avoid re-doing expensive DB queries or computations if you have many rules based on the same variables).
-- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements should be dictionaries with a `fieldType` to specify the type and `name` that corresponds to an argument of the variable function.
+- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements should be dictionaries with a `field_type` to specify the type and `name` that corresponds to an argument of the variable function.
 
 The available types and decorators are:
 

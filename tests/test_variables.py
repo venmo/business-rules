@@ -95,6 +95,15 @@ class RuleVariableTests(TestCase):
         foo = 2
         self.assertEqual(foo_func(), 2)
 
+    def test_rule_variable_decorator_doesnt_cache_value_when_params_change(self):
+        x = 1
+        @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC, 'name': 'x'}])
+        def x_plus_one(x):
+            return x + 1
+        self.assertEqual(x_plus_one(x), 2)
+        x = 2
+        self.assertEqual(x_plus_one(x), 3)
+
     ###
     ### rule_variable wrappers for each variable type
     ###

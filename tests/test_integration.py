@@ -97,6 +97,23 @@ class IntegrationTests(TestCase):
         with self.assertRaises(AssertionError):
             check_condition(condition, SomeVariables())
 
+    def test_check_missing_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {}}
+        err_string = 'Missing parameters x for variable x_plus_one'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            check_condition(condition, SomeVariables())
+
+    def test_check_invalid_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {'x': 9, 'y': 9}}
+        err_string = 'Invalid parameters y for variable x_plus_one'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            check_condition(condition, SomeVariables())
 
     def test_export_rule_data(self):
         """ Tests that export_rule_data has the three expected keys

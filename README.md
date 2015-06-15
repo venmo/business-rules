@@ -34,7 +34,7 @@ class ProductVariables(BaseVariables):
     def __init__(self, product):
         self.product = product
 
-    @numeric_rule_variable
+    @numeric_rule_variable()  # parens required
     def current_inventory(self):
         return self.product.current_inventory
 

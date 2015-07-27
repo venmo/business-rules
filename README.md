@@ -110,11 +110,11 @@ rules = [
 { "conditions": { "all": [
       { "name": "expiration_days",
         "operator": "less_than",
-        "value": "5",
+        "value": 5,
       },
       { "name": "current_inventory",
         "operator": "greater_than",
-        "value": "20",
+        "value": 20,
       },
   ]},
   "actions": [
@@ -136,15 +136,15 @@ rules = [
           "operator": "equal_to",
           "value": "December",
         },
-        { "name": "goes_well_with",
-          "operator": "shares_at_least_one_element_with",
-          "value": ["eggnog", "sugar cookies"],
+        { "name": "current_inventory",
+          "operator": "less_than",
+          "value": 20,
         }
       ]},
   },
   "actions": [
     { "name": "order_more",
-      "fields":[{"name":"number_to_order", "value": 40}]}
+      "params":[{"name":"number_to_order", "value": 40}]}
   ]
 }]
 ```

@@ -1,6 +1,6 @@
 import inspect
 
-from . import fields
+from .fields import FIELD_LIST
 from .utils import fn_name_to_pretty_label
 
 
@@ -21,9 +21,6 @@ def _validate_action_parameters(func, params):
     function `func`, and that the field types are FIELD_* types in fields.
     """
     if params is not None:
-        # Verify field name is valid
-        valid_fields = [getattr(fields, f) for f in dir(fields) \
-                if f.startswith("FIELD_")]
         for param in params:
             param_name, field_type = param['name'], param['fieldType']
             if param_name not in func.__code__.co_varnames:
@@ -31,7 +28,7 @@ def _validate_action_parameters(func, params):
                         " action {1}".format(
                         param_name, func.__name__))
 
-            if field_type not in valid_fields:
+            if field_type not in FIELD_LIST:
                 raise AssertionError("Unknown field type {0} specified for"\
                         " action {1} param {2}".format(
                         field_type, func.__name__, param_name))
@@ -40,7 +37,7 @@ def rule_action(label=None, params=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
-        params_ = params
+        params_ = params or []
         if isinstance(params, dict):
             params_ = [dict(label=fn_name_to_pretty_label(name),
                            name=name,

@@ -119,7 +119,7 @@ rules = [
   ]},
   "actions": [
       { "name": "put_on_sale",
-        "fields": [{"name": "sale_percentage", "value": 0.25}],
+        "params": {"sale_percentage": 0.25},
       },
   ],
 },
@@ -144,8 +144,9 @@ rules = [
   },
   "actions": [
     { "name": "order_more",
-      "params":[{"name":"number_to_order", "value": 40}]}
-  ]
+      "params":{"number_to_order": 40},
+    },
+  ],
 }]
 ```
 

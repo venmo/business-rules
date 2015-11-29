@@ -36,3 +36,6 @@ nosetests.xml
 
 # Vim
 *.sw[po]
+
+# PyCharm
+.idea/*

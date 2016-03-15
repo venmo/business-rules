@@ -22,7 +22,7 @@ class BaseVariables(object):
                 } for m in methods if getattr(m[1], 'is_rule_variable', False)]
 
 
-def rule_variable(field_type, label=None, options=None, cache_result=True):
+def rule_variable(field_type, label=None, options=None):
     """ Decorator to make a function into a rule variable
     """
     options = options or []
@@ -31,8 +31,6 @@ def rule_variable(field_type, label=None, options=None, cache_result=True):
             raise AssertionError("{0} is not instance of BaseType in"\
                     " rule_variable field_type".format(field_type))
         func.field_type = field_type
-        if cache_result:
-            func = _memoize_return_values(func)
         func.is_rule_variable = True
         func.label = label \
                 or fn_name_to_pretty_label(func.__name__)
@@ -61,16 +59,3 @@ def select_rule_variable(label=None, options=None):
 
 def select_multiple_rule_variable(label=None, options=None):
     return rule_variable(SelectMultipleType, label=label, options=options)
-
-def _memoize_return_values(func):
-    """ Simple memoization (cacheing) decorator, copied from
-    http://code.activestate.com/recipes/577219-minimalistic-memoization/
-    """
-    cache= {}
-    @wraps(func)
-    def memf(*args, **kwargs):
-        key = (args, frozenset(kwargs.items()))
-        if key not in cache:
-            cache[key] = func(*args, **kwargs)
-        return cache[key]
-    return memf

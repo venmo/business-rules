@@ -52,24 +52,6 @@ class RuleVariableTests(TestCase):
         def some_test_function(self): pass
         self.assertTrue(some_test_function.label, 'Some Test Function')
 
-    def test_rule_variable_decorator_caches_value(self):
-        foo = 1
-        @rule_variable(NumericType)
-        def foo_func():
-            return foo
-        self.assertEqual(foo_func(), 1)
-        foo = 2
-        self.assertEqual(foo_func(), 1)
-
-    def test_rule_variable_decorator_doesnt_cache_value_with_option_passed(self):
-        foo = 1
-        @rule_variable(NumericType, cache_result=False)
-        def foo_func():
-            return foo
-        self.assertEqual(foo_func(), 1)
-        foo = 2
-        self.assertEqual(foo_func(), 2)
-
     ###
     ### rule_variable wrappers for each variable type
     ###

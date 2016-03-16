@@ -43,7 +43,7 @@ class ProductVariables(BaseVariables):
         last_order = self.product.orders[-1]
         return (last_order.expiration_date - datetime.date.today()).days
 
-    @string_rule_variable
+    @string_rule_variable()
     def current_month(self):
         return datetime.datetime.now().strftime("%B")
 

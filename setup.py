@@ -4,7 +4,7 @@ import setuptools
 
 from business_rules import __version__ as version
 
-with open('History.rst') as f:
+with open('HISTORY.rst') as f:
     history = f.read()
 
 description = 'Python DSL for setting up business intelligence rules that can be configured without code'

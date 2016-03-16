@@ -43,7 +43,7 @@ class ProductVariables(BaseVariables):
         last_order = self.product.orders[-1]
         return (last_order.expiration_date - datetime.date.today()).days
 
-    @string_rule_variable(cache_result=False)
+    @string_rule_variable()
     def current_month(self):
         return datetime.datetime.now().strftime("%B")
 
@@ -225,9 +225,8 @@ for product in Products.objects.all():
 
 The type represents the type of the value that will be returned for the variable and is necessary since there are different available comparison operators for different types, and the front-end that's generating the rules needs to know which operators are available.
 
-All decorators can optionally take the arguments:
+All decorators can optionally take a label:
 - `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
-- `cache_result` - Whether to cache the value of the variable for this instance of the variable container object. Defaults to `True` (to avoid re-doing expensive DB queries or computations if you have many rules based on the same variables).
 
 The available types and decorators are:
 

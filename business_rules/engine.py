@@ -1,10 +1,10 @@
 from .fields import FIELD_NO_INPUT
 
+
 def run_all(rule_list,
             defined_variables,
             defined_actions,
             stop_on_first_trigger=False):
-
     rule_was_triggered = False
     for rule in rule_list:
         result = run(rule, defined_variables, defined_actions)
@@ -13,6 +13,40 @@ def run_all(rule_list,
             if stop_on_first_trigger:
                 return True
     return rule_was_triggered
+
+
+def run_all_with_results(rule_list, defined_variables, defined_actions,
+        stop_on_first_trigger=False):
+    '''Run all Rules and return the rules actions results
+    Returns:
+        rule_results(list): list of dictionaries. Each dictionary is a rule
+        actions' results
+    '''
+    rule_results = []
+    for rule in rule_list:
+        actionsResults = run_and_get_results(rule, defined_variables,
+            defined_actions)
+        if actionsResults:
+            rule_results.append(actionsResults)
+            if stop_on_first_trigger:
+                return rule_results
+    return rule_results
+
+
+def run_and_get_results(rule, defined_variables, defined_actions):
+    '''Run the rule and get the action returned result
+    Attributes:
+        rule(dict): the rule dictionary
+        defined_variables(BaseVariables): the defined set of variables object
+        defined_actions(BaseActions): the actions object
+    '''
+    actions_results = {}
+    conditions, actions = rule.get('conditions'), rule.get('actions')
+    if conditions and actions:
+        rule_triggered = check_conditions_recursively(conditions, defined_variables)
+        if rule_triggered:
+            actions_results = do_actions(actions, defined_actions)
+    return actions_results
 
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
@@ -68,6 +102,7 @@ def _get_variable_value(defined_variables, name):
     val = method()
     return method.field_type(val)
 
+
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """ Finds the method on the given operator_type and compares it to the
     given comparison_value.
@@ -86,11 +121,28 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
 
 
 def do_actions(actions, defined_actions):
+    ''' Run the actions
+    Attributes:
+        actions(list): list of dictionaries of actions. e.g: [
+            { "name": "put_on_sale",
+            "params": {"sale_percentage": 0.25},
+            }
+        ]
+    Returns:
+        actionsResults(dict): Dictionary of actions results
+            e.g: {"put_on_sale: [product1, product2, ...]}
+    '''
+    actions_results = {}
     for action in actions:
         method_name = action['name']
+
         def fallback(*args, **kwargs):
-            raise AssertionError("Action {0} is not defined in class {1}"\
-                    .format(method_name, defined_actions.__class__.__name__))
+            raise AssertionError(
+                "Action {0} is not defined in class {1}".format(method_name,
+                    defined_actions.__class__.__name__))
+
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
-        method(**params)
+        actions_results[method_name] = method(**params)
+    return {method_name: result for method_name, result in
+        actions_results.iteritems() if result}

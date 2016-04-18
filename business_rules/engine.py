@@ -144,5 +144,6 @@ def do_actions(actions, defined_actions):
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
         actions_results[method_name] = method(**params)
-    return {method_name: result for method_name, result in
-        actions_results.iteritems() if result}
+
+    return dict((method_name, actions_results[method_name]) for method_name
+        in actions_results.keys() if actions_results.get(method_name))

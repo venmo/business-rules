@@ -1,6 +1,7 @@
 import inspect
 import re
 from functools import wraps
+
 from .six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
@@ -157,6 +158,13 @@ class BooleanType(BaseType):
 
 @export_type
 class SelectType(BaseType):
+    """
+
+    Operator that helps for single selection.
+    All python 'values' that have '__iter__'
+    attribute can be handled in scope.
+
+    """
 
     name = "select"
 
@@ -191,6 +199,12 @@ class SelectType(BaseType):
 
 @export_type
 class SelectMultipleType(BaseType):
+    """
+    Operator that helps for multiple selection.
+    All python 'values' that have '__iter__'
+    attribute can be handled in scope.
+
+    """
 
     name = "select_multiple"
 
@@ -235,3 +249,18 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+@export_type
+class CustomType(BaseType):
+    """
+    Exposes interface for the user to define a new operator
+    outside the framework.
+    INSIDE OUT ARCHITECTURE: The user is responsible
+    for his own abuse
+
+    """
+
+    name = "custom_operator"
+
+    def _assert_valid_value_and_cast(self, value):
+        return value

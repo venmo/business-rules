@@ -1,6 +1,6 @@
 from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT
-from . import TestCase
+from tests import TestCase
 
 class ActionsClassTests(TestCase):
     """ Test methods on classes that inherit from BaseActions.

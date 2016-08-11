@@ -2,7 +2,7 @@ from business_rules.operators import (StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType)
 
-from . import TestCase
+from tests import TestCase
 from decimal import Decimal
 import sys
 

@@ -36,3 +36,9 @@ nosetests.xml
 
 # Vim
 *.sw[po]
+
+# idea
+.idea/
+
+# test runner
+tests/test_runner.py

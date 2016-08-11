@@ -4,7 +4,7 @@ from business_rules.operators import StringType
 from business_rules.actions import BaseActions
 
 from mock import patch, MagicMock
-from . import TestCase
+from tests import TestCase
 
 
 class EngineTests(TestCase):
@@ -49,7 +49,7 @@ class EngineTests(TestCase):
                 stop_on_first_trigger=True)
         self.assertEqual(result, True)
         self.assertEqual(engine.run.call_count, 1)
-        engine.run.assert_called_once_with(rule1, variables, actions)
+        engine.run.assert_called_once_with(rule1, variables, actions, None)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=True)
     @patch.object(engine, 'do_actions')
@@ -61,7 +61,7 @@ class EngineTests(TestCase):
         result = engine.run(rule, variables, actions)
         self.assertEqual(result, True)
         engine.check_conditions_recursively.assert_called_once_with(
-                rule['conditions'], variables)
+                rule['conditions'], variables, None)
         engine.do_actions.assert_called_once_with(rule['actions'], actions)
 
 
@@ -75,7 +75,7 @@ class EngineTests(TestCase):
         result = engine.run(rule, variables, actions)
         self.assertEqual(result, False)
         engine.check_conditions_recursively.assert_called_once_with(
-                rule['conditions'], variables)
+                rule['conditions'], variables, None)
         self.assertEqual(engine.do_actions.call_count, 0)
 
 
@@ -88,7 +88,7 @@ class EngineTests(TestCase):
         self.assertEqual(result, True)
         # assert call count and most recent call are as expected
         self.assertEqual(engine.check_condition.call_count, 2)
-        engine.check_condition.assert_called_with({'thing2': ''}, variables)
+        engine.check_condition.assert_called_with({'thing2': ''}, variables, None)
 
 
     ###
@@ -101,7 +101,7 @@ class EngineTests(TestCase):
 
         result = engine.check_conditions_recursively(conditions, variables)
         self.assertEqual(result, False)
-        engine.check_condition.assert_called_once_with({'thing1': ''}, variables)
+        engine.check_condition.assert_called_once_with({'thing1': ''}, variables, None)
 
 
     def test_check_all_condition_with_no_items_fails(self):
@@ -116,7 +116,7 @@ class EngineTests(TestCase):
 
         result = engine.check_conditions_recursively(conditions, variables)
         self.assertEqual(result, True)
-        engine.check_condition.assert_called_once_with({'thing1': ''}, variables)
+        engine.check_condition.assert_called_once_with({'thing1': ''}, variables, None)
 
 
     @patch.object(engine, 'check_condition', return_value=False)
@@ -128,7 +128,7 @@ class EngineTests(TestCase):
         self.assertEqual(result, False)
         # assert call count and most recent call are as expected
         self.assertEqual(engine.check_condition.call_count, 2)
-        engine.check_condition.assert_called_with({'thing2': ''}, variables)
+        engine.check_condition.assert_called_with({'thing2': ''}, variables, None)
 
 
     def test_check_any_condition_with_no_items_fails(self):
@@ -149,15 +149,15 @@ class EngineTests(TestCase):
             {'name': 3}]}
         bv = BaseVariables()
 
-        def side_effect(condition, _):
+        def side_effect(condition, s, _):
             return condition['name'] in [2,3]
         engine.check_condition.side_effect = side_effect
 
         engine.check_conditions_recursively(conditions, bv)
         self.assertEqual(engine.check_condition.call_count, 3)
-        engine.check_condition.assert_any_call({'name': 1}, bv)
-        engine.check_condition.assert_any_call({'name': 2}, bv)
-        engine.check_condition.assert_any_call({'name': 3}, bv)
+        engine.check_condition.assert_any_call({'name': 1}, bv, None)
+        engine.check_condition.assert_any_call({'name': 2}, bv, None)
+        engine.check_condition.assert_any_call({'name': 3}, bv, None)
 
 
     ###

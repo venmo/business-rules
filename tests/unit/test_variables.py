@@ -1,4 +1,4 @@
-from . import TestCase
+from tests import TestCase
 from business_rules.utils import fn_name_to_pretty_label
 from business_rules.variables import (rule_variable,
                                       numeric_rule_variable,

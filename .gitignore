@@ -36,3 +36,5 @@ nosetests.xml
 
 # Vim
 *.sw[po]
+.idea/
+tests/__pycache__/

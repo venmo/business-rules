@@ -142,7 +142,7 @@ class BooleanType(BaseType):
     name = "boolean"
 
     def _assert_valid_value_and_cast(self, value):
-        if type(value) != bool:
+        if type(value) != bool and value is not None:
             raise AssertionError("{0} is not a valid boolean type".
                                  format(value))
         return value

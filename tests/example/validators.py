@@ -18,3 +18,11 @@ class ExampleValidators(BaseValidator):
         logger.debug('operator={}, value={}'.format(operator, value))
         # TODO validation logic
         return True
+
+    def current_month_boolean(self, operator, value):
+        logger.debug('operator={}, value={}'.format(operator, value))
+        return True
+
+    def current_year_boolean(self, operator, value):
+        logger.debug('operator={}, value={}'.format(operator, value))
+        return True

@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from business_rules import run_all
@@ -20,7 +21,28 @@ rules = [
                 {
                     "name": "current_month",
                     "operator": "equal_to",
-                    "value": "December",
+                    "value": "January",
+                },
+                {
+                    "name": "current_month_boolean",
+                    "operator": "is_true",
+                    "value": "True",
+                    "params": {
+                        "month": datetime.datetime.now().strftime("%B")
+                    }
+                },
+                {
+                    "name": "current_year_boolean",
+                    "operator": "is_true",
+                    "value": "True",
+                    "params": {
+                        'year': datetime.datetime.now().year
+                    }
+                },
+                {
+                    "name": "rule_variable",
+                    "operator": "is_true",
+                    "value": "True"
                 }
             ]
         },

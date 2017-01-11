@@ -1,12 +1,14 @@
 import inspect
 import re
+from decimal import Decimal
 from functools import wraps
-from .six import string_types, integer_types
+
+from six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label, float_to_decimal
-from decimal import Decimal, Inexact, Context
+
 
 class BaseType(object):
     def __init__(self, value):
@@ -38,10 +40,11 @@ def type_operator(input_type, label=None,
       so that arguments passed to it will have _assert_valid_value_and_cast
       called on them to make type errors explicit.
     """
+
     def wrapper(func):
         func.is_operator = True
         func.label = label \
-            or fn_name_to_pretty_label(func.__name__)
+                     or fn_name_to_pretty_label(func.__name__)
         func.input_type = input_type
 
         @wraps(func)
@@ -51,13 +54,14 @@ def type_operator(input_type, label=None,
                 kwargs = dict((k, self._assert_valid_value_and_cast(v))
                               for k, v in kwargs.items())
             return func(self, *args, **kwargs)
+
         return inner
+
     return wrapper
 
 
 @export_type
 class StringType(BaseType):
-
     name = "string"
 
     def _assert_valid_value_and_cast(self, value):
@@ -138,7 +142,6 @@ class NumericType(BaseType):
 
 @export_type
 class BooleanType(BaseType):
-
     name = "boolean"
 
     def _assert_valid_value_and_cast(self, value):
@@ -155,9 +158,9 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
+
 @export_type
 class SelectType(BaseType):
-
     name = "select"
 
     def _assert_valid_value_and_cast(self, value):
@@ -170,7 +173,7 @@ class SelectType(BaseType):
     def _case_insensitive_equal_to(value_from_list, other_value):
         if isinstance(value_from_list, string_types) and \
                 isinstance(other_value, string_types):
-                    return value_from_list.lower() == other_value.lower()
+            return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value
 
@@ -191,7 +194,6 @@ class SelectType(BaseType):
 
 @export_type
 class SelectMultipleType(BaseType):
-
     name = "select_multiple"
 
     def _assert_valid_value_and_cast(self, value):

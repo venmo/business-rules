@@ -23,6 +23,12 @@ class SomeVariables(BaseVariables):
     def x_plus_one(self, x):
         return x + 1
 
+    @boolean_rule_variable()
+    def rule_received(self, **kwargs):
+        rule = kwargs.get('rule')
+        assert rule is not None
+        return rule is not None
+
 
 class SomeActions(BaseActions):
     @rule_action(params={"foo": FIELD_NUMERIC})
@@ -180,6 +186,20 @@ class IntegrationTests(TestCase):
         with self.assertRaisesRegexp(AssertionError, err_string):
             check_condition(condition, SomeVariables(), rule)
 
+    def test_variable_received_rules(self):
+        condition = {
+            'name': 'rule_received',
+            'operator': 'is_true',
+            'value': 'true',
+        }
+
+        rule = {
+            'conditions': condition
+        }
+
+        condition_result = check_condition(condition, SomeVariables(), rule)
+        self.assertTrue(condition_result)
+
     def test_export_rule_data(self):
         """ Tests that export_rule_data has the three expected keys
         in the right format.
@@ -213,6 +233,13 @@ class IntegrationTests(TestCase):
                                  "params": []
                              },
                              {
+                                 'name': 'rule_received',
+                                 'label': 'Rule Received',
+                                 'field_type': 'boolean',
+                                 'options': [],
+                                 'params': [],
+                             },
+                             {
                                  "name": "ten",
                                  "label": "Diez",
                                  "field_type": "numeric",
@@ -234,7 +261,7 @@ class IntegrationTests(TestCase):
                                  'params': [
                                      {'field_type': 'numeric', 'name': 'x', 'label': 'X'}
                                  ]
-                             }
+                             },
                          ])
 
         self.assertEqual(all_data.get("variable_type_operators"),

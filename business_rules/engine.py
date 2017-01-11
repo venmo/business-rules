@@ -127,11 +127,9 @@ def _get_variable_value(defined_variables, name, params, rule):
 
     _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_VARIABLE)
 
-    method_params = {'rule': rule} if method.inject_rule else {}
-    method_params.update(params)
-
-    val = method(**method_params)
-    return method.field_type(val)
+    method_params = _build_variable_parameters(method, params, rule)
+    variable_value = method(**method_params)
+    return method.field_type(variable_value)
 
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
@@ -212,13 +210,13 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
 
         _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
-        method_params = _build_parameters(method, params, rule, successful_conditions)
+        method_params = _build_action_parameters(method, params, rule, successful_conditions)
         action_result = method(**method_params)
 
         log_service.log_rule(rule, checked_conditions_results, action, defined_variables, action_result)
 
 
-def _build_parameters(method, parameters, rule, conditions):
+def _build_action_parameters(method, parameters, rule, conditions):
     """
     Adds extra parameters to the parameters defined for the method
     :param method:
@@ -227,11 +225,32 @@ def _build_parameters(method, parameters, rule, conditions):
     :param conditions:
     :return:
     """
+    extra_parameters = {
+        'rule': rule,
+        'conditions': conditions
+    }
+
+    return _build_parameters(method, parameters, extra_parameters)
+
+
+def _build_variable_parameters(method, parameters, rule):
+    """
+    Adds extra parameters to the Variable's method parameters
+    :param method:
+    :param parameters:
+    :param rule:
+    :return:
+    """
+    extra_parameters = {
+        'rule': rule,
+    }
+
+    return _build_parameters(method, parameters, extra_parameters)
+
+
+def _build_parameters(method, parameters, extra_parameters):
     if inspect.getargspec(method).keywords is not None:
-        method_params = {
-            'rule': rule,
-            'conditions': conditions
-        }
+        method_params = extra_parameters
     else:
         method_params = {}
 

@@ -29,7 +29,8 @@ class ExampleVariables(BaseVariables):
     def current_year_boolean(self, year):
         return datetime.datetime.now().year == year
 
-    @boolean_rule_variable(inject_rule=True)
-    def rule_variable(self, rule):
+    @boolean_rule_variable()
+    def rule_variable(self, **kwargs):
+        rule = kwargs.get('rule')
         print("Inside Variable function 'rule_variable', rule={}".format(rule))
         return True

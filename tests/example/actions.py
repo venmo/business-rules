@@ -10,14 +10,6 @@ class ExampleActions(BaseActions):
     def __init__(self, basket):
         self.basket = basket
 
-    @rule_action(params={
-        "stamps": FIELD_NUMERIC
-    })
-    def award_stamps(self, stamps, **kargs):
-        rule = kargs.get('rule')
-        logger.info('Awarding {} stamps to basket id: {}'.format(
-            stamps,
-            self.basket.id,
-        ))
-        logger.info('rule from ACTION: {}'.format(rule))
-        pass
+    @rule_action(params={"message": FIELD_TEXT})
+    def log(self, message, **kargs):
+        logger.info(message)

@@ -24,33 +24,22 @@ rules = [
                     "value": "January",
                 },
                 {
-                    "name": "current_month_boolean",
-                    "operator": "is_true",
-                    "value": "True",
-                    "params": {
-                        "month": datetime.datetime.now().strftime("%B")
-                    }
-                },
-                {
-                    "name": "current_year_boolean",
-                    "operator": "is_true",
-                    "value": "True",
-                    "params": {
-                        'year': datetime.datetime.now().year
-                    }
+                    "name": "item_count",
+                    "operator": "greater_than",
+                    "value": 1,
                 },
                 {
                     "name": "rule_variable",
                     "operator": "is_true",
-                    "value": "True"
+                    "value": "True",
                 }
             ]
         },
         "actions": [
             {
-                "name": "award_stamps",
+                "name": "log",
                 "params": {
-                    "stamps": 1,
+                    "message": "All criteria met!",
                 },
             },
         ],
@@ -58,7 +47,8 @@ rules = [
 ]
 
 hot_drink = Item(code=1, name='Hot Drink', line_number=1, quantity=1)
-basket = Basket(id=0, items=[hot_drink])
+pastry = Item(code=2, name='Pastry', line_number=2, quantity=1)
+basket = Basket(id=0, items=[hot_drink, pastry])
 run_all(
     rule_list=rules,
     defined_variables=ExampleVariables(basket),

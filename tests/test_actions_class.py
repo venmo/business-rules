@@ -1,10 +1,13 @@
 from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT
+from business_rules.manager.action_manager import BaseActionManager
 from . import TestCase
+
 
 class ActionsClassTests(TestCase):
     """ Test methods on classes that inherit from BaseActions.
     """
+
     def test_base_has_no_actions(self):
         self.assertEqual(len(BaseActions.get_all_actions()), 0)
 
@@ -12,9 +15,9 @@ class ActionsClassTests(TestCase):
         """ Returns a dictionary listing all the functions on the class that
         have been decorated as actions, with some of the data about them.
         """
-        class SomeActions(BaseActions):
 
-            @rule_action(params={'foo':FIELD_TEXT})
+        class SomeActions(BaseActions):
+            @rule_action(params={'foo': FIELD_TEXT})
             def some_action(self, foo):
                 return "blah"
 
@@ -33,8 +36,8 @@ class ActionsClassTests(TestCase):
         self.assertEqual(len(SomeActions().get_all_actions()), 1)
 
     def test_rule_action_doesnt_allow_unknown_field_types(self):
-        err_string = "Unknown field type blah specified for action some_action"\
-                " param foo"
+        err_string = "Unknown field type blah specified for action some_action" \
+                     " param foo"
         with self.assertRaisesRegexp(AssertionError, err_string):
             @rule_action(params={'foo': 'blah'})
             def some_action(self, foo):
@@ -49,7 +52,15 @@ class ActionsClassTests(TestCase):
 
     def test_rule_action_with_no_params_or_label(self):
         """ A rule action should not have to specify paramers or label. """
+
         @rule_action()
         def some_action(self): pass
 
         self.assertTrue(some_action.is_rule_action)
+
+    def test_rule_action_have_default_context(self):
+        @rule_action()
+        def some_action(): pass
+
+        self.assertIsNotNone(some_action.context)
+        self.assertEqual(BaseActionManager, some_action.context)

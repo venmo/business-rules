@@ -1,9 +1,9 @@
 import logging
 
 
-class LogService(object):
+class AuditService(object):
     def __init__(self):
-        super(LogService, self).__init__()
+        super(AuditService, self).__init__()
         self.logger = logging.getLogger(__name__)
 
     def _fetch_public_properties(self, obj):

@@ -10,6 +10,6 @@ class ExampleActions(BaseActions):
     def __init__(self, basket):
         self.basket = basket
 
-    @rule_action(params={"message": FIELD_TEXT})
+    @rule_action(params={"message": FIELD_TEXT}, bypass_validator=True)
     def log(self, message, **kargs):
         logger.info(message)

@@ -194,9 +194,6 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
         )(condition_result[2], condition_result[3])
         for condition_result in successful_conditions
         ]
-    if not any(valid):
-        logger.info('Rule already executed: {rule}'.format(rule=rule))
-        return
 
     for action in actions:
         method_name = action['name']
@@ -208,12 +205,14 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
             raise AssertionError("Action {0} is not defined in class {1}" \
                                  .format(method_name, defined_actions.__class__.__name__))
 
-        _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
+        if method.bypass_validator or any(valid):
 
-        method_params = _build_action_parameters(method, params, rule, successful_conditions)
-        action_result = method(**method_params)
+            _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
-        log_service.log_rule(rule, checked_conditions_results, action, defined_variables, action_result)
+            method_params = _build_action_parameters(method, params, rule, successful_conditions)
+            action_result = method(**method_params)
+
+            log_service.log_rule(rule, checked_conditions_results, action, defined_variables, action_result)
 
 
 def _build_action_parameters(method, parameters, rule, conditions):

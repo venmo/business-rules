@@ -25,7 +25,9 @@ class ActionsClassTests(TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0]['name'], 'some_action')
         self.assertEqual(actions[0]['label'], 'Some Action')
-        self.assertEqual(actions[0]['params'], [{'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
+        self.assertEqual(actions[0]['params'], [
+            {'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo', 'bypass_validator': False},
+        ])
 
         # should work on an instance of the class too
         self.assertEqual(len(SomeActions().get_all_actions()), 1)

@@ -41,7 +41,7 @@ def _validate_action_parameters(func, params):
                     field_type, func.__name__, param_name))
 
 
-def rule_action(label=None, params=None):
+def rule_action(label=None, params=None, bypass_validator=False):
     """
     Decorator to make a function into a rule action.
 
@@ -59,7 +59,8 @@ def rule_action(label=None, params=None):
                 dict(
                     label=fn_name_to_pretty_label(name),
                     name=name,
-                    fieldType=field_type
+                    fieldType=field_type,
+                    bypass_validator=bypass_validator,
                 ) for name, field_type in params.items()]
 
         _validate_action_parameters(func, params_)
@@ -67,6 +68,7 @@ def rule_action(label=None, params=None):
         func.is_rule_action = True
         func.label = label or fn_name_to_pretty_label(func.__name__)
         func.params = params_
+        func.bypass_validator = bypass_validator
 
         return func
 

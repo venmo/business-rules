@@ -1,12 +1,20 @@
-from business_rules.operators import (StringType,
-                                      NumericType, BooleanType, SelectType,
-                                      SelectMultipleType)
-
-from . import TestCase
-from decimal import Decimal
 import sys
+from decimal import Decimal
+
+from business_rules.operators import StringType, NumericType, BooleanType, SelectType, SelectMultipleType, BaseType
+from . import TestCase
+
+
+class BaseTypeOperatorTests(TestCase):
+    def test_base_type_cannot_be_created(self):
+        with self.assertRaises(NotImplementedError):
+            BaseType('test')
+
 
 class StringOperatorTests(TestCase):
+    def test_invalid_value(self):
+        with self.assertRaises(AssertionError):
+            StringType(123)
 
     def test_operator_decorator(self):
         self.assertTrue(StringType("foo").equal_to.is_operator)
@@ -48,7 +56,6 @@ class StringOperatorTests(TestCase):
 
 
 class NumericOperatorTests(TestCase):
-
     def test_instantiate(self):
         err_string = "foo is not a valid numeric type"
         with self.assertRaisesRegexp(AssertionError, err_string):
@@ -61,8 +68,8 @@ class NumericOperatorTests(TestCase):
         if sys.version_info[0] == 2:
             ten_long = long(10)
         else:
-            ten_long = int(10) # long and int are same in python3
-        ten_var_dec = NumericType(ten_dec) # this should not throw an exception
+            ten_long = int(10)  # long and int are same in python3
+        ten_var_dec = NumericType(ten_dec)  # this should not throw an exception
         ten_var_int = NumericType(ten_int)
         ten_var_float = NumericType(ten_float)
         ten_var_long = NumericType(ten_long)
@@ -118,7 +125,6 @@ class NumericOperatorTests(TestCase):
 
 
 class BooleanOperatorTests(TestCase):
-
     def test_instantiate(self):
         err_string = "foo is not a valid boolean type"
         with self.assertRaisesRegexp(AssertionError, err_string):
@@ -135,6 +141,9 @@ class BooleanOperatorTests(TestCase):
 
 
 class SelectOperatorTests(TestCase):
+    def test_invalid_value(self):
+        with self.assertRaises(AssertionError):
+            SelectType(123)
 
     def test_contains(self):
         self.assertTrue(SelectType([1, 2]).contains(2))
@@ -148,6 +157,9 @@ class SelectOperatorTests(TestCase):
 
 
 class SelectMultipleOperatorTests(TestCase):
+    def test_invalid_value(self):
+        with self.assertRaises(AssertionError):
+            SelectMultipleType(123)
 
     def test_contains_all(self):
         self.assertTrue(SelectMultipleType([1, 2]).

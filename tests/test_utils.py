@@ -35,6 +35,12 @@ def test_get_valid_fields():
     assert len(valid_fields) == 5
 
 
+def test_params_dict_to_list_when_params_none():
+    result = utils.params_dict_to_list(None)
+
+    assert result == []
+
+
 def test_export_rule_data():
     """
     Tests that export_rule_data has the three expected keys in the right format.

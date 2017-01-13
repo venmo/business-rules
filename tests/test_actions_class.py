@@ -1,6 +1,5 @@
 from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT
-from business_rules.manager.action_manager import BaseActionManager
 from . import TestCase
 
 
@@ -57,10 +56,3 @@ class ActionsClassTests(TestCase):
         def some_action(self): pass
 
         self.assertTrue(some_action.is_rule_action)
-
-    def test_rule_action_have_default_context(self):
-        @rule_action()
-        def some_action(): pass
-
-        self.assertIsNotNone(some_action.context)
-        self.assertEqual(BaseActionManager, some_action.context)

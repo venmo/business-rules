@@ -3,7 +3,6 @@ from mock import patch, MagicMock
 from business_rules import engine
 from business_rules import fields
 from business_rules.actions import BaseActions
-from business_rules.manager.action_manager import BaseActionManager
 from business_rules.models import ConditionResult
 from business_rules.operators import StringType
 from business_rules.service.audit_service import AuditService
@@ -226,7 +225,6 @@ class EngineTests(TestCase):
             defined_actions = BaseActions()
 
             defined_actions.action1 = MagicMock()
-            defined_actions.action1.context = BaseActionManager
             defined_actions.action2 = MagicMock()
             defined_actions.action2.params = {
                 'param1': fields.FIELD_TEXT,

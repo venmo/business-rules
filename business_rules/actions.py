@@ -1,6 +1,5 @@
 import inspect
 
-from business_rules.manager.action_manager import BaseActionManager
 from .utils import fn_name_to_pretty_label, get_valid_fields
 
 
@@ -42,7 +41,7 @@ def _validate_action_parameters(func, params):
                     field_type, func.__name__, param_name))
 
 
-def rule_action(label=None, params=None, bypass_validator=False, context=BaseActionManager):
+def rule_action(label=None, params=None, bypass_validator=False):
     """
     Decorator to make a function into a rule action.
 
@@ -51,7 +50,6 @@ def rule_action(label=None, params=None, bypass_validator=False, context=BaseAct
     :param label: Label for Action
     :param params: Parameters expected by the Action function
     :param bypass_validator: Set this to True to avoid checking the Validator for the action
-    :param context: Context in which action is run
     :return: Decorator function wrapper
     """
 
@@ -72,7 +70,6 @@ def rule_action(label=None, params=None, bypass_validator=False, context=BaseAct
         func.label = label or fn_name_to_pretty_label(func.__name__)
         func.params = params_
         func.bypass_validator = bypass_validator
-        func.context = context
 
         return func
 

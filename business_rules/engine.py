@@ -206,17 +206,10 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
                                  .format(method_name, defined_actions.__class__.__name__))
 
         if method.bypass_validator or any(valid):
-
             _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
             method_params = _build_action_parameters(method, params, rule, successful_conditions)
-
-            if method.context:
-                with method.context(audit_service, rule, checked_conditions_results, action, defined_variables) \
-                        as action_context:
-                    action_context.result = method(**method_params)
-            else:
-                method(**method_params)
+            method(**method_params)
 
 
 def _build_action_parameters(method, parameters, rule, conditions):

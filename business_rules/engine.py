@@ -3,7 +3,6 @@ import logging
 
 import utils
 from business_rules.models import ConditionResult
-from business_rules.service.audit_service import AuditService
 from business_rules.validators import BaseValidator
 from util import method_type
 from .fields import FIELD_NO_INPUT
@@ -16,11 +15,11 @@ def run_all(rule_list,
             defined_actions,
             defined_validators=BaseValidator(),
             stop_on_first_trigger=False,
-            audit_service=None):
-    audit_service = AuditService() if audit_service is None else audit_service
+            ):
+
     rule_was_triggered = False
     for rule in rule_list:
-        result = run(rule, defined_variables, defined_actions, defined_validators, audit_service)
+        result = run(rule, defined_variables, defined_actions, defined_validators)
         if result:
             rule_was_triggered = True
             if stop_on_first_trigger:
@@ -28,12 +27,11 @@ def run_all(rule_list,
     return rule_was_triggered
 
 
-def run(rule, defined_variables, defined_actions, defined_validators, audit_service):
+def run(rule, defined_variables, defined_actions, defined_validators):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered, checked_conditions_results = check_conditions_recursively(conditions, defined_variables, rule)
     if rule_triggered:
-        do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule,
-                   audit_service)
+        do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule)
         return True
     return False
 
@@ -156,8 +154,7 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     return method(comparison_value)
 
 
-def do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule,
-               audit_service):
+def do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule):
     """
 
     :param actions:             List of actions objects to be executed (defined in library)
@@ -177,8 +174,6 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
     :param defined_variables:
     :param checked_conditions_results:
     :param rule:                Rule that is beign executed
-    :param audit_service:       Audit service instance for logging. It MUST be an instance of
-                                service.audit_service.AuditService
     :return: None
     """
 

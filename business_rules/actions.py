@@ -49,6 +49,7 @@ def rule_action(label=None, params=None, bypass_validator=False):
 
     :param label: Label for Action
     :param params: Parameters expected by the Action function
+    :param bypass_validator: Set this to True to avoid checking the Validator for the action
     :return: Decorator function wrapper
     """
 

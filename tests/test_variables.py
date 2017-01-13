@@ -63,6 +63,16 @@ class RuleVariableTests(TestCase):
     ### rule_variable wrappers for each variable type
     ###
 
+    def test_rule_variable_function_with_parameter_not_defined(self):
+        with self.assertRaises(AssertionError):
+            @rule_variable(NumericType, params={'parameter_not_defined': 'type'})
+            def variable_function(): pass
+
+    def test_rule_variable_function_with_parameter_invalid_type(self):
+        with self.assertRaises(AssertionError):
+            @rule_variable(NumericType, params={'parameter': 'invalid_type'})
+            def variable_function(parameter): pass
+
     def test_numeric_rule_variable(self):
         @numeric_rule_variable('My Label')
         def numeric_var(): pass

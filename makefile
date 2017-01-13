@@ -10,4 +10,4 @@ test:
 	py.test $(pytest_args)
 
 coverage:
-	py.test --cov=./business_rules $(pytest_args)
+	py.test --cov-report term-missing --cov=./business_rules $(pytest_args)

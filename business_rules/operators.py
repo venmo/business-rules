@@ -15,7 +15,7 @@ class BaseType(object):
         self.value = self._assert_valid_value_and_cast(value)
 
     def _assert_valid_value_and_cast(self, value):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @classmethod
     def get_all_operators(cls):

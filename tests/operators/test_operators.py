@@ -1,8 +1,18 @@
 import sys
+from datetime import datetime, timedelta, date
 from decimal import Decimal
+import calendar
 
-from business_rules.operators import StringType, NumericType, BooleanType, SelectType, SelectMultipleType, BaseType
-from . import TestCase
+from business_rules.operators import (
+    StringType,
+    NumericType,
+    BooleanType,
+    SelectType,
+    SelectMultipleType,
+    BaseType,
+    DateTimeType,
+)
+from tests import TestCase
 
 
 class BaseTypeOperatorTests(TestCase):
@@ -202,3 +212,87 @@ class SelectMultipleOperatorTests(TestCase):
                          shares_no_elements_with([2, 3]))
         self.assertFalse(SelectMultipleType([1, 2, "a"]).
                          shares_no_elements_with([4, "A"]))
+
+
+class DateTimeOperatorTests(TestCase):
+    def setUp(self):
+        super(DateTimeOperatorTests, self).setUp()
+        self.TEST_YEAR = 2017
+        self.TEST_MONTH = 1
+        self.TEST_DAY = 16
+        self.TEST_HOUR = 13
+        self.TEST_MINUTE = 55
+        self.TEST_SECOND = 25
+        self.TEST_DATETIME = '{year}-0{month}-{day}T{hour}:{minute}:{second}'.format(
+            year=self.TEST_YEAR, month=self.TEST_MONTH, day=self.TEST_DAY, hour=self.TEST_HOUR, minute=self.TEST_MINUTE,
+            second=self.TEST_SECOND
+        )
+        self.TEST_DATE = '{year}-0{month}-{day}'.format(
+            year=self.TEST_YEAR, month=self.TEST_MONTH, day=self.TEST_DAY
+        )
+        self.TEST_DATETIME_OBJ = datetime(self.TEST_YEAR, self.TEST_MONTH, self.TEST_DAY, self.TEST_HOUR,
+                                          self.TEST_MINUTE, self.TEST_SECOND)
+        self.TEST_DATE_OBJ = date(self.TEST_YEAR, self.TEST_MONTH, self.TEST_DAY)
+
+        self.TEST_DATETIME_TS = calendar.timegm(self.TEST_DATETIME_OBJ.timetuple())
+        self.TEST_DATE_TS = calendar.timegm(self.TEST_DATE_OBJ.timetuple())
+
+    def test_instantiate(self):
+        err_string = "foo is not a valid datetime type"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            DateTimeType("foo")
+
+    def test_datetime_type_validates_and_cast_datetime(self):
+        result = DateTimeType(self.TEST_DATETIME)
+        self.assertTrue(isinstance(result.value, int))
+
+        result = DateTimeType(self.TEST_DATE)
+        self.assertTrue(isinstance(result.value, int))
+
+        result = DateTimeType(self.TEST_DATETIME_OBJ)
+        self.assertTrue(isinstance(result.value, int))
+
+        result = DateTimeType(self.TEST_DATE_OBJ)
+        self.assertTrue(isinstance(result.value, int))
+
+    def test_datetime_equal_to(self):
+        self.assertTrue(DateTimeType(self.TEST_DATETIME).equal_to(self.TEST_DATETIME))
+        self.assertTrue(DateTimeType(self.TEST_DATETIME).equal_to(self.TEST_DATETIME_OBJ))
+
+        self.assertTrue(DateTimeType(self.TEST_DATE).equal_to(self.TEST_DATE))
+        self.assertTrue(DateTimeType(self.TEST_DATE).equal_to(self.TEST_DATE_OBJ))
+
+    def test_other_value_not_datetime(self):
+        error_string = "2016-10 is not a valid datetime type"
+        with self.assertRaisesRegexp(AssertionError, error_string):
+            DateTimeType(self.TEST_DATE).equal_to("2016-10")
+
+    def test_datetime_after_than(self):
+        self.assertTrue(DateTimeType(self.TEST_DATETIME).after_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertFalse(DateTimeType(self.TEST_DATE).after_than(self.TEST_DATE))
+        self.assertFalse(
+            DateTimeType(self.TEST_DATETIME).after_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+
+    def test_datetime_after_than_or_equal_to(self):
+        self.assertTrue(DateTimeType(self.TEST_DATE).after_than_or_equal_to(self.TEST_DATE))
+        self.assertTrue(
+            DateTimeType(self.TEST_DATETIME).after_than_or_equal_to(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertFalse(
+            DateTimeType(self.TEST_DATETIME).after_than_or_equal_to(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+
+    def test_datetime_before_than(self):
+        self.assertFalse(
+            DateTimeType(self.TEST_DATETIME).before_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1))
+        )
+        self.assertFalse(DateTimeType(self.TEST_DATE).before_than(self.TEST_DATE))
+        self.assertTrue(
+            DateTimeType(self.TEST_DATETIME).before_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+
+    def test_datetime_before_than_or_equal_to(self):
+        self.assertTrue(DateTimeType(self.TEST_DATE).before_than_or_equal_to(self.TEST_DATE))
+        self.assertFalse(
+            DateTimeType(self.TEST_DATETIME).before_than_or_equal_to(
+                self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertTrue(
+            DateTimeType(self.TEST_DATETIME).before_than_or_equal_to(
+                self.TEST_DATETIME_OBJ + timedelta(seconds=1)))

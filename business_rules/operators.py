@@ -2,11 +2,13 @@ import inspect
 import re
 from decimal import Decimal
 from functools import wraps
-
+from datetime import datetime, date, time
 from six import string_types, integer_types
+import calendar
 
-from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
+from .fields import (
+    FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT, FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_DATETIME, FIELD_TIME
+)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 
 
@@ -237,3 +239,105 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+
+@export_type
+class DateTimeType(BaseType):
+    name = "datetime"
+    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+    DATE_FORMAT = '%Y-%m-%d'
+
+    def _assert_valid_value_and_cast(self, value):
+        """
+        Parse int, datetime, date or string with formats '%Y-%m-%dT%H:%M:%S' or '%Y-%m-%d' into
+        timestamp (int) instance.
+
+        :param value:
+        :return:
+        """
+        if isinstance(value, integer_types):
+            return value
+
+        if isinstance(value, (datetime, date)):
+            return calendar.timegm(value.timetuple())
+
+        if isinstance(value, string_types):
+            try:
+                return int(value)
+            except ValueError:
+                pass
+
+        try:
+            return calendar.timegm(datetime.strptime(value, self.DATETIME_FORMAT).timetuple())
+        except (ValueError, TypeError):
+            pass
+
+        try:
+            return calendar.timegm(datetime.strptime(value, self.DATE_FORMAT).timetuple())
+        except (ValueError, TypeError):
+            raise AssertionError("{0} is not a valid datetime type.".format(value))
+
+    @type_operator(FIELD_DATETIME)
+    def equal_to(self, other_datetime):
+        return self.value == other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def after_than(self, other_datetime):
+        return self.value > other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def after_than_or_equal_to(self, other_datetime):
+        return self.after_than(other_datetime) or self.equal_to(other_datetime)
+
+    @type_operator(FIELD_DATETIME)
+    def before_than(self, other_datetime):
+        return self.value < other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def before_than_or_equal_to(self, other_datetime):
+        return self.before_than(other_datetime) or self.equal_to(other_datetime)
+
+
+@export_type
+class TimeType(BaseType):
+    name = "time"
+    TIME_FORMAT = '%H:%M:%S'
+
+    def _assert_valid_value_and_cast(self, value):
+        """
+        Parse datetime, time or string with format %H:%M:%S into time instance.
+
+        :param value: datetime, date or string with format %H:%M:%S
+        :return: time
+        """
+        if isinstance(value, time):
+            return value
+
+        if isinstance(value, datetime):
+            return time(value.hour, value.minute, value.second)
+
+        try:
+            dt = datetime.strptime(value, self.TIME_FORMAT)
+            return time(dt.hour, dt.minute, dt.second)
+        except (ValueError, TypeError):
+            raise AssertionError("{0} is not a valid time type.".format(value))
+
+    @type_operator(FIELD_TIME)
+    def equal_to(self, other_time):
+        return self.value == other_time
+
+    @type_operator(FIELD_TIME)
+    def after_than(self, other_time):
+        return self.value > other_time
+
+    @type_operator(FIELD_TIME)
+    def after_than_or_equal_to(self, other_time):
+        return self.after_than(other_time) or self.equal_to(other_time)
+
+    @type_operator(FIELD_TIME)
+    def before_than(self, other_time):
+        return self.value < other_time
+
+    @type_operator(FIELD_TIME)
+    def before_than_or_equal_to(self, other_time):
+        return self.before_than(other_time) or self.equal_to(other_time)

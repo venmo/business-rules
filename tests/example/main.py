@@ -32,6 +32,11 @@ rules = [
                     "name": "rule_variable",
                     "operator": "is_true",
                     "value": "True",
+                },
+                {
+                    "name": "today",
+                    "operator": "after_than_or_equal_to",
+                    "value": "2017-01-16",
                 }
             ]
         },

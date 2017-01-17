@@ -322,6 +322,51 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
 
+**datetime** - a Timestamp value
+
+A rule variable accepts the following types of values:
+
+* int
+* string with format `%Y-%m-%dT%H:%M:%S`
+* string with format `%Y-%m-%d`
+
+A variable can return the following types of values:
+
+* int
+* datetime
+* date
+* string with format `%Y-%m-%dT%H:%M:%S`
+* string with format `%Y-%m-%d`
+
+`@datetime_rule_variable` operators:
+
+* `equal_to`
+* `before_than`
+* `before_than_or_equal_to`
+* `after_than`
+* `after_than_or_equal_to`
+
+
+**time** - a Time value
+
+A rule variable accepts the following types of values:
+
+* string with format `%H:%M:%S`
+
+A variable can return the following types of values:
+
+* datetime
+* time
+* string with format `%H:%M:%S`
+
+`@time_rule_variable` operators:
+
+* `equal_to`
+* `before_than`
+* `before_than_or_equal_to`
+* `after_than`
+* `after_than_or_equal_to`
+
 ### Returning data to your client
 
 

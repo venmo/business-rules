@@ -1,7 +1,6 @@
 import datetime
 
 from business_rules.variables import *
-from business_rules import fields
 
 
 class ExampleVariables(BaseVariables):
@@ -24,3 +23,7 @@ class ExampleVariables(BaseVariables):
     def rule_variable(self, **kwargs):
         rule = kwargs.get('rule')
         return True
+
+    @datetime_rule_variable()
+    def today(self):
+        return datetime.date.today()

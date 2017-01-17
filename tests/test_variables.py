@@ -1,17 +1,25 @@
 from . import TestCase
 from business_rules.utils import fn_name_to_pretty_label
-from business_rules.variables import (rule_variable,
-                                      numeric_rule_variable,
-                                      string_rule_variable,
-                                      boolean_rule_variable,
-                                      select_rule_variable,
-                                      select_multiple_rule_variable)
+from business_rules.variables import (
+    rule_variable,
+    numeric_rule_variable,
+    string_rule_variable,
+    boolean_rule_variable,
+    select_rule_variable,
+    select_multiple_rule_variable,
+    datetime_rule_variable,
+    time_rule_variable,
+)
 
-from business_rules.operators import (NumericType,
-                                      StringType,
-                                      BooleanType,
-                                      SelectType,
-                                      SelectMultipleType)
+from business_rules.operators import (
+    NumericType,
+    StringType,
+    BooleanType,
+    SelectType,
+    SelectMultipleType,
+    DateTimeType,
+    TimeType,
+)
 
 
 class RuleVariableTests(TestCase):
@@ -137,3 +145,35 @@ class RuleVariableTests(TestCase):
         self.assertTrue(getattr(select_multiple_var, 'is_rule_variable'))
         self.assertEqual(getattr(select_multiple_var, 'field_type'), SelectMultipleType)
         self.assertEqual(getattr(select_multiple_var, 'options'), options)
+
+    def test_datetime_variable(self):
+        @datetime_rule_variable()
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), DateTimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Datetime Variable')
+
+    def test_datetime_variable_with_label(self):
+        @datetime_rule_variable(label='Custom Label')
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), DateTimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Custom Label')
+
+    def test_time_variable(self):
+        @time_rule_variable()
+        def time_variable(): pass
+
+        self.assertTrue(getattr(time_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(time_variable, 'field_type'), TimeType)
+        self.assertEqual(getattr(time_variable, 'label'), 'Time Variable')
+
+    def test_time_variable_with_label(self):
+        @time_rule_variable(label='Custom Label')
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), TimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Custom Label')

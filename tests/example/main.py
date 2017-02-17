@@ -45,10 +45,10 @@ rules = [
                 "name": "log",
                 "params": {
                     "message": "All criteria met!",
-                },
-            },
-        ],
-    },
+                }
+            }
+        ]
+    }
 ]
 
 hot_drink = Item(code=1, name='Hot Drink', line_number=1, quantity=1)

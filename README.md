@@ -50,7 +50,7 @@ class ProductVariables(BaseVariables):
     @select_rule_variable(options=Products.top_holiday_items())
     def goes_well_with(self):
         return products.related_products
-        
+
     @numeric_rule_variable(params=[{
         'field_type': FIELD_NUMERIC,
         'name': 'days',
@@ -143,14 +143,14 @@ rules = [
                 "operator": "less_than",
                 "value": 5,
             },
-            { 
+            {
                 "all": [
                     {
                         "name": "current_month",
                         "operator": "equal_to",
                         "value": "December",
                     },
-                    { 
+                    {
                         "name": "current_inventory",
                         "operator": "less_than",
                         "value": 20,
@@ -168,7 +168,7 @@ rules = [
 # orders_sold_in_last_x_days(5) > 10
 {
     "conditions": { "all": [
-        { 
+        {
             "name": "orders_sold_in_last_x_days",
             "operator": "greater_than",
             "value": 10,
@@ -176,7 +176,7 @@ rules = [
         }
     ]},
     "actions": [
-        { 
+        {
             "name": "order_more",
             "fields": [{"name": "number_to_order", "value": 40}]
         }
@@ -246,6 +246,13 @@ that returns
 }
 ```
 
+To validate rule data:
+
+```python
+from business_rules import validate_rule_data
+is_valid = validate_rule_data(ProductVariables, ProductActions, {'conditions':[], 'actions':[]})
+```
+
 ### Run your rules
 
 ```python
@@ -269,8 +276,8 @@ The type represents the type of the value that will be returned for the variable
 
 All decorators can optionally take a label:
 - `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
-- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements 
-should be dictionaries with a `field_type` to specify the type and `name` that corresponds to an argument of the 
+- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements
+should be dictionaries with a `field_type` to specify the type and `name` that corresponds to an argument of the
 variable function.
 
 The available types and decorators are:

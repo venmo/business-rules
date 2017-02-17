@@ -123,7 +123,7 @@ def _get_variable_value(defined_variables, name, params, rule):
         raise AssertionError("Variable {0} is not defined in class {1}".format(
             name, defined_variables.__class__.__name__))
 
-    _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_VARIABLE)
+    utils.check_params_valid_for_method(method, params, method_type.METHOD_TYPE_VARIABLE)
 
     method_params = _build_variable_parameters(method, params, rule)
     variable_value = method(**method_params)
@@ -201,7 +201,7 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
                                  .format(method_name, defined_actions.__class__.__name__))
 
         if method.bypass_validator or any(valid):
-            _check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
+            utils.check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
             method_params = _build_action_parameters(method, params, rule, successful_conditions)
             method(**method_params)
@@ -248,29 +248,3 @@ def _build_parameters(method, parameters, extra_parameters):
     method_params.update(parameters)
 
     return method_params
-
-
-def _check_params_valid_for_method(method, given_params, method_type_name):
-    """
-    Verifies that the given parameters (defined in the Rule) match the names of those defined in
-    the variable or action decorator. Raise an error if one of the sets contains a parameter that
-    the other does not.
-
-    :param method:
-    :param given_params: Parameters defined within the Rule (Action or Condition)
-    :param method_type_name: A method type defined in util.method_type module
-    :return: None. Raise exception if parameters don't match (defined in method and Rule)
-    """
-    method_params = utils.params_dict_to_list(method.params)
-    defined_params = [param.get('name') for param in method_params]
-    missing_params = set(defined_params).difference(given_params)
-
-    if missing_params:
-        raise AssertionError("Missing parameters {0} for {1} {2}".format(
-            ', '.join(missing_params), method_type_name, method.__name__))
-
-    invalid_params = set(given_params).difference(defined_params)
-
-    if invalid_params:
-        raise AssertionError("Invalid parameters {0} for {1} {2}".format(
-            ', '.join(invalid_params), method_type_name, method.__name__))

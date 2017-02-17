@@ -1,5 +1,8 @@
+import pytest
+from datetime import datetime, time
 from business_rules import utils
 from tests.test_integration import SomeVariables, SomeActions
+from tests import actions, variables
 from business_rules import fields
 from business_rules.fields import FIELD_DATETIME, FIELD_TIME
 
@@ -219,3 +222,226 @@ def test_export_rule_data():
             },
         ],
     }
+
+
+def test_validate_rule_data_success():
+    valid_rule = {
+        'conditions': {
+            'all': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_false',
+                    'value': ''
+                },
+                {
+                    'name': 'str_variable',
+                    'operator': 'contains',
+                    'value': 'test'
+                },
+                {
+                    'name': 'select_multiple_variable',
+                    'operator': 'contains_all',
+                    'value': [1, 2, 3]
+                },
+                {
+                    'name': 'numeric_variable',
+                    'operator': 'equal_to',
+                    'value': 1
+                },
+                {
+                    'name': 'datetime_variable',
+                    'operator': 'equal_to',
+                    'value': '2016-01-01'
+                },
+                {
+                    'name': 'time_variable',
+                    'operator': 'equal_to',
+                    'value': '10:00:00'
+                },
+                {
+                    'name': 'select_variable',
+                    'operator': 'contains',
+                    'value': [1]
+                }
+            ]
+        },
+        'actions': [
+            {
+                'name': 'example_action',
+                'params': {
+                    'param': 1
+                }
+            }
+        ]
+    }
+    utils.validate_rule_data(variables.TestVariables, actions.TestActions, valid_rule)
+
+
+def test_validate_rule_data_nested_success():
+    valid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_false',
+                    'value': ''
+                },
+                {
+                    "all": [
+                        {
+                            'name': 'str_variable',
+                            'operator': 'contains',
+                            'value': 'test'
+                        },
+                        {
+                            'name': 'select_multiple_variable',
+                            'operator': 'contains_all',
+                            'value': [1, 2, 3]
+                        },
+                    ]
+                }
+            ]
+        },
+        'actions': [
+            {
+                'name': 'example_action',
+                'params': {
+                    'param': 1
+                }
+            }
+        ]
+    }
+    utils.validate_rule_data(variables.TestVariables, actions.TestActions, valid_rule)
+
+
+def test_validate_rule_data_empty_dict():
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, {})
+
+
+def test_validate_rule_data_extra_no_conditions():
+    invalid_rule = {
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_no_actions():
+    invalid_rule = {
+        'conditions': {}
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_unknown_action():
+    invalid_rule = {
+        'conditions': {},
+        'actions': [
+            {
+                'name': 'unknown',
+                'params': {}
+            }
+        ]
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_missing_action_name():
+    invalid_rule = {
+        'conditions': {},
+        'actions': [
+            {
+                'params': {}
+            }
+        ]
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_unknown_condition_name():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'unknown',
+                    'operator': 'unknown',
+                    'value': 'unknown'
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_unknown_condition_operator():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'unknown',
+                    'value': ''
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_bool_value_ignored():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_true',
+                    'value': 'any value here'
+                }
+            ]
+        },
+        'actions': []
+    }
+    utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_bad_condition_value():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'string_variable',
+                    'operator': 'equal_to',
+                    'value': 123
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_data_unknown_condition_key():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'string_variable',
+                    'operator': 'equal_to',
+                    'value': 'test',
+                    'unknown': 'unknown'
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)

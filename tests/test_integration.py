@@ -1,4 +1,3 @@
-from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
 from business_rules.engine import check_condition
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT

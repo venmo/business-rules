@@ -137,6 +137,8 @@ def validate_rule_data(variables, actions, rule):
         """
         Check provided condition contains a valid operator
         """
+        if "operator" not in condition:
+            raise AssertionError('Missing "operator" key for condition {}'.format(condition.get('name')))
         for item in rule_schema.get('variables'):
             if item.get('name') == condition.get('name'):
                 condition_field_type = item.get('field_type')
@@ -186,13 +188,18 @@ def validate_rule_data(variables, actions, rule):
         """
         Check all input actions contain valid names and parameters for defined actions
         """
+        if type(input_actions) is not list:
+            raise AssertionError('"actions" key must be a list')
         for action in input_actions:
-            method = getattr(actions, action.get('name'))
+            method = getattr(actions, action.get('name'), None)
             params = action.get('params', {})
             check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
     rule_schema = export_rule_data(variables, actions)
     validate_root_keys(rule)
-    validate_conditions(rule.get('conditions'), rule_schema)
+    conditions = rule.get('conditions', None)
+    if type(conditions) is not dict:
+        raise AssertionError('"conditions" must be a dictionary')
+    validate_conditions(conditions, rule_schema)
     validate_actions(rule.get('actions'))
     return True

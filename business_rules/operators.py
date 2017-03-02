@@ -135,6 +135,15 @@ class NumericType(BaseType):
     def less_than_or_equal_to(self, other_numeric):
         return self.less_than(other_numeric) or self.equal_to(other_numeric)
 
+    @type_operator(FIELD_NUMERIC)
+    def within(self, threshold):
+        return (self.greater_than_or_equal_to(threshold[0])
+                and self.less_than_or_equal_to(threshold[1]))
+
+    @type_operator(FIELD_NUMERIC)
+    def not_within(self, threshold):
+        return self.less_than(threshold[0]) or self.greater_than(threshold[1])
+
 
 @export_type
 class BooleanType(BaseType):

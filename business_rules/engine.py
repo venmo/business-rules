@@ -24,6 +24,9 @@ def run(rule, defined_variables, defined_actions):
 
 
 def check_conditions_recursively(conditions, defined_variables):
+    if conditions is None:
+        return True
+
     keys = list(conditions.keys())
     if keys == ['all']:
         assert len(conditions['all']) >= 1

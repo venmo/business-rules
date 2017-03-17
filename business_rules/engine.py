@@ -3,47 +3,63 @@ from .fields import FIELD_NO_INPUT
 def run_all(rule_list,
             defined_variables,
             defined_actions,
+            condition_aliases={},
             stop_on_first_trigger=False):
 
     rule_was_triggered = False
     for rule in rule_list:
-        result = run(rule, defined_variables, defined_actions)
+        result = run(rule, defined_variables, defined_actions,
+                condition_aliases=condition_aliases)
         if result:
             rule_was_triggered = True
             if stop_on_first_trigger:
                 return True
     return rule_was_triggered
 
-def run(rule, defined_variables, defined_actions):
+def run(rule, defined_variables, defined_actions, condition_aliases={}):
     conditions, actions = rule['conditions'], rule['actions']
-    rule_triggered = check_conditions_recursively(conditions, defined_variables)
+    rule_triggered = check_conditions_recursively(conditions, defined_variables,
+            condition_aliases=condition_aliases)
     if rule_triggered:
         do_actions(actions, defined_actions)
         return True
     return False
 
 
-def check_conditions_recursively(conditions, defined_variables):
-    keys = list(conditions.keys())
-    if keys == ['all']:
-        assert len(conditions['all']) >= 1
-        for condition in conditions['all']:
-            if not check_conditions_recursively(condition, defined_variables):
-                return False
+def check_conditions_recursively(conditions, defined_variables, condition_aliases={}):
+    if conditions is None:
         return True
 
-    elif keys == ['any']:
-        assert len(conditions['any']) >= 1
-        for condition in conditions['any']:
-            if check_conditions_recursively(condition, defined_variables):
-                return True
-        return False
+    if isinstance(conditions, str):
+        try:
+            saved_condition = condition_aliases[conditions]
+        except KeyError:
+            raise RuntimeError("No condition_alias with name (%s)" % conditions)
 
+        return check_condition(saved_condition, defined_variables)
     else:
-        # help prevent errors - any and all can only be in the condition dict
-        # if they're the only item
-        assert not ('any' in keys or 'all' in keys)
-        return check_condition(conditions, defined_variables)
+        keys = list(conditions.keys())
+        if keys == ['all']:
+            assert len(conditions['all']) >= 1
+            for condition in conditions['all']:
+                if not check_conditions_recursively(condition, defined_variables,
+                        condition_aliases=condition_aliases):
+                    return False
+            return True
+
+        elif keys == ['any']:
+            assert len(conditions['any']) >= 1
+            for condition in conditions['any']:
+                if check_conditions_recursively(condition, defined_variables,
+                        condition_aliases=condition_aliases):
+                    return True
+            return False
+
+        else:
+            # help prevent errors - any and all can only be in the condition dict
+            # if they're the only item
+            assert not ('any' in keys or 'all' in keys)
+            return check_condition(conditions, defined_variables)
 
 def check_condition(condition, defined_variables):
     """ Checks a single rule condition - the condition will be made up of

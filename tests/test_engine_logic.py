@@ -49,7 +49,7 @@ class EngineTests(TestCase):
                 stop_on_first_trigger=True)
         self.assertEqual(result, True)
         self.assertEqual(engine.run.call_count, 1)
-        engine.run.assert_called_once_with(rule1, variables, actions)
+        engine.run.assert_called_once_with(rule1, variables, actions, condition_aliases={})
 
     @patch.object(engine, 'check_conditions_recursively', return_value=True)
     @patch.object(engine, 'do_actions')
@@ -61,7 +61,7 @@ class EngineTests(TestCase):
         result = engine.run(rule, variables, actions)
         self.assertEqual(result, True)
         engine.check_conditions_recursively.assert_called_once_with(
-                rule['conditions'], variables)
+                rule['conditions'], variables, condition_aliases={})
         engine.do_actions.assert_called_once_with(rule['actions'], actions)
 
 
@@ -75,7 +75,7 @@ class EngineTests(TestCase):
         result = engine.run(rule, variables, actions)
         self.assertEqual(result, False)
         engine.check_conditions_recursively.assert_called_once_with(
-                rule['conditions'], variables)
+                rule['conditions'], variables, condition_aliases={})
         self.assertEqual(engine.do_actions.call_count, 0)
 
 

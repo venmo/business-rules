@@ -28,6 +28,10 @@ class SomeVariables(BaseVariables):
         assert rule is not None
         return rule is not None
 
+    @string_rule_variable(label="StringLabel", options=['one', 'two', 'three'])
+    def string_variable_with_options(self):
+        return "foo"
+
 
 class SomeActions(BaseActions):
     @rule_action(params={"foo": FIELD_NUMERIC})
@@ -190,6 +194,20 @@ class IntegrationTests(TestCase):
             'name': 'rule_received',
             'operator': 'is_true',
             'value': 'true',
+        }
+
+        rule = {
+            'conditions': condition
+        }
+
+        condition_result = check_condition(condition, SomeVariables(), rule)
+        self.assertTrue(condition_result)
+
+    def test_string_variable_with_options_with_wrong_value(self):
+        condition = {
+            'name': 'string_variable_with_options',
+            'operator': 'equal_to',
+            'value': 'foo',
         }
 
         rule = {

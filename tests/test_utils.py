@@ -88,6 +88,13 @@ def test_export_rule_data():
             'params': [],
         },
         {
+            'name': 'string_variable_with_options',
+            'label': 'StringLabel',
+            'field_type': 'string',
+            'options': ['one', 'two', 'three'],
+            'params': []
+        },
+        {
             "name": "ten",
             "label": "Diez",
             "field_type": "numeric",

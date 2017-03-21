@@ -65,12 +65,12 @@ def rule_variable(field_type, label=None, options=None, params=None):
     return wrapper
 
 
-def _rule_variable_wrapper(field_type, label, params=None):
+def _rule_variable_wrapper(field_type, label, params=None, options=None):
     if callable(label):
         # Decorator is being called with no args, label is actually the decorated func
         return rule_variable(field_type, params=params)(label)
 
-    return rule_variable(field_type, label=label, params=params)
+    return rule_variable(field_type, label=label, params=params, options=options)
 
 
 def numeric_rule_variable(label=None, params=None):
@@ -86,7 +86,7 @@ def numeric_rule_variable(label=None, params=None):
     return _rule_variable_wrapper(NumericType, label, params=params)
 
 
-def string_rule_variable(label=None, params=None):
+def string_rule_variable(label=None, params=None, options=None):
     """
     Decorator to make a function into a string rule variable.
 
@@ -94,9 +94,11 @@ def string_rule_variable(label=None, params=None):
 
     :param label: Label for Variable
     :param params: Parameters expected by the Variable function
+    :param options: Options parameter to specify expected options for the variable.
+                    The value used in the Condition IS NOT checked against this list.
     :return: Decorator function wrapper
     """
-    return _rule_variable_wrapper(StringType, label, params=params)
+    return _rule_variable_wrapper(StringType, label, params=params, options=options)
 
 
 def boolean_rule_variable(label=None, params=None):

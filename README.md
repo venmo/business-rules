@@ -50,6 +50,16 @@ class ProductVariables(BaseVariables):
     @select_rule_variable(options=Products.top_holiday_items())
     def goes_well_with(self):
         return products.related_products
+
+    @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC,
+                                    'name': 'days,
+                                    'label': 'Days'}])
+    def orders_sold_in_last_x_days(self, days):
+        count = 0
+        for order in self.product.orders:
+            if (datetime.date.today() - order.date_sold).days < days:
+                count += 1
+        return count
 ```
 
 ### 2. Define your set of actions
@@ -144,10 +154,25 @@ rules = [
   },
   "actions": [
     { "name": "order_more",
-      "params":{"number_to_order": 40},
-    },
-  ],
+      "fields":[{"name":"number_to_order", "value": 40}]}
+  ]
+},
+
+# orders_sold_in_last_x_days(5) > 10
+{ "conditions": { "all": [
+      { "name": "orders_sold_in_last_x_days",
+        "operator": "greater_than",
+        "value": 10,
+        "params": {"days": 5},
+      }
+  ]},
+  "actions": [
+      { "name": "order_more",
+        "fields": [{"name": "number_to_order", "value": 40}]
+      }
+  ]
 }]
+
 ```
 
 ### Export the available variables, operators and actions
@@ -166,15 +191,23 @@ that returns
     { "name": "expiration_days",
       "label": "Days until expiration",
       "field_type": "numeric",
-      "options": []},
+      "options": [],
+      "params": []},
     { "name": "current_month",
       "label": "Current Month",
       "field_type": "string",
-      "options": []},
+      "options": [],
+      "params": []},
     { "name": "goes_well_with",
       "label": "Goes Well With",
       "field_type": "select",
-      "options": ["Eggnog", "Cookies", "Beef Jerkey"]}
+      "options": ["Eggnog", "Cookies", "Beef Jerkey"],
+      "params": []},
+    { "name": "orders_sold_in_last_x_days",
+      "label": "Orders Sold In Last X Days",
+      "field_type": "numeric",
+      "options": [],
+      "params": [{"field_type": "numeric", "name": "days", "label": "Days"}]}
                 ],
   "actions": [
     { "name": "put_on_sale",
@@ -227,6 +260,9 @@ The type represents the type of the value that will be returned for the variable
 
 All decorators can optionally take a label:
 - `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
+- `cache_result` - Whether to cache the value of the variable for this instance of the variable container object. Defaults to `True` (to avoid re-doing expensive DB queries or computations if you have many rules based on the same variables).
+- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements should be dictionaries with a `field_type` to specify the type and `name` that corresponds to an argument of the variable function.
+
 
 The available types and decorators are:
 

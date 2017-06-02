@@ -1,7 +1,8 @@
 from business_rules import engine
 from business_rules.variables import BaseVariables
 from business_rules.operators import StringType
-from business_rules.actions import BaseActions
+from business_rules.actions import rule_action, BaseActions
+from business_rules.fields import FIELD_NUMERIC
 
 from mock import patch, MagicMock
 from . import TestCase
@@ -161,6 +162,19 @@ class EngineTests(TestCase):
 
 
     ###
+    ### Get variable value
+    ###
+    @patch.object(engine, '_check_params_valid_for_method')
+    def test_get_variable_value(self, *args):
+        params = {'param1': 'foo', 'param2': 10}
+        defined_variables = BaseVariables()
+        defined_variables.variable1 = MagicMock()
+
+        engine._get_variable_value(defined_variables, 'variable1', params)
+        defined_variables.variable1.assert_called_once_with(param1='foo', param2=10)
+
+
+    ###
     ### Operator comparisons
     ###
     def test_check_operator_comparison(self):
@@ -175,7 +189,8 @@ class EngineTests(TestCase):
     ###
     ### Actions
     ###
-    def test_do_actions(self):
+    @patch.object(engine, '_check_params_valid_for_method')
+    def test_do_actions(self, *args):
         actions = [ {'name': 'action1'},
                     {'name': 'action2',
                      'params': {'param1': 'foo', 'param2': 10}}]
@@ -188,8 +203,33 @@ class EngineTests(TestCase):
         defined_actions.action1.assert_called_once_with()
         defined_actions.action2.assert_called_once_with(param1='foo', param2=10)
 
-    def test_do_with_invalid_action(self):
+    @patch.object(engine, '_check_params_valid_for_method')
+    def test_do_with_invalid_action(self, *args):
         actions = [{'name': 'fakeone'}]
         err_string = "Action fakeone is not defined in class BaseActions"
         with self.assertRaisesRegexp(AssertionError, err_string):
             engine.do_actions(actions, BaseActions())
+
+    def test_do_actions_checks_missing_params(self):
+        @rule_action(params=[{'name': 'param1', 'fieldType': FIELD_NUMERIC}])
+        def action1(self, param1):
+            pass
+        actions = [{'name': 'action1', 'params': {}}]
+        defined_actions = BaseActions()
+        defined_actions.action1 = action1
+
+        err_string = 'Missing parameters param1 for action action1'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            engine.do_actions(actions, defined_actions)
+
+    def test_do_actions_checks_invalid_params(self):
+        @rule_action(params=[{'name': 'param1', 'fieldType': FIELD_NUMERIC}])
+        def action1(self, param1):
+            pass
+        actions = [{'name': 'action1', 'params': {'param1': 1, 'param2': 2}}]
+        defined_actions = BaseActions()
+        defined_actions.action1 = action1
+
+        err_string = 'Invalid parameters param2 for action action1'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            engine.do_actions(actions, defined_actions)

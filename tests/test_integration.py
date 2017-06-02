@@ -12,6 +12,10 @@ class SomeVariables(BaseVariables):
     def foo(self):
         return "foo"
 
+    @numeric_rule_variable(params=[{'field_type': FIELD_NUMERIC, 'name': 'x', 'label': 'X'}])
+    def x_plus_one(self, x):
+        return x + 1
+
     @numeric_rule_variable(label="Diez")
     def ten(self):
         return 10
@@ -71,6 +75,13 @@ class IntegrationTests(TestCase):
                      'value': 'm'}
         self.assertFalse(check_condition(condition, SomeVariables()))
 
+    def test_numeric_variable_with_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {'x': 9}}
+        self.assertTrue(check_condition(condition, SomeVariables()))
+
     def test_check_incorrect_method_name(self):
         condition = {'name': 'food',
                      'operator': 'equal_to',
@@ -86,6 +97,23 @@ class IntegrationTests(TestCase):
         with self.assertRaises(AssertionError):
             check_condition(condition, SomeVariables())
 
+    def test_check_missing_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {}}
+        err_string = 'Missing parameters x for variable x_plus_one'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            check_condition(condition, SomeVariables())
+
+    def test_check_invalid_params(self):
+        condition = {'name': 'x_plus_one',
+                     'operator': 'equal_to',
+                     'value': 10,
+                     'params': {'x': 9, 'y': 9}}
+        err_string = 'Invalid parameters y for variable x_plus_one'
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            check_condition(condition, SomeVariables())
 
     def test_export_rule_data(self):
         """ Tests that export_rule_data has the three expected keys
@@ -115,15 +143,23 @@ class IntegrationTests(TestCase):
                          [{"name": "foo",
                            "label": "Foo",
                            "field_type": "string",
-                           "options": []},
+                           "options": [],
+                           "params": []},
                           {"name": "ten",
                            "label": "Diez",
                            "field_type": "numeric",
-                           "options": []},
+                           "options": [],
+                           "params": []},
                           {'name': 'true_bool',
                            'label': 'True Bool',
                            'field_type': 'boolean',
-                           'options': []}])
+                           'options': [],
+                           'params': []},
+                          {'name': 'x_plus_one',
+                           'label': 'X Plus One',
+                           'field_type': 'numeric',
+                           'options': [],
+                           'params': [{'field_type':'numeric', 'name': 'x', 'label': 'X'}]}])
 
         self.assertEqual(all_data.get("variable_type_operators"),
                          {'boolean': [{'input_type': 'none',

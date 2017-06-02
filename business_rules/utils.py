@@ -8,7 +8,7 @@ def export_rule_data(variables, actions):
     """ export_rule_data is used to export all information about the
     variables, actions, and operators to the client. This will return a
     dictionary with three keys:
-    - variables: a list of all available variables along with their label, type and options
+    - variables: a list of all available variables along with their label, type, options, and params
     - actions: a list of all actions along with their label and params
     - variable_type_operators: a dictionary of all field_types -> list of available operators
     """

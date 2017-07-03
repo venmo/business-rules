@@ -45,16 +45,16 @@ def type_operator(input_type, label=None,
 
     def wrapper(func):
         func.is_operator = True
-        func.label = label \
-                     or fn_name_to_pretty_label(func.__name__)
+        func.label = label or fn_name_to_pretty_label(func.__name__)
         func.input_type = input_type
 
         @wraps(func)
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v))
-                              for k, v in kwargs.items())
+                kwargs = dict(
+                    (k, self._assert_valid_value_and_cast(v)) for k, v in kwargs.items()
+                )
             return func(self, *args, **kwargs)
 
         return inner
@@ -249,40 +249,49 @@ class DateTimeType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         """
-        Parse int, datetime, date or string with formats '%Y-%m-%dT%H:%M:%S' or '%Y-%m-%d' into
-        timestamp (int) instance.
+        Parse string with formats '%Y-%m-%dT%H:%M:%S' or '%Y-%m-%d' into datetime.datetime instance.
 
         :param value:
         :return:
         """
-        if isinstance(value, integer_types):
+        if isinstance(value, datetime):
             return value
 
-        if isinstance(value, (datetime, date)):
-            return calendar.timegm(value.timetuple())
-
-        if isinstance(value, string_types):
-            try:
-                return int(value)
-            except ValueError:
-                pass
+        if isinstance(value, date):
+            return datetime(value.year, value.month, value.day)
 
         try:
-            return calendar.timegm(datetime.strptime(value, self.DATETIME_FORMAT).timetuple())
+            return datetime.strptime(value, self.DATETIME_FORMAT)
         except (ValueError, TypeError):
             pass
 
         try:
-            return calendar.timegm(datetime.strptime(value, self.DATE_FORMAT).timetuple())
+            return datetime.strptime(value, self.DATE_FORMAT)
         except (ValueError, TypeError):
             raise AssertionError("{0} is not a valid datetime type.".format(value))
 
+    def _set_timezone_if_different(self, variable_datetime, condition_value_datetime):
+        # type: (datetime, datetime) -> datetime
+        if variable_datetime.tzinfo is None:
+            if condition_value_datetime.tzinfo is None:
+                return condition_value_datetime
+            else:
+                return condition_value_datetime.replace(tzinfo=None)
+
+        return condition_value_datetime.replace(tzinfo=variable_datetime.tzinfo)
+
     @type_operator(FIELD_DATETIME)
     def equal_to(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
         return self.value == other_datetime
 
     @type_operator(FIELD_DATETIME)
     def after_than(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
         return self.value > other_datetime
 
     @type_operator(FIELD_DATETIME)
@@ -291,6 +300,9 @@ class DateTimeType(BaseType):
 
     @type_operator(FIELD_DATETIME)
     def before_than(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
         return self.value < other_datetime
 
     @type_operator(FIELD_DATETIME)
@@ -314,7 +326,7 @@ class TimeType(BaseType):
             return value
 
         if isinstance(value, datetime):
-            return time(value.hour, value.minute, value.second)
+            return value.time()
 
         try:
             dt = datetime.strptime(value, self.TIME_FORMAT)

@@ -1,7 +1,8 @@
 import sys
 from datetime import datetime, timedelta, date
 from decimal import Decimal
-import calendar
+
+import pytz
 
 from business_rules.operators import (
     StringType,
@@ -234,8 +235,13 @@ class DateTimeOperatorTests(TestCase):
                                           self.TEST_MINUTE, self.TEST_SECOND)
         self.TEST_DATE_OBJ = date(self.TEST_YEAR, self.TEST_MONTH, self.TEST_DAY)
 
-        self.TEST_DATETIME_TS = calendar.timegm(self.TEST_DATETIME_OBJ.timetuple())
-        self.TEST_DATE_TS = calendar.timegm(self.TEST_DATE_OBJ.timetuple())
+        self.TEST_DATETIME_UTC_OBJ = datetime(self.TEST_YEAR, self.TEST_MONTH, self.TEST_DAY, self.TEST_HOUR,
+                                              self.TEST_MINUTE, self.TEST_SECOND, tzinfo=pytz.UTC)
+
+        self.datetime_type_date = DateTimeType(self.TEST_DATE)
+        self.datetime_type_datetime = DateTimeType(self.TEST_DATETIME)
+        self.datetime_type_datetime_obj = DateTimeType(self.TEST_DATETIME_OBJ)
+        self.datetime_type_datetime_utc_obj = DateTimeType(self.TEST_DATETIME_UTC_OBJ)
 
     def test_instantiate(self):
         err_string = "foo is not a valid datetime type"
@@ -244,55 +250,110 @@ class DateTimeOperatorTests(TestCase):
 
     def test_datetime_type_validates_and_cast_datetime(self):
         result = DateTimeType(self.TEST_DATETIME)
-        self.assertTrue(isinstance(result.value, int))
+        self.assertTrue(isinstance(result.value, datetime))
 
         result = DateTimeType(self.TEST_DATE)
-        self.assertTrue(isinstance(result.value, int))
+        self.assertTrue(isinstance(result.value, datetime))
 
         result = DateTimeType(self.TEST_DATETIME_OBJ)
-        self.assertTrue(isinstance(result.value, int))
+        self.assertTrue(isinstance(result.value, datetime))
 
         result = DateTimeType(self.TEST_DATE_OBJ)
-        self.assertTrue(isinstance(result.value, int))
+        self.assertTrue(isinstance(result.value, datetime))
 
     def test_datetime_equal_to(self):
-        self.assertTrue(DateTimeType(self.TEST_DATETIME).equal_to(self.TEST_DATETIME))
-        self.assertTrue(DateTimeType(self.TEST_DATETIME).equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(self.datetime_type_datetime.equal_to(self.TEST_DATETIME))
+        self.assertTrue(self.datetime_type_datetime.equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(self.datetime_type_datetime.equal_to(self.TEST_DATETIME_UTC_OBJ))
 
-        self.assertTrue(DateTimeType(self.TEST_DATE).equal_to(self.TEST_DATE))
-        self.assertTrue(DateTimeType(self.TEST_DATE).equal_to(self.TEST_DATE_OBJ))
+        self.assertTrue(self.datetime_type_datetime_obj.equal_to(self.TEST_DATETIME))
+        self.assertTrue(self.datetime_type_datetime_obj.equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(self.datetime_type_datetime_obj.equal_to(self.TEST_DATETIME_UTC_OBJ))
+
+        self.assertTrue(self.datetime_type_datetime_utc_obj.equal_to(self.TEST_DATETIME))
+        self.assertTrue(self.datetime_type_datetime_utc_obj.equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(self.datetime_type_datetime_utc_obj.equal_to(self.TEST_DATETIME_UTC_OBJ))
+
+        self.assertTrue(self.datetime_type_date.equal_to(self.TEST_DATE))
+        self.assertTrue(self.datetime_type_date.equal_to(self.TEST_DATE_OBJ))
 
     def test_other_value_not_datetime(self):
         error_string = "2016-10 is not a valid datetime type"
         with self.assertRaisesRegexp(AssertionError, error_string):
             DateTimeType(self.TEST_DATE).equal_to("2016-10")
 
+    def datetime_after_than_asserts(self, datetime_type):
+        # type: (DateTimeType) -> None
+        self.assertFalse(datetime_type.after_than(self.TEST_DATETIME))
+        self.assertFalse(datetime_type.after_than(self.TEST_DATETIME_OBJ))
+        self.assertFalse(datetime_type.after_than(self.TEST_DATETIME_UTC_OBJ))
+        self.assertTrue(datetime_type.after_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertTrue(datetime_type.after_than(self.TEST_DATETIME_UTC_OBJ - timedelta(seconds=1)))
+        self.assertFalse(datetime_type.after_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertFalse(datetime_type.after_than(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
+
     def test_datetime_after_than(self):
-        self.assertTrue(DateTimeType(self.TEST_DATETIME).after_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
-        self.assertFalse(DateTimeType(self.TEST_DATE).after_than(self.TEST_DATE))
-        self.assertFalse(
-            DateTimeType(self.TEST_DATETIME).after_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.datetime_after_than_asserts(self.datetime_type_datetime)
+        self.datetime_after_than_asserts(self.datetime_type_datetime_obj)
+        self.datetime_after_than_asserts(self.datetime_type_datetime_utc_obj)
+
+        self.assertFalse(self.datetime_type_date.after_than(self.TEST_DATE))
+        self.assertFalse(self.datetime_type_date.after_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertFalse(self.datetime_type_date.after_than(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
+
+    def datetime_after_than_or_equal_to_asserts(self, datetime_type):
+        # type: (DateTimeType) -> None
+        self.assertTrue(datetime_type.after_than_or_equal_to(self.TEST_DATETIME))
+        self.assertTrue(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ))
+        self.assertTrue(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertFalse(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertTrue(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ - timedelta(seconds=1)))
+        self.assertFalse(datetime_type.after_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
 
     def test_datetime_after_than_or_equal_to(self):
-        self.assertTrue(DateTimeType(self.TEST_DATE).after_than_or_equal_to(self.TEST_DATE))
-        self.assertTrue(
-            DateTimeType(self.TEST_DATETIME).after_than_or_equal_to(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
-        self.assertFalse(
-            DateTimeType(self.TEST_DATETIME).after_than_or_equal_to(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertTrue(self.datetime_type_date.after_than_or_equal_to(self.TEST_DATE))
+
+        self.datetime_after_than_or_equal_to_asserts(self.datetime_type_datetime)
+        self.datetime_after_than_or_equal_to_asserts(self.datetime_type_datetime_obj)
+        self.datetime_after_than_or_equal_to_asserts(self.datetime_type_datetime_utc_obj)
+
+    def datetime_before_than_asserts(self, datetime_type):
+        # type: (DateTimeType) -> None
+        self.assertFalse(datetime_type.before_than(self.TEST_DATETIME))
+        self.assertFalse(datetime_type.before_than(self.TEST_DATETIME_OBJ))
+        self.assertFalse(datetime_type.before_than(self.TEST_DATETIME_UTC_OBJ))
+        self.assertFalse(datetime_type.before_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertFalse(datetime_type.before_than(self.TEST_DATETIME_UTC_OBJ - timedelta(seconds=1)))
+        self.assertTrue(datetime_type.before_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertTrue(datetime_type.before_than(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
 
     def test_datetime_before_than(self):
-        self.assertFalse(
-            DateTimeType(self.TEST_DATETIME).before_than(self.TEST_DATETIME_OBJ - timedelta(seconds=1))
-        )
-        self.assertFalse(DateTimeType(self.TEST_DATE).before_than(self.TEST_DATE))
-        self.assertTrue(
-            DateTimeType(self.TEST_DATETIME).before_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.datetime_before_than_asserts(self.datetime_type_datetime)
+        self.datetime_before_than_asserts(self.datetime_type_datetime_obj)
+        self.datetime_before_than_asserts(self.datetime_type_datetime_utc_obj)
+
+        self.assertFalse(self.datetime_type_date.before_than(self.TEST_DATE))
+        self.assertTrue(self.datetime_type_date.before_than(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertTrue(self.datetime_type_date.before_than(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
+
+    def datetime_before_than_or_equal_to_asserts(self, datetime_type):
+        # type: (DateTimeType) -> None
+        self.assertTrue(datetime_type.before_than_or_equal_to(self.TEST_DATETIME))
+        self.assertTrue(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_OBJ))
+        self.assertTrue(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ))
+        self.assertFalse(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.assertFalse(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ - timedelta(seconds=1)))
+        self.assertTrue(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+        self.assertTrue(datetime_type.before_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1)))
 
     def test_datetime_before_than_or_equal_to(self):
-        self.assertTrue(DateTimeType(self.TEST_DATE).before_than_or_equal_to(self.TEST_DATE))
-        self.assertFalse(
-            DateTimeType(self.TEST_DATETIME).before_than_or_equal_to(
-                self.TEST_DATETIME_OBJ - timedelta(seconds=1)))
+        self.datetime_before_than_or_equal_to_asserts(self.datetime_type_datetime)
+        self.datetime_before_than_or_equal_to_asserts(self.datetime_type_datetime_obj)
+        self.datetime_before_than_or_equal_to_asserts(self.datetime_type_datetime_utc_obj)
+
+        self.assertTrue(self.datetime_type_date.before_than_or_equal_to(self.TEST_DATE))
+        self.assertTrue(self.datetime_type_date.before_than_or_equal_to(self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
         self.assertTrue(
-            DateTimeType(self.TEST_DATETIME).before_than_or_equal_to(
-                self.TEST_DATETIME_OBJ + timedelta(seconds=1)))
+            self.datetime_type_date.before_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1))
+        )

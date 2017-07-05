@@ -10,6 +10,11 @@ with open('HISTORY.rst') as f:
 
 description = 'Python DSL for setting up business intelligence rules that can be configured without code'
 
+install_requires = [
+    'pytz>=2016.10',
+    'typing',
+]
+
 setuptools.setup(
     name='business-rules',
     version=version,
@@ -18,5 +23,6 @@ setuptools.setup(
     author_email='open-source@venmo.com',
     url='https://github.com/venmo/business-rules',
     packages=find_packages(exclude=['tests']),
-    license='MIT'
+    license='MIT',
+    install_requires=install_requires
 )

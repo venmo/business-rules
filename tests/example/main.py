@@ -1,10 +1,8 @@
-import datetime
 import logging
 
 from business_rules import run_all
 from tests.example.actions import ExampleActions
 from tests.example.basket import Item, Basket
-from tests.example.validators import ExampleValidators
 from tests.example.variables import ExampleVariables
 
 logging.basicConfig(level=logging.DEBUG)
@@ -48,6 +46,16 @@ rules = [
                 }
             }
         ]
+    },
+    {
+        "actions": [
+            {
+                "name": "log",
+                "params": {
+                    "message": "Rule with no conditions triggered!",
+                }
+            }
+        ]
     }
 ]
 
@@ -58,5 +66,4 @@ run_all(
     rule_list=rules,
     defined_variables=ExampleVariables(basket),
     defined_actions=ExampleActions(basket),
-    defined_validators=ExampleValidators(basket),
 )

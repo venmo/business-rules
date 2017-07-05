@@ -5,7 +5,6 @@ from business_rules import fields
 from business_rules.actions import BaseActions
 from business_rules.models import ConditionResult
 from business_rules.operators import StringType
-from business_rules.validators import BaseValidator
 from business_rules.variables import BaseVariables
 from . import TestCase
 
@@ -48,14 +47,12 @@ class EngineTests(TestCase):
 
         variables = BaseVariables()
         actions = BaseActions()
-        validators_mock = MagicMock()
 
-        result = engine.run_all([rule1, rule2], variables, actions, stop_on_first_trigger=True,
-                                defined_validators=validators_mock)
+        result = engine.run_all([rule1, rule2], variables, actions, stop_on_first_trigger=True)
 
         self.assertEqual(result, True)
         self.assertEqual(engine.run.call_count, 1)
-        engine.run.assert_called_once_with(rule1, variables, actions, validators_mock)
+        engine.run.assert_called_once_with(rule1, variables, actions)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=(True, []))
     @patch.object(engine, 'do_actions')
@@ -64,13 +61,12 @@ class EngineTests(TestCase):
 
         variables = BaseVariables()
         actions = BaseActions()
-        validators = BaseValidator()
 
-        result = engine.run(rule, variables, actions, validators)
+        result = engine.run(rule, variables, actions)
 
         self.assertEqual(result, True)
         engine.check_conditions_recursively.assert_called_once_with(rule['conditions'], variables, rule)
-        engine.do_actions.assert_called_once_with(rule['actions'], actions, validators, variables, [], rule)
+        engine.do_actions.assert_called_once_with(rule['actions'], actions, [], rule)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=(False, []))
     @patch.object(engine, 'do_actions')
@@ -79,9 +75,8 @@ class EngineTests(TestCase):
 
         variables = BaseVariables()
         actions = BaseActions()
-        validators = BaseValidator()
 
-        result = engine.run(rule, variables, actions, defined_validators=validators)
+        result = engine.run(rule, variables, actions)
 
         self.assertEqual(result, False)
         engine.check_conditions_recursively.assert_called_once_with(rule['conditions'], variables, rule)
@@ -226,12 +221,9 @@ class EngineTests(TestCase):
                 'param2': fields.FIELD_NUMERIC
             }
 
-            defined_validators = BaseValidator()
-            defined_variables = BaseVariables()
-
             payload = [(True, 'condition_name', 'operator_name', 'condition_value')]
 
-            engine.do_actions(rule_actions, defined_actions, defined_validators, defined_variables, payload, rule)
+            engine.do_actions(rule_actions, defined_actions, payload, rule)
 
             defined_actions.action1.assert_called_once_with()
             defined_actions.action2.assert_called_once_with(param1='foo', param2=10)
@@ -265,12 +257,9 @@ class EngineTests(TestCase):
                 'param2': fields.FIELD_NUMERIC
             }
 
-            defined_validators = BaseValidator()
-            defined_variables = BaseVariables()
-
             payload = [(True, 'condition_name', 'operator_name', 'condition_value')]
 
-            engine.do_actions(rule_actions, defined_actions, defined_validators, defined_variables, payload, rule)
+            engine.do_actions(rule_actions, defined_actions, payload, rule)
 
             defined_actions.action1.assert_called_once_with(conditions=payload, rule=rule)
             defined_actions.action2.assert_called_once_with(param1='foo', param2=10, conditions=payload, rule=rule)
@@ -284,17 +273,13 @@ class EngineTests(TestCase):
             'actions': {}
         }
 
-        defined_validators = BaseValidator()
-        defined_variables = BaseVariables()
         checked_conditions_results = [(True, 'condition_name', 'operator_name', 'condition_value')]
 
         with self.assertRaisesRegexp(AssertionError, err_string):
-            engine.do_actions(actions, BaseActions(), defined_validators,
-                              defined_variables, checked_conditions_results, rule)
+            engine.do_actions(actions, BaseActions(), checked_conditions_results, rule)
 
 
 class EngineCheckConditionsTests(TestCase):
-
     def test_case1(self):
         """ cond1: true and cond2: false => [] """
         conditions = {

@@ -4,7 +4,7 @@ clean:
 	-find . -type f -name "*.pyc" -delete
 
 deps:
-	pip install -r dev-requirements.txt
+	pip install -r requirements-dev.txt
 
 test:
 	py.test $(pytest_args)

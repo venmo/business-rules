@@ -3,23 +3,16 @@ import logging
 
 import utils
 from business_rules.models import ConditionResult
-from business_rules.validators import BaseValidator
 from util import method_type
 from .fields import FIELD_NO_INPUT
 
 logger = logging.getLogger(__name__)
 
 
-def run_all(rule_list,
-            defined_variables,
-            defined_actions,
-            defined_validators=BaseValidator(),
-            stop_on_first_trigger=False,
-            ):
-
+def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger=False):
     rule_was_triggered = False
     for rule in rule_list:
-        result = run(rule, defined_variables, defined_actions, defined_validators)
+        result = run(rule, defined_variables, defined_actions)
         if result:
             rule_was_triggered = True
             if stop_on_first_trigger:
@@ -27,12 +20,20 @@ def run_all(rule_list,
     return rule_was_triggered
 
 
-def run(rule, defined_variables, defined_actions, defined_validators):
-    conditions, actions = rule['conditions'], rule['actions']
-    rule_triggered, checked_conditions_results = check_conditions_recursively(conditions, defined_variables, rule)
+def run(rule, defined_variables, defined_actions):
+    conditions, actions = rule.get('conditions'), rule['actions']
+
+    if conditions is not None:
+        rule_triggered, checked_conditions_results = check_conditions_recursively(conditions, defined_variables, rule)
+    else:
+        # If there are no conditions then trigger actions
+        rule_triggered = True
+        checked_conditions_results = []
+
     if rule_triggered:
-        do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule)
+        do_actions(actions, defined_actions, checked_conditions_results, rule)
         return True
+
     return False
 
 
@@ -152,7 +153,7 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     return method(comparison_value)
 
 
-def do_actions(actions, defined_actions, defined_validators, defined_variables, checked_conditions_results, rule):
+def do_actions(actions, defined_actions, checked_conditions_results, rule):
     """
 
     :param actions:             List of actions objects to be executed (defined in library)
@@ -168,8 +169,6 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
                                     }
     :param defined_actions:     Class with function that implement the logic for each possible action defined in
                                 'actions' parameter
-    :param defined_validators:
-    :param defined_variables:
     :param checked_conditions_results:
     :param rule:                Rule that is beign executed
     :return: None
@@ -178,31 +177,20 @@ def do_actions(actions, defined_actions, defined_validators, defined_variables, 
     # Get only conditions when result was TRUE
     successful_conditions = filter(lambda x: x[0], checked_conditions_results)
 
-    # Execute validators, if all False, then not execute actions for rule
-    valid = [
-        getattr(
-            defined_validators,
-            condition_result[1],
-            defined_validators.validator_fallback(condition_result[1]),
-        )(condition_result[2], condition_result[3])
-        for condition_result in successful_conditions
-        ]
-
     for action in actions:
         method_name = action['name']
-        params = action.get('params') or {}
+        params = action.get('params', {})
 
         method = getattr(defined_actions, method_name, None)
 
         if not method:
-            raise AssertionError("Action {0} is not defined in class {1}" \
-                                 .format(method_name, defined_actions.__class__.__name__))
+            raise AssertionError(
+                "Action {0} is not defined in class {1}".format(method_name, defined_actions.__class__.__name__))
 
-        if method.bypass_validator or any(valid):
-            utils.check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
+        utils.check_params_valid_for_method(method, params, method_type.METHOD_TYPE_ACTION)
 
-            method_params = _build_action_parameters(method, params, rule, successful_conditions)
-            method(**method_params)
+        method_params = _build_action_parameters(method, params, rule, successful_conditions)
+        method(**method_params)
 
 
 def _build_action_parameters(method, parameters, rule, conditions):

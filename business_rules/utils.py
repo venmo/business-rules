@@ -22,16 +22,20 @@ def export_rule_data(variables, actions):
     :return:
     """
     from . import operators
+
     actions_data = actions.get_all_actions()
     variables_data = variables.get_all_variables()
+
     variable_type_operators = {}
     for variable_class in inspect.getmembers(operators, lambda x: getattr(x, 'export_in_rule_data', False)):
         variable_type = variable_class[1]  # getmembers returns (name, value)
         variable_type_operators[variable_type.name] = variable_type.get_all_operators()
 
-    return {"variables": variables_data,
-            "actions": actions_data,
-            "variable_type_operators": variable_type_operators}
+    return {
+        "variables": variables_data,
+        "actions": actions_data,
+        "variable_type_operators": variable_type_operators
+    }
 
 
 def float_to_decimal(f):
@@ -130,8 +134,6 @@ def validate_rule_data(variables, actions, rule):
         root_keys = rule.keys()
         if 'actions' not in root_keys:
             raise AssertionError('Missing "{}" key'.format('actions'))
-        if 'conditions' not in root_keys:
-            raise AssertionError('Missing "{}" key'.format('conditions'))
 
     def validate_condition_operator(condition, rule_schema):
         """
@@ -198,7 +200,7 @@ def validate_rule_data(variables, actions, rule):
     rule_schema = export_rule_data(variables, actions)
     validate_root_keys(rule)
     conditions = rule.get('conditions', None)
-    if type(conditions) is not dict:
+    if conditions is not None and type(conditions) is not dict:
         raise AssertionError('"conditions" must be a dictionary')
     validate_conditions(conditions, rule_schema)
     validate_actions(rule.get('actions'))

@@ -1,5 +1,5 @@
 from business_rules.actions import rule_action, BaseActions
-from business_rules.engine import check_condition
+from business_rules.engine import check_condition, run_all
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT
 from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable
 from . import TestCase
@@ -32,6 +32,10 @@ class SomeVariables(BaseVariables):
     def string_variable_with_options(self):
         return "foo"
 
+    @string_rule_variable(public=False)
+    def private_string_variable(self):
+        return 'foo'
+
 
 class SomeActions(BaseActions):
     @rule_action(params={"foo": FIELD_NUMERIC})
@@ -51,6 +55,9 @@ class SomeActions(BaseActions):
             ]
         }])
     def some_select_action(self, baz): pass
+
+    @rule_action()
+    def action_with_no_params(self): pass
 
 
 class IntegrationTests(TestCase):
@@ -216,3 +223,18 @@ class IntegrationTests(TestCase):
 
         condition_result = check_condition(condition, SomeVariables(), rule)
         self.assertTrue(condition_result)
+
+    def test_run_with_no_conditions(self):
+        actions = [
+            {
+                'name': 'action_with_no_params'
+            }
+        ]
+
+        rule = {
+            'actions': actions
+        }
+
+        result = run_all(rule_list=[rule], defined_variables=SomeVariables(), defined_actions=SomeActions())
+
+        self.assertTrue(result)

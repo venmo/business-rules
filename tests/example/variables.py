@@ -7,7 +7,7 @@ class ExampleVariables(BaseVariables):
     def __init__(self, basket):
         self.basket = basket
 
-    @select_rule_variable()
+    @select_rule_variable(public=False)
     def items(self):
         return self.basket.product_codes
 

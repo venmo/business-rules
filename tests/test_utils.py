@@ -1,10 +1,10 @@
 import pytest
-from datetime import datetime, time
-from business_rules import utils
-from tests.test_integration import SomeVariables, SomeActions
-from tests import actions, variables
+
 from business_rules import fields
+from business_rules import utils
 from business_rules.fields import FIELD_DATETIME, FIELD_TIME
+from tests import actions, variables
+from tests.test_integration import SomeVariables, SomeActions
 
 
 def test_fn_name_to_pretty_label():
@@ -50,26 +50,50 @@ def test_export_rule_data():
     Tests that export_rule_data has the three expected keys in the right format.
     """
     all_data = utils.export_rule_data(SomeVariables(), SomeActions())
+
     assert all_data.get("actions") == [
-        {"name": "some_action",
-         "label": "Some Action",
-         "params": [
-             {'bypass_validator': False, 'fieldType': 'numeric', 'label': 'Foo',
-              'name': 'foo'}]},
-        {"name": "some_other_action",
-         "label": "woohoo",
-         "params": [{'bypass_validator': False, 'fieldType': 'text', 'label': 'Bar',
-                     'name': 'bar'}]},
-        {"name": "some_select_action",
-         "label": "Some Select Action",
-         "params": [{'fieldType': fields.FIELD_SELECT,
-                     'name': 'baz',
-                     'label': 'Baz',
-                     'options': [
+        {
+            "name": "action_with_no_params",
+            "label": "Action With No Params",
+            "params": None
+        },
+        {
+            "name": "some_action",
+            "label": "Some Action",
+            "params": [
+                {
+                    'fieldType': 'numeric',
+                    'label': 'Foo',
+                    'name': 'foo'
+                }
+            ]
+        },
+        {
+            "name": "some_other_action",
+            "label": "woohoo",
+            "params": [
+                {
+                    'fieldType': 'text',
+                    'label': 'Bar',
+                    'name': 'bar'
+                }
+            ]
+        },
+        {
+            "name": "some_select_action",
+            "label": "Some Select Action",
+            "params": [
+                {
+                    'fieldType': fields.FIELD_SELECT,
+                    'name': 'baz',
+                    'label': 'Baz',
+                    'options': [
                          {'label': 'Chose Me', 'name': 'chose_me'},
                          {'label': 'Or Me', 'name': 'or_me'}
-                     ]}]
-         }
+                     ]
+                }
+            ]
+        }
     ]
 
     assert all_data.get("variables") == [
@@ -78,7 +102,16 @@ def test_export_rule_data():
             "label": "Foo",
             "field_type": "string",
             "options": [],
-            "params": []
+            "params": [],
+            "public": True
+        },
+        {
+            'name': 'private_string_variable',
+            'label': 'Private String Variable',
+            'field_type': 'string',
+            'options': [],
+            'params': [],
+            'public': False
         },
         {
             'name': 'rule_received',
@@ -86,27 +119,31 @@ def test_export_rule_data():
             'field_type': 'boolean',
             'options': [],
             'params': [],
+            "public": True
         },
         {
             'name': 'string_variable_with_options',
             'label': 'StringLabel',
             'field_type': 'string',
             'options': ['one', 'two', 'three'],
-            'params': []
+            'params': [],
+            "public": True
         },
         {
             "name": "ten",
             "label": "Diez",
             "field_type": "numeric",
             "options": [],
-            "params": []
+            "params": [],
+            "public": True
         },
         {
             'name': 'true_bool',
             'label': 'True Bool',
             'field_type': 'boolean',
             'options': [],
-            "params": []
+            "params": [],
+            "public": True
         },
         {
             'name': 'x_plus_one',
@@ -115,8 +152,9 @@ def test_export_rule_data():
             'options': [],
             'params': [
                 {'field_type': 'numeric', 'name': 'x', 'label': 'X'}
-            ]
-        },
+            ],
+            "public": True
+        }
     ]
 
     assert all_data.get("variable_type_operators") == {
@@ -326,12 +364,12 @@ def test_validate_rule_data_empty_dict():
         utils.validate_rule_data(variables.TestVariables, actions.TestActions, {})
 
 
-def test_validate_rule_data_extra_no_conditions():
+def test_validate_rule_data_no_conditions():
     invalid_rule = {
         'actions': []
     }
-    with pytest.raises(AssertionError):
-        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+    utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
 
 
 def test_validate_rule_data_no_actions():
@@ -403,6 +441,22 @@ def test_validate_rule_data_unknown_condition_operator():
         utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
 
 
+def test_validate_rule_data_missing_condition_operator():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'value': ''
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
 def test_validate_rule_data_bool_value_ignored():
     invalid_rule = {
         'conditions': {
@@ -449,6 +503,57 @@ def test_validate_rule_data_unknown_condition_key():
             ]
         },
         'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_multiple_special_keys_in_condition():
+    """ A rule cannot contain more than one 'any' or 'all' keys """
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_false',
+                    'value': ''
+                }
+            ],
+            'all': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_false',
+                    'value': ''
+                }
+            ]
+        },
+        'actions': []
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_actions_is_not_a_list():
+    invalid_rule = {
+        'conditions': {
+            'any': [
+                {
+                    'name': 'bool_variable',
+                    'operator': 'is_false',
+                    'value': ''
+                }
+            ]
+        },
+        'actions': {}
+    }
+    with pytest.raises(AssertionError):
+        utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)
+
+
+def test_validate_rule_contions_is_not_a_dictionary():
+    invalid_rule = {
+        'conditions': [],
+        'actions': {}
     }
     with pytest.raises(AssertionError):
         utils.validate_rule_data(variables.TestVariables, actions.TestActions, invalid_rule)

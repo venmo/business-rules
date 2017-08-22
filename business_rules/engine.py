@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger=False):
+    # type: (...) -> List[bool]
     results = [False] * len(rule_list)
     for i, rule in enumerate(rule_list):
         result = run(rule, defined_variables, defined_actions)

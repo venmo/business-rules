@@ -10,14 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger=False):
-    rule_was_triggered = False
-    for rule in rule_list:
+    # type: (...) -> List[bool]
+    results = [False] * len(rule_list)
+    for i, rule in enumerate(rule_list):
         result = run(rule, defined_variables, defined_actions)
         if result:
-            rule_was_triggered = True
+            results[i] = True
             if stop_on_first_trigger:
-                return True
-    return rule_was_triggered
+                break
+    return results
 
 
 def run(rule, defined_variables, defined_actions):

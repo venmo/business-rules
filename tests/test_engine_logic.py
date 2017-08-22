@@ -17,7 +17,8 @@ class EngineTests(TestCase):
     @patch.object(engine, 'run')
     def test_run_all_some_rule_triggered(self, *args):
         """
-        Returns a list of booleans indicating whether each rule was triggered.
+        By default, does not stop on first triggered rule. Returns a list of
+        booleans indicating whether each rule was triggered.
         """
         rule1 = {'conditions': 'condition1', 'actions': 'action name 1'}
         rule2 = {'conditions': 'condition2', 'actions': 'action name 2'}
@@ -39,6 +40,20 @@ class EngineTests(TestCase):
         results = engine.run_all([rule2, rule1], variables, actions)
         self.assertEqual(results, [False, True])
         self.assertEqual(engine.run.call_count, 2)
+
+    @patch.object(engine, 'run', return_value=True)
+    def test_run_all_stop_on_first(self, *args):
+        rule1 = {'conditions': 'condition1', 'actions': 'action name 1'}
+        rule2 = {'conditions': 'condition2', 'actions': 'action name 2'}
+
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        results = engine.run_all([rule1, rule2], variables, actions, stop_on_first_trigger=True)
+
+        self.assertEqual(results, [True, False])
+        self.assertEqual(engine.run.call_count, 1)
+        engine.run.assert_called_once_with(rule1, variables, actions)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=(True, []))
     @patch.object(engine, 'do_actions')

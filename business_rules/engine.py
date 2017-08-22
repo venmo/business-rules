@@ -9,12 +9,15 @@ from .fields import FIELD_NO_INPUT
 logger = logging.getLogger(__name__)
 
 
-def run_all(rule_list, defined_variables, defined_actions):
-    # type: (...) -> List[bool]
-    return [
-        run(rule, defined_variables, defined_actions)
-        for rule in rule_list
-    ]
+def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger=False):
+    results = [False] * len(rule_list)
+    for i, rule in enumerate(rule_list):
+        result = run(rule, defined_variables, defined_actions)
+        if result:
+            results[i] = True
+            if stop_on_first_trigger:
+                break
+    return results
 
 
 def run(rule, defined_variables, defined_actions):

@@ -264,6 +264,7 @@ for product in Products.objects.all():
     run_all(rule_list=rules,
             defined_variables=ProductVariables(product),
             defined_actions=ProductActions(product),
+            stop_on_first_trigger=True,
            )
 ```
 

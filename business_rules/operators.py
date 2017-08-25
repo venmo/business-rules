@@ -175,14 +175,14 @@ class SelectType(BaseType):
             return value_from_list == other_value
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
-    def contains(self, other_value):
+    def is_equal_to(self, other_value):
         for val in self.value:
             if self._case_insensitive_equal_to(val, other_value):
                 return True
         return False
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
-    def does_not_contain(self, other_value):
+    def is_not_equal_to(self, other_value):
         for val in self.value:
             if self._case_insensitive_equal_to(val, other_value):
                 return False
@@ -201,37 +201,37 @@ class SelectMultipleType(BaseType):
         return value
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def contains_all(self, other_value):
+    def has_all_of(self, other_value):
         select = SelectType(self.value)
         for other_val in other_value:
-            if not select.contains(other_val):
+            if not select.is_equal_to(other_val):
                 return False
         return True
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def is_contained_by(self, other_value):
+    def only_has_any_of_the(self, other_value):
         other_select_multiple = SelectMultipleType(other_value)
-        return other_select_multiple.contains_all(self.value)
+        return other_select_multiple.has_all_of(self.value)
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_at_least_one_element_with(self, other_value):
+    def has_atleast_one_of(self, other_value):
         select = SelectType(self.value)
         for other_val in other_value:
-            if select.contains(other_val):
+            if select.is_equal_to(other_val):
                 return True
         return False
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_exactly_one_element_with(self, other_value):
+    def has_excatly_one_of(self, other_value):
         found_one = False
         select = SelectType(self.value)
         for other_val in other_value:
-            if select.contains(other_val):
+            if select.is_equal_to(other_val):
                 if found_one:
                     return False
                 found_one = True
         return found_one
 
     @type_operator(FIELD_SELECT_MULTIPLE)
-    def shares_no_elements_with(self, other_value):
-        return not self.shares_at_least_one_element_with(other_value)
+    def does_not_have_any_of(self, other_value):
+        return not self.has_atleast_one_of(other_value)

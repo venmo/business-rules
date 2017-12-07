@@ -52,6 +52,7 @@ def check_condition(condition, defined_variables):
     """
     name, op, value = condition['name'], condition['operator'], condition['value']
     operator_type = _get_variable_value(defined_variables, name)
+    value = _get_comparison_value(defined_variables, operator_type, op, value)
     return _do_operator_comparison(operator_type, op, value)
 
 def _get_variable_value(defined_variables, name):
@@ -68,6 +69,25 @@ def _get_variable_value(defined_variables, name):
     val = method()
     return method.field_type(val)
 
+def _get_comparison_value(defined_variables, op_type, op_name, raw_value):
+    """ If the comparison value is a string and that string is itself a
+    defined variable method, evaluate that method and return the result.
+    """
+    def fallback(*args, **kwargs):
+        return raw_value
+    try:
+        comparison_value = str(raw_value)
+    except:
+        fallback()
+
+    value_method = getattr(defined_variables, comparison_value, fallback)
+    comparison_method = getattr(op_type, op_name, fallback)
+
+    if getattr(comparison_method, 'input_type', '') == FIELD_NO_INPUT:
+        return None
+    else:
+        return value_method()
+
 def _do_operator_comparison(operator_type, operator_name, comparison_value):
     """ Finds the method on the given operator_type and compares it to the
     given comparison_value.
@@ -80,9 +100,8 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
         raise AssertionError("Operator {0} does not exist for type {1}".format(
             operator_name, operator_type.__class__.__name__))
     method = getattr(operator_type, operator_name, fallback)
-    if getattr(method, 'input_type', '') == FIELD_NO_INPUT:
-        return method()
-    return method(comparison_value)
+    result = method(comparison_value) if comparison_value is not None else method()
+    return result
 
 
 def do_actions(actions, defined_actions):

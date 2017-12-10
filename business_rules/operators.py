@@ -314,6 +314,7 @@ class DateTimeType(BaseType):
 class TimeType(BaseType):
     name = "time"
     TIME_FORMAT = '%H:%M:%S'
+    TIME_FORMAT_NO_SECONDS = '%H:%M'
 
     def _assert_valid_value_and_cast(self, value):
         """
@@ -330,6 +331,12 @@ class TimeType(BaseType):
 
         try:
             dt = datetime.strptime(value, self.TIME_FORMAT)
+            return time(dt.hour, dt.minute, dt.second)
+        except (ValueError, TypeError):
+            pass
+
+        try:
+            dt = datetime.strptime(value, self.TIME_FORMAT_NO_SECONDS)
             return time(dt.hour, dt.minute, dt.second)
         except (ValueError, TypeError):
             raise AssertionError("{0} is not a valid time type.".format(value))

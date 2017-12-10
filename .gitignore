@@ -36,3 +36,7 @@ nosetests.xml
 
 # Vim
 *.sw[po]
+.idea/
+tests/__pycache__/
+.cache/
+business-rules.iml

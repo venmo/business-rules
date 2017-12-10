@@ -1,19 +1,23 @@
 import inspect
 import re
+from decimal import Decimal
 from functools import wraps
-from .six import string_types, integer_types
+from datetime import datetime, date, time
+from six import string_types, integer_types
+import calendar
 
-from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
+from .fields import (
+    FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT, FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_DATETIME, FIELD_TIME
+)
 from .utils import fn_name_to_pretty_label, float_to_decimal
-from decimal import Decimal, Inexact, Context
+
 
 class BaseType(object):
     def __init__(self, value):
         self.value = self._assert_valid_value_and_cast(value)
 
     def _assert_valid_value_and_cast(self, value):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @classmethod
     def get_all_operators(cls):
@@ -38,26 +42,28 @@ def type_operator(input_type, label=None,
       so that arguments passed to it will have _assert_valid_value_and_cast
       called on them to make type errors explicit.
     """
+
     def wrapper(func):
         func.is_operator = True
-        func.label = label \
-            or fn_name_to_pretty_label(func.__name__)
+        func.label = label or fn_name_to_pretty_label(func.__name__)
         func.input_type = input_type
 
         @wraps(func)
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v))
-                              for k, v in kwargs.items())
+                kwargs = dict(
+                    (k, self._assert_valid_value_and_cast(v)) for k, v in kwargs.items()
+                )
             return func(self, *args, **kwargs)
+
         return inner
+
     return wrapper
 
 
 @export_type
 class StringType(BaseType):
-
     name = "string"
 
     def _assert_valid_value_and_cast(self, value):
@@ -138,7 +144,6 @@ class NumericType(BaseType):
 
 @export_type
 class BooleanType(BaseType):
-
     name = "boolean"
 
     def _assert_valid_value_and_cast(self, value):
@@ -155,9 +160,9 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
+
 @export_type
 class SelectType(BaseType):
-
     name = "select"
 
     def _assert_valid_value_and_cast(self, value):
@@ -170,7 +175,7 @@ class SelectType(BaseType):
     def _case_insensitive_equal_to(value_from_list, other_value):
         if isinstance(value_from_list, string_types) and \
                 isinstance(other_value, string_types):
-                    return value_from_list.lower() == other_value.lower()
+            return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value
 
@@ -191,7 +196,6 @@ class SelectType(BaseType):
 
 @export_type
 class SelectMultipleType(BaseType):
-
     name = "select_multiple"
 
     def _assert_valid_value_and_cast(self, value):
@@ -235,3 +239,124 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+
+@export_type
+class DateTimeType(BaseType):
+    name = "datetime"
+    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+    DATE_FORMAT = '%Y-%m-%d'
+
+    def _assert_valid_value_and_cast(self, value):
+        """
+        Parse string with formats '%Y-%m-%dT%H:%M:%S' or '%Y-%m-%d' into datetime.datetime instance.
+
+        :param value:
+        :return:
+        """
+        if isinstance(value, datetime):
+            return value
+
+        if isinstance(value, date):
+            return datetime(value.year, value.month, value.day)
+
+        try:
+            return datetime.strptime(value, self.DATETIME_FORMAT)
+        except (ValueError, TypeError):
+            pass
+
+        try:
+            return datetime.strptime(value, self.DATE_FORMAT)
+        except (ValueError, TypeError):
+            raise AssertionError("{0} is not a valid datetime type.".format(value))
+
+    def _set_timezone_if_different(self, variable_datetime, condition_value_datetime):
+        # type: (datetime, datetime) -> datetime
+        if variable_datetime.tzinfo is None:
+            if condition_value_datetime.tzinfo is None:
+                return condition_value_datetime
+            else:
+                return condition_value_datetime.replace(tzinfo=None)
+
+        return condition_value_datetime.replace(tzinfo=variable_datetime.tzinfo)
+
+    @type_operator(FIELD_DATETIME)
+    def equal_to(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
+        return self.value == other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def after_than(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
+        return self.value > other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def after_than_or_equal_to(self, other_datetime):
+        return self.after_than(other_datetime) or self.equal_to(other_datetime)
+
+    @type_operator(FIELD_DATETIME)
+    def before_than(self, other_datetime):
+        # type: (datetime) -> bool
+        other_datetime = self._set_timezone_if_different(self.value, other_datetime)
+
+        return self.value < other_datetime
+
+    @type_operator(FIELD_DATETIME)
+    def before_than_or_equal_to(self, other_datetime):
+        return self.before_than(other_datetime) or self.equal_to(other_datetime)
+
+
+@export_type
+class TimeType(BaseType):
+    name = "time"
+    TIME_FORMAT = '%H:%M:%S'
+    TIME_FORMAT_NO_SECONDS = '%H:%M'
+
+    def _assert_valid_value_and_cast(self, value):
+        """
+        Parse datetime, time or string with format %H:%M:%S into time instance.
+
+        :param value: datetime, date or string with format %H:%M:%S
+        :return: time
+        """
+        if isinstance(value, time):
+            return value
+
+        if isinstance(value, datetime):
+            return value.time()
+
+        try:
+            dt = datetime.strptime(value, self.TIME_FORMAT)
+            return time(dt.hour, dt.minute, dt.second)
+        except (ValueError, TypeError):
+            pass
+
+        try:
+            dt = datetime.strptime(value, self.TIME_FORMAT_NO_SECONDS)
+            return time(dt.hour, dt.minute, dt.second)
+        except (ValueError, TypeError):
+            raise AssertionError("{0} is not a valid time type.".format(value))
+
+    @type_operator(FIELD_TIME)
+    def equal_to(self, other_time):
+        return self.value == other_time
+
+    @type_operator(FIELD_TIME)
+    def after_than(self, other_time):
+        return self.value > other_time
+
+    @type_operator(FIELD_TIME)
+    def after_than_or_equal_to(self, other_time):
+        return self.after_than(other_time) or self.equal_to(other_time)
+
+    @type_operator(FIELD_TIME)
+    def before_than(self, other_time):
+        return self.value < other_time
+
+    @type_operator(FIELD_TIME)
+    def before_than_or_equal_to(self, other_time):
+        return self.before_than(other_time) or self.equal_to(other_time)

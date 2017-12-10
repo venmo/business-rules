@@ -1,17 +1,26 @@
 from . import TestCase
 from business_rules.utils import fn_name_to_pretty_label
-from business_rules.variables import (rule_variable,
-                                      numeric_rule_variable,
-                                      string_rule_variable,
-                                      boolean_rule_variable,
-                                      select_rule_variable,
-                                      select_multiple_rule_variable)
+from business_rules.variables import (
+    rule_variable,
+    numeric_rule_variable,
+    string_rule_variable,
+    boolean_rule_variable,
+    select_rule_variable,
+    select_multiple_rule_variable,
+    datetime_rule_variable,
+    time_rule_variable,
+)
 
-from business_rules.operators import (NumericType,
-                        StringType,
-                        BooleanType,
-                        SelectType,
-                        SelectMultipleType)
+from business_rules.operators import (
+    NumericType,
+    StringType,
+    BooleanType,
+    SelectType,
+    SelectMultipleType,
+    DateTimeType,
+    TimeType,
+)
+
 
 class RuleVariableTests(TestCase):
     """ Tests for the base rule_variable decorator.
@@ -19,22 +28,26 @@ class RuleVariableTests(TestCase):
 
     def test_pretty_label(self):
         self.assertEqual(
-                fn_name_to_pretty_label('some_name_Of_a_thing'),
-                'Some Name Of A Thing')
+            fn_name_to_pretty_label('some_name_Of_a_thing'),
+            'Some Name Of A Thing')
         self.assertEqual(fn_name_to_pretty_label('hi'), 'Hi')
 
     def test_rule_variable_requires_instance_of_base_type(self):
-        err_string = "a_string is not instance of BaseType in rule_variable "\
-                "field_type"
+        err_string = "a_string is not instance of BaseType in rule_variable " \
+                     "field_type"
         with self.assertRaisesRegexp(AssertionError, err_string):
             @rule_variable('a_string')
             def some_test_function(self): pass
 
     def test_rule_variable_decorator_internals(self):
-        """ Make sure that the expected attributes are attached to a function
-        by the variable decorators.
         """
+        Make sure that the expected attributes are attached to a function
+        by the variable decorators.
+        :return:
+        """
+
         def some_test_function(self): pass
+
         wrapper = rule_variable(StringType, 'Foo Name', options=['op1', 'op2'])
         func = wrapper(some_test_function)
         self.assertTrue(func.is_rule_variable)
@@ -45,19 +58,30 @@ class RuleVariableTests(TestCase):
     def test_rule_variable_works_as_decorator(self):
         @rule_variable(StringType, 'Blah')
         def some_test_function(self): pass
+
         self.assertTrue(some_test_function.is_rule_variable)
 
     def test_rule_variable_decorator_auto_fills_label(self):
         @rule_variable(StringType)
         def some_test_function(self): pass
+
         self.assertTrue(some_test_function.label, 'Some Test Function')
 
     ###
     ### rule_variable wrappers for each variable type
     ###
 
-    def test_numeric_rule_variable(self):
+    def test_rule_variable_function_with_parameter_not_defined(self):
+        with self.assertRaises(AssertionError):
+            @rule_variable(NumericType, params={'parameter_not_defined': 'type'})
+            def variable_function(): pass
 
+    def test_rule_variable_function_with_parameter_invalid_type(self):
+        with self.assertRaises(AssertionError):
+            @rule_variable(NumericType, params={'parameter': 'invalid_type'})
+            def variable_function(parameter): pass
+
+    def test_numeric_rule_variable(self):
         @numeric_rule_variable('My Label')
         def numeric_var(): pass
 
@@ -66,7 +90,6 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(numeric_var, 'label'), 'My Label')
 
     def test_numeric_rule_variable_no_parens(self):
-
         @numeric_rule_variable
         def numeric_var(): pass
 
@@ -74,7 +97,6 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(numeric_var, 'field_type'), NumericType)
 
     def test_string_rule_variable(self):
-
         @string_rule_variable(label='My Label')
         def string_var(): pass
 
@@ -83,7 +105,6 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(string_var, 'label'), 'My Label')
 
     def test_string_rule_variable_no_parens(self):
-
         @string_rule_variable
         def string_var(): pass
 
@@ -91,7 +112,6 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(string_var, 'field_type'), StringType)
 
     def test_boolean_rule_variable(self):
-
         @boolean_rule_variable(label='My Label')
         def boolean_var(): pass
 
@@ -100,7 +120,6 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(boolean_var, 'label'), 'My Label')
 
     def test_boolean_rule_variable_no_parens(self):
-
         @boolean_rule_variable
         def boolean_var(): pass
 
@@ -108,8 +127,8 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(boolean_var, 'field_type'), BooleanType)
 
     def test_select_rule_variable(self):
+        options = {'foo': 'bar'}
 
-        options = {'foo':'bar'}
         @select_rule_variable(options=options)
         def select_var(): pass
 
@@ -118,11 +137,43 @@ class RuleVariableTests(TestCase):
         self.assertEqual(getattr(select_var, 'options'), options)
 
     def test_select_multiple_rule_variable(self):
+        options = {'foo': 'bar'}
 
-        options = {'foo':'bar'}
         @select_multiple_rule_variable(options=options)
         def select_multiple_var(): pass
 
         self.assertTrue(getattr(select_multiple_var, 'is_rule_variable'))
         self.assertEqual(getattr(select_multiple_var, 'field_type'), SelectMultipleType)
         self.assertEqual(getattr(select_multiple_var, 'options'), options)
+
+    def test_datetime_variable(self):
+        @datetime_rule_variable()
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), DateTimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Datetime Variable')
+
+    def test_datetime_variable_with_label(self):
+        @datetime_rule_variable(label='Custom Label')
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), DateTimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Custom Label')
+
+    def test_time_variable(self):
+        @time_rule_variable()
+        def time_variable(): pass
+
+        self.assertTrue(getattr(time_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(time_variable, 'field_type'), TimeType)
+        self.assertEqual(getattr(time_variable, 'label'), 'Time Variable')
+
+    def test_time_variable_with_label(self):
+        @time_rule_variable(label='Custom Label')
+        def datetime_variable(): pass
+
+        self.assertTrue(getattr(datetime_variable, 'is_rule_variable'))
+        self.assertEqual(getattr(datetime_variable, 'field_type'), TimeType)
+        self.assertEqual(getattr(datetime_variable, 'label'), 'Custom Label')

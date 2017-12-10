@@ -50,6 +50,18 @@ class ProductVariables(BaseVariables):
     @select_rule_variable(options=Products.top_holiday_items())
     def goes_well_with(self):
         return products.related_products
+
+    @numeric_rule_variable(params=[{
+        'field_type': FIELD_NUMERIC,
+        'name': 'days',
+        'label': 'Days'
+    }])
+    def orders_sold_in_last_x_days(self, days):
+        count = 0
+        for order in self.product.orders:
+            if (datetime.date.today() - order.date_sold).days < days:
+                count += 1
+        return count
 ```
 
 ### 2. Define your set of actions
@@ -126,27 +138,49 @@ rules = [
 
 # current_inventory < 5 OR (current_month = "December" AND current_inventory < 20)
 { "conditions": { "any": [
-      { "name": "current_inventory",
-        "operator": "less_than",
-        "value": 5,
-      },
-    ]},
-      { "all": [
-        {  "name": "current_month",
-          "operator": "equal_to",
-          "value": "December",
-        },
-        { "name": "current_inventory",
-          "operator": "less_than",
-          "value": 20,
-        }
-      ]},
+            {
+                "name": "current_inventory",
+                "operator": "less_than",
+                "value": 5,
+            },
+            {
+                "all": [
+                    {
+                        "name": "current_month",
+                        "operator": "equal_to",
+                        "value": "December",
+                    },
+                    {
+                        "name": "current_inventory",
+                        "operator": "less_than",
+                        "value": 20,
+                    }
+                ]
+            }
+        ]
   },
   "actions": [
     { "name": "order_more",
       "params":{"number_to_order": 40},
     },
   ],
+},
+# orders_sold_in_last_x_days(5) > 10
+{
+    "conditions": { "all": [
+        {
+            "name": "orders_sold_in_last_x_days",
+            "operator": "greater_than",
+            "value": 10,
+            "params": {"days": 5},
+        }
+    ]},
+    "actions": [
+        {
+            "name": "order_more",
+            "fields": [{"name": "number_to_order", "value": 40}]
+        }
+    ]
 }]
 ```
 
@@ -161,21 +195,29 @@ export_rule_data(ProductVariables, ProductActions)
 
 that returns
 
-```python
+```json
 {"variables": [
     { "name": "expiration_days",
       "label": "Days until expiration",
       "field_type": "numeric",
-      "options": []},
+      "options": [],
+      "params": []},
     { "name": "current_month",
       "label": "Current Month",
       "field_type": "string",
-      "options": []},
+      "options": [],
+      "params": []},
     { "name": "goes_well_with",
       "label": "Goes Well With",
       "field_type": "select",
-      "options": ["Eggnog", "Cookies", "Beef Jerkey"]}
-                ],
+      "options": ["Eggnog", "Cookies", "Beef Jerkey"],
+      "params": []},
+    { "name": "orders_sold_in_last_x_days",
+      "label": "Orders Sold In Last X Days",
+      "field_type": "numeric",
+      "options": [],
+      "params": [{"field_type": "numeric", "name": "days", "label": "Days"}]}
+  ],
   "actions": [
     { "name": "put_on_sale",
       "label": "Put On Sale",
@@ -204,6 +246,13 @@ that returns
 }
 ```
 
+To validate rule data:
+
+```python
+from business_rules import validate_rule_data
+is_valid = validate_rule_data(ProductVariables, ProductActions, {'conditions':[], 'actions':[]})
+```
+
 ### Run your rules
 
 ```python
@@ -227,6 +276,9 @@ The type represents the type of the value that will be returned for the variable
 
 All decorators can optionally take a label:
 - `label` - A human-readable label to show on the frontend. By default we just split the variable name on underscores and capitalize the words.
+- `params` - A list of parameters that will be passed to the variable when its value is calculated. The list elements
+should be dictionaries with a `field_type` to specify the type and `name` that corresponds to an argument of the
+variable function.
 
 The available types and decorators are:
 
@@ -276,6 +328,51 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_at_least_one_element_with`
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
+
+**datetime** - a Timestamp value
+
+A rule variable accepts the following types of values:
+
+* int
+* string with format `%Y-%m-%dT%H:%M:%S`
+* string with format `%Y-%m-%d`
+
+A variable can return the following types of values:
+
+* int
+* datetime
+* date
+* string with format `%Y-%m-%dT%H:%M:%S`
+* string with format `%Y-%m-%d`
+
+`@datetime_rule_variable` operators:
+
+* `equal_to`
+* `before_than`
+* `before_than_or_equal_to`
+* `after_than`
+* `after_than_or_equal_to`
+
+
+**time** - a Time value
+
+A rule variable accepts the following types of values:
+
+* string with format `%H:%M:%S`
+
+A variable can return the following types of values:
+
+* datetime
+* time
+* string with format `%H:%M:%S`
+
+`@time_rule_variable` operators:
+
+* `equal_to`
+* `before_than`
+* `before_than_or_equal_to`
+* `after_than`
+* `after_than_or_equal_to`
 
 ### Returning data to your client
 

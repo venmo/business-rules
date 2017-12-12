@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 from decimal import Decimal
 
 import pytz
@@ -12,6 +12,7 @@ from business_rules.operators import (
     SelectMultipleType,
     BaseType,
     DateTimeType,
+    TimeType,
 )
 from tests import TestCase
 
@@ -357,3 +358,126 @@ class DateTimeOperatorTests(TestCase):
         self.assertTrue(
             self.datetime_type_date.before_than_or_equal_to(self.TEST_DATETIME_UTC_OBJ + timedelta(seconds=1))
         )
+
+
+class TimeOperatorTests(TestCase):
+    def setUp(self):
+        super(TimeOperatorTests, self).setUp()
+        self.TEST_HOUR = 13
+        self.TEST_MINUTE = 55
+        self.TEST_SECOND = 00
+        self.TEST_TIME = '{hour}:{minute}:{second}'.format(
+            hour=self.TEST_HOUR, minute=self.TEST_MINUTE, second=self.TEST_SECOND
+        )
+        self.TEST_TIME_NO_SECONDS = '{hour}:{minute}'.format(hour=self.TEST_HOUR, minute=self.TEST_MINUTE)
+        self.TEST_TIME_OBJ = time(self.TEST_HOUR, self.TEST_MINUTE, self.TEST_SECOND)
+
+        self.time_type_time = TimeType(self.TEST_TIME)
+        self.time_type_time_no_seconds = TimeType(self.TEST_TIME_NO_SECONDS)
+        self.time_type_time_obj = TimeType(self.TEST_TIME_OBJ)
+
+    def test_instantiate(self):
+        err_string = "foo is not a valid time type"
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            TimeType("foo")
+
+    def test_time_type_validates_and_cast_time(self):
+        result = TimeType(self.TEST_TIME)
+        self.assertTrue(isinstance(result.value, time))
+
+        result = TimeType(self.TEST_TIME_NO_SECONDS)
+        self.assertTrue(isinstance(result.value, time))
+
+        result = TimeType(self.TEST_TIME_OBJ)
+        self.assertTrue(isinstance(result.value, time))
+
+    def test_time_equal_to(self):
+        self.assertTrue(self.time_type_time_no_seconds.equal_to(self.TEST_TIME))
+        self.assertTrue(self.time_type_time_no_seconds.equal_to(self.TEST_TIME_OBJ))
+
+        self.assertTrue(self.time_type_time_obj.equal_to(self.TEST_TIME))
+        self.assertTrue(self.time_type_time_obj.equal_to(self.TEST_TIME_OBJ))
+
+        self.assertTrue(self.time_type_time.equal_to(self.TEST_TIME_NO_SECONDS))
+
+    def test_other_value_not_time(self):
+        error_string = "2016-10 is not a valid time type"
+        with self.assertRaisesRegexp(AssertionError, error_string):
+            TimeType(self.TEST_TIME_NO_SECONDS).equal_to("2016-10")
+
+    def time_after_than_asserts(self, time_type):
+        # type: (TimeType) -> None
+        self.assertFalse(time_type.after_than(self.TEST_TIME))
+        self.assertFalse(time_type.after_than(self.TEST_TIME_OBJ))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute - 1, 59)
+        self.assertTrue(time_type.after_than(test_time))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertFalse(time_type.after_than(test_time))
+
+    def test_time_after_than(self):
+        self.time_after_than_asserts(self.time_type_time_no_seconds)
+        self.time_after_than_asserts(self.time_type_time_obj)
+
+        self.assertFalse(self.time_type_time.after_than(self.TEST_TIME_NO_SECONDS))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertFalse(self.time_type_time.after_than(test_time))
+
+    def time_after_than_or_equal_to_asserts(self, time_type):
+        # type: (TimeType) -> None
+        self.assertTrue(time_type.after_than_or_equal_to(self.TEST_TIME))
+        self.assertTrue(time_type.after_than_or_equal_to(self.TEST_TIME_OBJ))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute - 1, 59)
+        self.assertTrue(time_type.after_than_or_equal_to(test_time))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertFalse(time_type.after_than_or_equal_to(test_time))
+
+    def test_time_after_than_or_equal_to(self):
+        self.assertTrue(self.time_type_time.after_than_or_equal_to(self.TEST_TIME_NO_SECONDS))
+
+        self.time_after_than_or_equal_to_asserts(self.time_type_time_no_seconds)
+        self.time_after_than_or_equal_to_asserts(self.time_type_time_obj)
+
+    def time_before_than_asserts(self, time_type):
+        # type: (TimeType) -> None
+        self.assertFalse(time_type.before_than(self.TEST_TIME))
+        self.assertFalse(time_type.before_than(self.TEST_TIME_OBJ))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute - 1, 59)
+        self.assertFalse(time_type.before_than(test_time))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertTrue(time_type.before_than(test_time))
+
+    def test_time_before_than(self):
+        self.time_before_than_asserts(self.time_type_time_no_seconds)
+        self.time_before_than_asserts(self.time_type_time_obj)
+
+        self.assertFalse(self.time_type_time.before_than(self.TEST_TIME_NO_SECONDS))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertTrue(self.time_type_time.before_than(test_time))
+
+    def time_before_than_or_equal_to_asserts(self, time_type):
+        # type: (TimeType) -> None
+        self.assertTrue(time_type.before_than_or_equal_to(self.TEST_TIME))
+        self.assertTrue(time_type.before_than_or_equal_to(self.TEST_TIME_OBJ))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute - 1, 59)
+        self.assertFalse(time_type.before_than_or_equal_to(test_time))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertTrue(time_type.before_than_or_equal_to(test_time))
+
+    def test_time_before_than_or_equal_to(self):
+        self.time_before_than_or_equal_to_asserts(self.time_type_time_no_seconds)
+        self.time_before_than_or_equal_to_asserts(self.time_type_time_obj)
+
+        self.assertTrue(self.time_type_time.before_than_or_equal_to(self.TEST_TIME_NO_SECONDS))
+
+        test_time = time(self.TEST_TIME_OBJ.hour, self.TEST_TIME_OBJ.minute, self.TEST_TIME_OBJ.second + 1)
+        self.assertTrue(self.time_type_time.before_than_or_equal_to(test_time))

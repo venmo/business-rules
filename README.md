@@ -196,52 +196,93 @@ export_rule_data(ProductVariables, ProductActions)
 that returns
 
 ```json
-{"variables": [
-    { "name": "expiration_days",
+{
+  "variables": [
+    {
+      "name": "expiration_days",
       "label": "Days until expiration",
       "field_type": "numeric",
       "options": [],
-      "params": []},
-    { "name": "current_month",
+      "params": []
+    },
+    {
+      "name": "current_month",
       "label": "Current Month",
       "field_type": "string",
       "options": [],
-      "params": []},
-    { "name": "goes_well_with",
+      "params": []
+    },
+    {
+      "name": "goes_well_with",
       "label": "Goes Well With",
       "field_type": "select",
-      "options": ["Eggnog", "Cookies", "Beef Jerkey"],
-      "params": []},
-    { "name": "orders_sold_in_last_x_days",
+      "options": [
+        "Eggnog",
+        "Cookies",
+        "Beef Jerkey"
+      ],
+      "params": []
+    },
+    {
+      "name": "orders_sold_in_last_x_days",
       "label": "Orders Sold In Last X Days",
       "field_type": "numeric",
       "options": [],
-      "params": [{"field_type": "numeric", "name": "days", "label": "Days"}]}
+      "params": [
+        {
+          "field_type": "numeric",
+          "name": "days",
+          "label": "Days"
+        }
+      ]
+    }
   ],
   "actions": [
-    { "name": "put_on_sale",
+    {
+      "name": "put_on_sale",
       "label": "Put On Sale",
-      "params": {"sale_percentage": "numeric"}},
-    { "name": "order_more",
+      "params": {
+        "sale_percentage": "numeric"
+      }
+    },
+    {
+      "name": "order_more",
       "label": "Order More",
-      "params": {"number_to_order": "numeric"}}
+      "params": {
+        "number_to_order": "numeric"
+      }
+    }
   ],
   "variable_type_operators": {
-    "numeric": [ {"name": "equal_to",
-                  "label": "Equal To",
-                  "input_type": "numeric"},
-                 {"name": "less_than",
-                  "label": "Less Than",
-                  "input_type": "numeric"},
-                 {"name": "greater_than",
-                  "label": "Greater Than",
-                  "input_type": "numeric"}],
-    "string": [ { "name": "equal_to",
-                  "label": "Equal To",
-                  "input_type": "text"},
-                { "name": "non_empty",
-                  "label": "Non Empty",
-                  "input_type": "none"}]
+    "numeric": [
+      {
+        "name": "equal_to",
+        "label": "Equal To",
+        "input_type": "numeric"
+      },
+      {
+        "name": "less_than",
+        "label": "Less Than",
+        "input_type": "numeric"
+      },
+      {
+        "name": "greater_than",
+        "label": "Greater Than",
+        "input_type": "numeric"
+      }
+    ],
+    "string": [
+      {
+        "name": "equal_to",
+        "label": "Equal To",
+        "input_type": "text"
+      },
+      {
+        "name": "non_empty",
+        "label": "Non Empty",
+        "input_type": "none"
+      }
+    ]
   }
 }
 ```
@@ -270,7 +311,7 @@ for product in Products.objects.all():
 
 ## API
 
-#### Variable Types and Decorators:
+### Variable Types and Decorators:
 
 The type represents the type of the value that will be returned for the variable and is necessary since there are different available comparison operators for different types, and the front-end that's generating the rules needs to know which operators are available.
 
@@ -282,7 +323,7 @@ variable function.
 
 The available types and decorators are:
 
-**numeric** - an integer, float, or python Decimal.
+#### `numeric` - an integer, float, or python Decimal.
 
 `@numeric_rule_variable` operators:
 
@@ -294,7 +335,7 @@ The available types and decorators are:
 
 Note: to compare floating point equality we just check that the difference is less than some small epsilon
 
-**string** - a python bytestring or unicode string.
+#### `string` - a python bytestring or unicode string.
 
 `@string_rule_variable` operators:
 
@@ -305,21 +346,21 @@ Note: to compare floating point equality we just check that the difference is le
 * `matches_regex`
 * `non_empty`
 
-**boolean** - a True or False value.
+#### `boolean` - a True or False value.
 
 `@boolean_rule_variable` operators:
 
 * `is_true`
 * `is_false`
 
-**select** - a set of values, where the threshold will be a single item.
+#### `select` - a set of values, where the threshold will be a single item.
 
 `@select_rule_variable` operators:
 
 * `contains`
 * `does_not_contain`
 
-**select_multiple** - a set of values, where the threshold will be a set of items.
+#### `select_multiple` - a set of values, where the threshold will be a set of items.
 
 `@select_multiple_rule_variable` operators:
 
@@ -329,7 +370,7 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
 
-**datetime** - a Timestamp value
+#### `datetime` - a Timestamp value
 
 A rule variable accepts the following types of values:
 
@@ -354,17 +395,19 @@ A variable can return the following types of values:
 * `after_than_or_equal_to`
 
 
-**time** - a Time value
+#### `time` - a Time value
 
 A rule variable accepts the following types of values:
 
 * string with format `%H:%M:%S`
+* string with format `%H:%M`
 
 A variable can return the following types of values:
 
 * datetime
 * time
 * string with format `%H:%M:%S`
+* string with format `%H:%M`
 
 `@time_rule_variable` operators:
 
@@ -373,9 +416,6 @@ A variable can return the following types of values:
 * `before_than_or_equal_to`
 * `after_than`
 * `after_than_or_equal_to`
-
-### Returning data to your client
-
 
 
 ## Contributing

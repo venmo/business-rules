@@ -70,7 +70,7 @@ def select_multiple_rule_variable(label=None, options=None):
     return rule_variable(SelectMultipleType, label=label, options=options)
 
 
-class VariableValuesWrapper(object):
+class VariableValues(object):
 
     def __init__(self, variable, instances):
         # variable name

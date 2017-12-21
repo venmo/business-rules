@@ -74,11 +74,11 @@ class StringType(BaseType):
         Will check the value passed and will return AssertionError if value is not a valid numeric type.
         """
         value = value or ""
-        if not isinstance(value, string_types) and not isinstance(value, variables.VariableValuesWrapper):
+        if not isinstance(value, string_types) and not isinstance(value, variables.VariableValues):
             raise AssertionError("{0} is not a valid string type.".
                                  format(value))
 
-        if isinstance(value, variables.VariableValuesWrapper):
+        if isinstance(value, variables.VariableValues):
             for single_value in value.instances:
                 if single_value[value.variable] and not isinstance(single_value[value.variable], string_types):
                     raise AssertionError("{0} is not a valid string type.".
@@ -271,10 +271,10 @@ class NumericType(BaseType):
                 return AssertionError("{0} is not a valid numeric type".format(inner_value))
 
         # Considering the both type of values getting as Input
-        if not isinstance(value, variables.VariableValuesWrapper):
+        if not isinstance(value, variables.VariableValues):
             _get_numeric_value(value)
 
-        elif isinstance(value, variables.VariableValuesWrapper):
+        elif isinstance(value, variables.VariableValues):
             for single_value in value.instances:
                 _get_numeric_value(single_value[value.variable])
 
@@ -292,7 +292,7 @@ class NumericType(BaseType):
 
          As per above example :
          other_numeric : 20
-         self.value : VariableValuesWrapper type object consisting of variable and instances.
+         self.value : VariableValues type object consisting of variable and instances.
          Value of the each instance will be compared to other_numeric for equal_to operator.
 
         :return :
@@ -321,7 +321,7 @@ class NumericType(BaseType):
 
          As per above example :
          other_numeric : 20
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
          Value of the each instance will be compared to other_numeric for greater_than operator.
 
         :return :
@@ -348,7 +348,7 @@ class NumericType(BaseType):
 
          As per above example :
          other_numeric : 20
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_numeric for greater_than_or_equal_to operator.
         :return :
         values_satisfying_greater_than_equal_to :list of instances which satisfy the greater_than_or_equal_to condition
@@ -378,7 +378,7 @@ class NumericType(BaseType):
 
          As per above example :
          other_numeric : 20
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_numeric for less_than operator.
 
         :return :
@@ -406,7 +406,7 @@ class NumericType(BaseType):
 
          As per above example :
          other_numeric : 20
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_numeric for less_than_or_equal_to operator.
 
         :return :
@@ -442,11 +442,11 @@ class BooleanType(BaseType):
         Will check the value passed and will return AssertionError if value is not a valid boolean type.
 
         """
-        if not isinstance(value, variables.VariableValuesWrapper):
+        if not isinstance(value, variables.VariableValues):
             if type(value) != bool:
                 raise AssertionError("{0} is not a valid boolean type.".format(value))
 
-        if isinstance(value, variables.VariableValuesWrapper):
+        if isinstance(value, variables.VariableValues):
             for single_value in value.instances:
                 if type(single_value[value.variable]) != bool:
                     raise AssertionError("{0} is not a valid boolean type.".format(
@@ -497,12 +497,12 @@ class SelectType(BaseType):
         Checks whether the value passed here is a valid select type or not.
         If not valid it raises an AssertionError for invalid type of select type.
         """
-        if not isinstance(value, variables.VariableValuesWrapper):
+        if not isinstance(value, variables.VariableValues):
             if not hasattr(value, '__iter__'):
                 raise AssertionError("{0} is not a valid select type".
                                      format(value))
 
-        if isinstance(value, variables.VariableValuesWrapper):
+        if isinstance(value, variables.VariableValues):
             for single_value in value.instances:
                 if not hasattr(single_value[value.variable], '__iter__'):
                     raise AssertionError("{0} is not a valid select type".
@@ -529,7 +529,7 @@ class SelectType(BaseType):
 
          As per above example :
          other_numeric : "Female"
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for is_equal_to operator.
 
         :return :
@@ -570,7 +570,7 @@ class SelectType(BaseType):
 
          As per above example :
          other_numeric : "Female"
-        self.value : VariableValuesWrapper type object consisting of variable and instances
+        self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for is_not_equal_to operator.
 
         :return :
@@ -610,12 +610,12 @@ class SelectMultipleType(BaseType):
         Checks whether the value passed here is a valid select_multiple type or not.
         If not valid it raises an AssertionError for invalid type of select type.
         """
-        if not isinstance(value, variables.VariableValuesWrapper):
+        if not isinstance(value, variables.VariableValues):
             if not hasattr(value, '__iter__'):
                 raise AssertionError("{0} is not a valid select multiple type".
                                      format(value))
 
-        if isinstance(value, variables.VariableValuesWrapper):
+        if isinstance(value, variables.VariableValues):
             for single_value in value.instances:
 
                 if not hasattr(single_value[value.variable], '__iter__'):
@@ -636,7 +636,7 @@ class SelectMultipleType(BaseType):
 
          As per above example :
          other_numeric : ["tag1", "tag2", "tag3"]
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for has_all_of operator.
 
         :return :
@@ -680,7 +680,7 @@ class SelectMultipleType(BaseType):
 
          As per above example :
          other_numeric : ["tag1", "tag2", "tag3"]
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for is_contained_by operator.
 
         :return :
@@ -735,7 +735,7 @@ class SelectMultipleType(BaseType):
 
          As per above example :
          other_numeric : ["tag1", "tag2", "tag3"]
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for shares_at_least_one_element_with operator.
 
         :return :
@@ -783,7 +783,7 @@ class SelectMultipleType(BaseType):
 
          As per above example :
          other_numeric : ["tag1", "tag2", "tag3"]
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for shares_exactly_one_element_with operator.
 
         :return :
@@ -837,7 +837,7 @@ class SelectMultipleType(BaseType):
 
          As per above example :
          other_numeric : ["tag1", "tag2", "tag3"]
-         self.value : VariableValuesWrapper type object consisting of variable and instances
+         self.value : VariableValues type object consisting of variable and instances
         Value of the each instance will be compared to other_value for shares_no_elements_with operator.
 
         :return :

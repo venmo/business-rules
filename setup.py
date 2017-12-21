@@ -2,7 +2,7 @@
 
 import setuptools
 
-from business_rules import __version__ as version
+from business_rules_bulk import __version__ as version
 
 with open('HISTORY.rst') as f:
     history = f.read()

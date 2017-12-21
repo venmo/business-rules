@@ -23,7 +23,7 @@ def _validate_action_parameters(func, params):
     if params is not None:
         # Verify field name is valid
         valid_fields = [getattr(fields, f) for f in dir(fields) \
-                        if f.startswith("FIELD_")]
+                if f.startswith("FIELD_")]
         for param in params:
             param_name, field_type = param['name'], param['fieldType']
             if param_name not in func.__code__.co_varnames:

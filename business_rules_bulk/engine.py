@@ -15,6 +15,7 @@ def run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(conditions, defined_variables)
+
     if are_rules_executed(values_satisfying_rules):
         do_actions(actions, defined_actions, values_satisfying_rules)
     return values_satisfying_rules, values_not_satisfying_rules
@@ -22,23 +23,36 @@ def run(rule, defined_variables, defined_actions):
 
 def check_conditions_recursively(conditions, defined_variables):
     keys = list(conditions.keys())
+    satisfy_values_to_return = []
+    non_satisfy_values_to_return = []
+
     if keys == ['all']:
         assert len(conditions['all']) >= 1
 
         for condition in conditions['all']:
             values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(condition,
                                                                                                 defined_variables)
-        return values_satisfying_rules, values_not_satisfying_rules
+
+            satisfy_values_to_return.extend(values_satisfying_rules)
+            non_satisfy_values_to_return.extend(values_not_satisfying_rules)
+
+        return satisfy_values_to_return, non_satisfy_values_to_return
 
     elif keys == ['any']:
         assert len(conditions['any']) >= 1
         for condition in conditions['any']:
             values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(condition,
                                                                                                 defined_variables)
-            if are_rules_executed(values_not_satisfying_rules):
-                return values_satisfying_rules, values_not_satisfying_rules
+            satisfy_values_to_return.extend(values_satisfying_rules)
+            non_satisfy_values_to_return.extend(values_not_satisfying_rules)
 
-        return values_satisfying_rules, values_not_satisfying_rules
+        satisfy_values_to_return_ids = [d['id'] for d in satisfy_values_to_return]
+        temp = non_satisfy_values_to_return
+        for s in temp:
+            if s['id'] in satisfy_values_to_return_ids:
+                non_satisfy_values_to_return.remove(s)
+
+        return satisfy_values_to_return, non_satisfy_values_to_return
     else:
         # help prevent errors - any and all can only be in the condition dict
         # if they're the only item

@@ -35,8 +35,10 @@ def check_conditions_recursively(conditions, defined_variables):
         for condition in conditions['any']:
             values_satisfying_rules, values_not_satisfying_rules = check_conditions_recursively(condition,
                                                                                                 defined_variables)
+            if are_rules_executed(values_not_satisfying_rules):
+                return values_satisfying_rules, values_not_satisfying_rules
 
-            return values_satisfying_rules, values_not_satisfying_rules
+        return values_satisfying_rules, values_not_satisfying_rules
     else:
         # help prevent errors - any and all can only be in the condition dict
         # if they're the only item

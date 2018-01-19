@@ -47,7 +47,7 @@ def check_conditions_recursively(conditions, defined_variables):
             non_satisfy_values_to_return.extend(values_not_satisfying_rules)
 
         satisfy_values_to_return_ids = [d['id'] for d in satisfy_values_to_return]
-        temp = non_satisfy_values_to_return
+        temp = non_satisfy_values_to_return[:]
         for s in temp:
             if s['id'] in satisfy_values_to_return_ids:
                 non_satisfy_values_to_return.remove(s)

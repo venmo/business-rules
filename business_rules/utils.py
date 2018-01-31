@@ -55,6 +55,8 @@ def float_to_decimal(f):
 
 
 def get_valid_fields():
+    from . import fields
+
     valid_fields = [getattr(fields, f) for f in dir(fields) if f.startswith("FIELD_")]
     return valid_fields
 

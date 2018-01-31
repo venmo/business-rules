@@ -1,8 +1,7 @@
 import inspect
-from decimal import Decimal, Inexact, Context
+from decimal import Context, Decimal, Inexact
 
-import fields, engine
-from util import method_type
+from .util import method_type
 
 
 def fn_name_to_pretty_label(name):
@@ -56,6 +55,8 @@ def float_to_decimal(f):
 
 
 def get_valid_fields():
+    from . import fields
+
     valid_fields = [getattr(fields, f) for f in dir(fields) if f.startswith("FIELD_")]
     return valid_fields
 

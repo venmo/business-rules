@@ -1,18 +1,10 @@
 import inspect
 
-from typing import List, Callable, Type
+from typing import Callable, List, Type  # noqa: F401
 
-import utils
-from .operators import (
-    BaseType,
-    NumericType,
-    StringType,
-    BooleanType,
-    SelectType,
-    SelectMultipleType,
-    DateTimeType,
-    TimeType,
-)
+from . import utils
+from .operators import (BaseType, BooleanType, DateTimeType, NumericType,
+                        SelectMultipleType, SelectType, StringType, TimeType)
 from .utils import fn_name_to_pretty_label
 
 

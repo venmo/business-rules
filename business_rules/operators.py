@@ -1,15 +1,16 @@
+import calendar
 import inspect
 import re
+from datetime import date, datetime, time
 from decimal import Decimal
 from functools import wraps
-from datetime import datetime, date, time
-from six import string_types, integer_types
-import calendar
 
-from .fields import (
-    FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT, FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_DATETIME, FIELD_TIME
-)
-from .utils import fn_name_to_pretty_label, float_to_decimal
+from six import integer_types, string_types
+
+from .fields import (FIELD_DATETIME, FIELD_NO_INPUT, FIELD_NUMERIC,
+                     FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_TEXT,
+                     FIELD_TIME)
+from .utils import float_to_decimal, fn_name_to_pretty_label
 
 
 class BaseType(object):

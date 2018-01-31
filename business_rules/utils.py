@@ -1,8 +1,7 @@
 import inspect
-from decimal import Decimal, Inexact, Context
+from decimal import Context, Decimal, Inexact
 
-import fields, engine
-from util import method_type
+from .util import method_type
 
 
 def fn_name_to_pretty_label(name):

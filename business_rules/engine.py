@@ -1,10 +1,10 @@
 import inspect
 import logging
 
-import utils
-from business_rules.models import ConditionResult
-from util import method_type
+from . import utils
 from .fields import FIELD_NO_INPUT
+from .models import ConditionResult
+from .util import method_type
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.2
++++++
+released 2018-2-10
+
+- Add string `not_equal_to`.
+
 1.0.1
 +++++
 released 2016-3-16

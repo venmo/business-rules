@@ -247,6 +247,7 @@ Note: to compare floating point equality we just check that the difference is le
 `@string_rule_variable` operators:
 
 * `equal_to`
+* `not_equal_to`
 * `starts_with`
 * `ends_with`
 * `contains`

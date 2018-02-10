@@ -76,6 +76,14 @@ class StringType(BaseType):
         return self.value.lower() == other_string.lower()
 
     @type_operator(FIELD_TEXT)
+    def not_equal_to(self, other_string):
+        return self.value != other_string
+
+    @type_operator(FIELD_TEXT, label="Not Equal To (case insensitive)")
+    def not_equal_to_case_insensitive(self, other_string):
+        return self.value.lower() != other_string.lower()
+
+    @type_operator(FIELD_TEXT)
     def starts_with(self, other_string):
         return self.value.startswith(other_string)
 

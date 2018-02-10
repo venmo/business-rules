@@ -10,9 +10,9 @@ with open('HISTORY.rst') as f:
 description = 'Python DSL for setting up business intelligence rules that can be configured without code; based on Venmo/business-rules.'
 
 setuptools.setup(
-        name='business-rules',
+        name='business-rules-extra',
         version=version,
-        description='{0}\n\n{1}'.format(description, history),
+        description='{0}'.format(description),
         author='Anna Winkler',
         author_email='me.anna.winkler@gmail.com',
         url='https://github.com/annawinkler/business-rules',

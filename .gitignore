@@ -33,6 +33,6 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
-
+.idea/
 # Vim
 *.sw[po]

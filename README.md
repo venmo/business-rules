@@ -291,3 +291,12 @@ $ mkvirtualenv business-rules
 $ pip install -r dev-requirements.txt
 $ nosetests
 ```
+
+### Getting into the virtual environment
+
+```bash
+$ virtualenv business-rules
+. business-rules/bin/activate
+pip install -r dev-requirements.txt
+pip install -e .
+```

@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.4
++++++
+released 2018-2-27
+
+- Fix rule variable in numeric rule
+
 1.0.3
 +++++
 released 2018-2-26

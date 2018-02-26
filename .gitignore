@@ -1,4 +1,5 @@
 *.py[cod]
+business-rules/
 
 # C extensions
 *.so

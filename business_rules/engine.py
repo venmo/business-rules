@@ -52,6 +52,8 @@ def check_condition(condition, defined_variables):
     """
     name, op, value = condition['name'], condition['operator'], condition['value']
     operator_type = _get_variable_value(defined_variables, name)
+    if 'variable' in condition and condition['variable']:
+        value = _get_variable_value(defined_variables, value)
     return _do_operator_comparison(operator_type, op, value)
 
 def _get_variable_value(defined_variables, name):

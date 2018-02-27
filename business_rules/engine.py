@@ -10,7 +10,9 @@ def logger(message):
     if LOG_FILE is None:
         print("business-rules log file {}".format(LOG_FILE_NAME))
         LOG_FILE = open(LOG_FILE_NAME, 'w')
-    LOG_FILE.write("\n{} {}".format(datetime.date.today().isoformat(), message))
+    output_string = "{} {}".format(datetime.date.today().isoformat(), message)
+    print(output_string)
+    LOG_FILE.write("\n{}".format(output_string))
 
 
 def run_all(rule_list,

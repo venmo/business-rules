@@ -1,7 +1,7 @@
 from .fields import FIELD_NO_INPUT
 import datetime
 
-LOG_FILE_NAME = "/tmp/business-rules.log"
+LOG_FILE_NAME = "tmp/business-rules.log"
 LOG_FILE = None
 
 def logger(message):

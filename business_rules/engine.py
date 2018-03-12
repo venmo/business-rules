@@ -22,9 +22,9 @@ def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
-        logging.info("business-rules rule triggered")
-        logging.info("conditions: <{}>".format(conditions))
-        logging.info("actions: <{}>".format(actions))
+        logging.debug("business-rules rule triggered")
+        logging.debug("conditions: <{}>".format(conditions))
+        logging.debug("actions: <{}>".format(actions))
         do_actions(actions, defined_actions)
         return True
     return False

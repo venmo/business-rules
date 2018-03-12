@@ -1,4 +1,4 @@
-__version__ = '1.0.8'
+__version__ = '1.0.10'
 
 import logging
 from .engine import run_all
@@ -8,4 +8,4 @@ from .utils import export_rule_data
 assert run_all
 assert export_rule_data
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger("business_rules").addHandler(logging.NullHandler())

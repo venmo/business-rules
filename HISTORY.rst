@@ -1,5 +1,16 @@
 History
 -------
+1.0.10
+++++++
+released 2018-3-12
+
+- Make logging debug level
+
+1.0.9
++++++
+released 2018-3-12
+
+- Make logging consistent with Python logging
 
 1.0.4
 +++++

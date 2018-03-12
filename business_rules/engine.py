@@ -1,25 +1,12 @@
 from .fields import FIELD_NO_INPUT
-import datetime
-
-LOG_FILE_NAME = "tmp/business-rules.log"
-LOG_FILE = None
-
-def logger(message):
-    global LOG_FILE
-    global LOG_FILE_NAME
-    if LOG_FILE is None:
-        print("business-rules log file {}".format(LOG_FILE_NAME))
-        LOG_FILE = open(LOG_FILE_NAME, 'w')
-    output_string = "{} {}".format(datetime.date.today().isoformat(), message)
-    print(output_string)
-    LOG_FILE.write("\n{}".format(output_string))
+import logging
 
 
 def run_all(rule_list,
             defined_variables,
             defined_actions,
             stop_on_first_trigger=False):
-    logger("business-rules starting")
+    logging.debug("business-rules starting")
     rule_was_triggered = False
     for rule in rule_list:
         result = run(rule, defined_variables, defined_actions)
@@ -27,7 +14,7 @@ def run_all(rule_list,
             rule_was_triggered = True
             if stop_on_first_trigger:
                 return True
-    logger("business-rules finished\n")
+    logging.debug("business-rules finished\n")
     return rule_was_triggered
 
 
@@ -35,9 +22,9 @@ def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
-        logger("business-rules rule triggered")
-        logger("conditions: <{}>".format(conditions))
-        logger("actions: <{}>".format(actions))
+        logging.info("business-rules rule triggered")
+        logging.info("conditions: <{}>".format(conditions))
+        logging.info("actions: <{}>".format(actions))
         do_actions(actions, defined_actions)
         return True
     return False

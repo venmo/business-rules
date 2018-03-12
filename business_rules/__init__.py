@@ -1,8 +1,11 @@
-__version__ = '1.0.7'
+__version__ = '1.0.8'
 
+import logging
 from .engine import run_all
 from .utils import export_rule_data
 
 # Appease pyflakes by "using" these exports
 assert run_all
 assert export_rule_data
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -1,12 +1,13 @@
 from .fields import FIELD_NO_INPUT
 import logging
 
+LOG = logging.getLogger(__name__)
 
 def run_all(rule_list,
             defined_variables,
             defined_actions,
             stop_on_first_trigger=False):
-    logging.debug("business-rules starting")
+    LOG.debug("business-rules starting")
     rule_was_triggered = False
     for rule in rule_list:
         result = run(rule, defined_variables, defined_actions)
@@ -14,7 +15,7 @@ def run_all(rule_list,
             rule_was_triggered = True
             if stop_on_first_trigger:
                 return True
-    logging.debug("business-rules finished\n")
+    LOG.debug("business-rules finished\n")
     return rule_was_triggered
 
 
@@ -22,9 +23,9 @@ def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
-        logging.debug("business-rules rule triggered")
-        logging.debug("conditions: <{}>".format(conditions))
-        logging.debug("actions: <{}>".format(actions))
+        LOG.debug("business-rules rule triggered")
+        LOG.debug("conditions: <{}>".format(conditions))
+        LOG.debug("actions: <{}>".format(actions))
         do_actions(actions, defined_actions)
         return True
     return False

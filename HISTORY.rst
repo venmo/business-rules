@@ -1,5 +1,12 @@
 History
 -------
+
+1.0.11
+++++++
+released 2018-3-13
+
+- Use a better name for log
+
 1.0.10
 ++++++
 released 2018-3-12

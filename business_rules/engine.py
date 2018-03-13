@@ -40,6 +40,8 @@ def run(rule, defined_variables, defined_actions):
 
 def check_conditions_recursively(conditions, defined_variables, rule):
     """
+    Check if the conditions are true given a set of variables.
+    This method checks all conditions including embedded ones.
 
     :param conditions:  Conditions to be checked
     :param defined_variables: BaseVariables instance to get variables values to check Conditions

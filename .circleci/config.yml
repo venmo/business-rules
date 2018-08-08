@@ -1,0 +1,20 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo pip install virtualenv
+            virtualenv venv
+            . venv/bin/activate
+            make deps
+      - run:
+          name: Run Tests
+          command: |
+            . venv/bin/activate
+            make coverage

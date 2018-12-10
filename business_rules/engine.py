@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import inspect
 import logging
 
@@ -178,7 +179,7 @@ def do_actions(actions, defined_actions, checked_conditions_results, rule):
     """
 
     # Get only conditions when result was TRUE
-    successful_conditions = filter(lambda x: x[0], checked_conditions_results)
+    successful_conditions = [x for x in checked_conditions_results if x[0]]
 
     for action in actions:
         method_name = action['name']

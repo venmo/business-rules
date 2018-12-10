@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from . import TestCase
 from business_rules.utils import fn_name_to_pretty_label
 from business_rules.variables import (

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT
 from . import TestCase

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import inspect
 
 from .utils import fn_name_to_pretty_label, get_valid_fields

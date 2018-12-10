@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from business_rules.operators import BaseType, type_operator
 from tests import TestCase
 from mock import MagicMock

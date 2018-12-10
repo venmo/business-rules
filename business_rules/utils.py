@@ -3,7 +3,6 @@ import inspect
 from decimal import Context, Decimal, Inexact
 
 from .util import method_type
-import six
 
 
 def fn_name_to_pretty_label(name):
@@ -175,6 +174,8 @@ def validate_rule_data(variables, actions, rule):
         """
         Recursively check all levels of input conditions
         """
+        import six
+
         if isinstance(input_conditions, list):
             for condition in input_conditions:
                 validate_conditions(condition, rule_schema)

@@ -1,4 +1,4 @@
-__version__ = '1.3.2'
+__version__ = '1.4.1'
 
 from .engine import run_all, check_conditions_recursively
 from .utils import export_rule_data, validate_rule_data

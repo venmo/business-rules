@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from business_rules.actions import rule_action, BaseActions
 from business_rules.engine import check_condition, run_all
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT

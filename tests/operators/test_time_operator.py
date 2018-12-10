@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import time, datetime, timedelta
 
 from business_rules.operators import TimeType

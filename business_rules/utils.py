@@ -1,7 +1,9 @@
+from __future__ import absolute_import
 import inspect
 from decimal import Context, Decimal, Inexact
 
 from .util import method_type
+import six
 
 
 def fn_name_to_pretty_label(name):
@@ -132,7 +134,7 @@ def validate_rule_data(variables, actions, rule):
         """
         Check the root object contains both 'actions' & 'conditions'
         """
-        root_keys = rule.keys()
+        root_keys = list(rule.keys())
         if 'actions' not in root_keys:
             raise AssertionError('Missing "{}" key'.format('actions'))
 
@@ -177,12 +179,12 @@ def validate_rule_data(variables, actions, rule):
             for condition in input_conditions:
                 validate_conditions(condition, rule_schema)
         if isinstance(input_conditions, dict):
-            keys = input_conditions.keys()
+            keys = list(input_conditions.keys())
             if 'any' in keys or 'all' in keys:
                 if len(keys) > 1:
                     raise AssertionError('Expected ONE of "any" or "all" but found {}'.format(keys))
                 else:
-                    for _, v in input_conditions.iteritems():
+                    for _, v in six.iteritems(input_conditions):
                         validate_conditions(v, rule_schema)
             else:
                 validate_condition(input_conditions, variables, rule_schema)

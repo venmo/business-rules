@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from mock import patch, MagicMock
 
 from business_rules import engine

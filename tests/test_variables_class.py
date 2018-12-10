@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from business_rules.operators import StringType
 from business_rules.variables import BaseVariables, rule_variable
 from . import TestCase

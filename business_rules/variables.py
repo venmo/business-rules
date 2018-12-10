@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import inspect
 
 from typing import Callable, List, Type  # noqa: F401

@@ -71,6 +71,10 @@ class StringType(BaseType):
     def equal_to(self, other_string):
         return self.value == other_string
 
+    @type_operator(FIELD_TEXT)
+    def not_equal_to(self, other_string):
+        return self.value != other_string
+
     @type_operator(FIELD_TEXT, label="Equal To (case insensitive)")
     def equal_to_case_insensitive(self, other_string):
         return self.value.lower() == other_string.lower()
@@ -118,6 +122,10 @@ class NumericType(BaseType):
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
         return abs(self.value - other_numeric) <= self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def not_equal_to(self, other_numeric):
+        return abs(self.value - other_numeric) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than(self, other_numeric):

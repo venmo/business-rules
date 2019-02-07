@@ -195,8 +195,8 @@ class EngineTests(TestCase):
     # ##################################### #
     def test_do_actions(self):
         function_params_mock = MagicMock()
-        function_params_mock.keywords = None
-        with patch('inspect.getargspec', return_value=function_params_mock):
+        function_params_mock.varkw = None
+        with patch('business_rules.engine.getfullargspec', return_value=function_params_mock):
             rule_actions = [
                 {
                     'name': 'action1'
@@ -232,8 +232,8 @@ class EngineTests(TestCase):
 
     def test_do_actions_with_injected_parameters(self):
         function_params_mock = MagicMock()
-        function_params_mock.keywords = True
-        with patch('inspect.getargspec', return_value=function_params_mock):
+        function_params_mock.varkw = True
+        with patch('business_rules.engine.getfullargspec', return_value=function_params_mock):
             rule_actions = [
                 {
                     'name': 'action1'

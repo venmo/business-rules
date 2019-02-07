@@ -6,6 +6,7 @@ from . import utils
 from .fields import FIELD_NO_INPUT
 from .models import ConditionResult
 from .util import method_type
+from .util.compat import getfullargspec
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +231,7 @@ def _build_variable_parameters(method, parameters, rule):
 
 
 def _build_parameters(method, parameters, extra_parameters):
-    if inspect.getargspec(method).keywords is not None:
+    if getfullargspec(method).varkw is not None:
         method_params = extra_parameters
     else:
         method_params = {}

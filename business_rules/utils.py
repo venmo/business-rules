@@ -109,7 +109,12 @@ def check_params_valid_for_method(method, given_params, method_type_name):
     defined_params = [param.get('name') for param in method_params]
     missing_params = set(defined_params).difference(given_params)
 
-    if missing_params:
+    # Adding new parameter 'send_push' to voucher action will make old not updated rules raise an error here,
+    # exclude this parameter from check
+    if 'send_push' in missing_params:
+        missing_params.remove('send_push')
+
+    if missing_params and 'send_push' not in missing_params:
         raise AssertionError("Missing parameters {0} for {1} {2}".format(
             ', '.join(missing_params), method_type_name, method.__name__))
 

@@ -5,6 +5,10 @@ python:
     - "pypy"
     - "3.2"
     - "3.3"
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "3.7"
 install:
     - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install unittest2; fi
     - "pip install -e ."

@@ -17,5 +17,16 @@ setuptools.setup(
         author_email='open-source@venmo.com',
         url='https://github.com/venmo/business-rules',
         packages=['business_rules'],
-        license='MIT'
+        license='MIT',
+        classifier=[
+            "Programming Language :: Python :: 2.6",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3.2",
+            "Programming Language :: Python :: 3.3",
+            "Programming Language :: Python :: 3.4",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: Implementation :: PyPy",
+        ]
 )

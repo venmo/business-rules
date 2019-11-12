@@ -9,6 +9,12 @@ from .operators import (BaseType,
                         SelectMultipleType)
 
 class BaseVariables(object):
+    def __init__(self):
+        self.cached_variable_values = {}
+
+    def cache_variable_value(self, name, value):
+        self.cached_variable_values[name] = value
+
     """ Classes that hold a collection of variables to use with the rules
     engine should inherit from this.
     """

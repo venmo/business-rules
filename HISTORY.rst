@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.2
++++++
+released 2019-11-11
+
+- Cache variable values for logging purposes
+
 1.0.1
 +++++
 released 2016-3-16

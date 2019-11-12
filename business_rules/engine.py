@@ -66,6 +66,7 @@ def _get_variable_value(defined_variables, name):
                 name, defined_variables.__class__.__name__))
     method = getattr(defined_variables, name, fallback)
     val = method()
+    defined_variables.cache_variable_value(name, val)
     return method.field_type(val)
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):

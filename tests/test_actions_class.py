@@ -45,9 +45,27 @@ class ActionsClassTests(TestCase):
             def some_action(self):
                 pass
 
-    def test_rule_action_with_no_params_or_label(self):
-        """ A rule action should not have to specify paramers or label. """
+    def test_rule_action_with_no_params_or_label_or_dry_run_fn(self):
+        """ A rule action should not have to specify paramers or label or dry_run_fn. """
         @rule_action()
         def some_action(self): pass
 
         self.assertTrue(some_action.is_rule_action)
+
+    def test_rule_action_dry_run_fn_valid_params(self):
+        """ A rule action's dry_run_fn should receive the same params as action"""
+        def dry_run_fn(foo):
+            pass
+
+        @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn=dry_run_fn)
+        def some_action(self, foo):
+            pass
+
+    def test_rule_action_dry_run_fn_invalid_params(self):
+        err_string = "Unknown parameter name foo specified for action dry_run_fn"
+        def dry_run_fn():
+            pass
+        with self.assertRaisesRegexp(AssertionError, err_string):
+            @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn=dry_run_fn)
+            def some_action(self, foo):
+                pass

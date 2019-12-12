@@ -49,7 +49,21 @@ class EngineTests(TestCase):
                 stop_on_first_trigger=True)
         self.assertEqual(result, True)
         self.assertEqual(engine.run.call_count, 1)
-        engine.run.assert_called_once_with(rule1, variables, actions)
+        engine.run.assert_called_once_with(rule1, variables, actions, False)
+
+    @patch.object(engine, 'run', return_value=True)
+    def test_run_all_dry_run(self, *args):
+        def dry_run_fn():
+            pass
+
+        rule1 = {'conditions': 'condition1', 'actions': 'action1'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        result = engine.run_all([rule1], variables, actions, dry_run=True)
+        self.assertTrue(result)
+        self.assertEqual(engine.run.call_count, 1)
+        engine.run.assert_called_once_with(rule1, variables, actions, True)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=True)
     @patch.object(engine, 'do_actions')
@@ -62,8 +76,7 @@ class EngineTests(TestCase):
         self.assertEqual(result, True)
         engine.check_conditions_recursively.assert_called_once_with(
                 rule['conditions'], variables)
-        engine.do_actions.assert_called_once_with(rule['actions'], actions)
-
+        engine.do_actions.assert_called_once_with(rule['actions'], actions, False)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=False)
     @patch.object(engine, 'do_actions')
@@ -77,6 +90,19 @@ class EngineTests(TestCase):
         engine.check_conditions_recursively.assert_called_once_with(
                 rule['conditions'], variables)
         self.assertEqual(engine.do_actions.call_count, 0)
+
+    @patch.object(engine, 'check_conditions_recursively', return_value=True)
+    @patch.object(engine, 'do_actions')
+    def test_run_dry_run(self, *args):
+        rule = {'conditions': 'blah', 'actions': 'blah2'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        result = engine.run(rule, variables, actions, dry_run=True)
+        self.assertTrue(result)
+        engine.check_conditions_recursively.assert_called_once_with(
+                rule['conditions'], variables)
+        engine.do_actions.assert_called_once_with(rule['actions'], actions, True)
 
 
     @patch.object(engine, 'check_condition', return_value=True)
@@ -176,17 +202,54 @@ class EngineTests(TestCase):
     ### Actions
     ###
     def test_do_actions(self):
+        def dry_run_fn(param1, param2):
+            pass
+
         actions = [ {'name': 'action1'},
                     {'name': 'action2',
-                     'params': {'param1': 'foo', 'param2': 10}}]
+                     'params': {'param1': 'foo', 'param2': 10},
+                     'dry_run_fn': dry_run_fn}]
         defined_actions = BaseActions()
         defined_actions.action1 = MagicMock()
         defined_actions.action2 = MagicMock()
 
         engine.do_actions(actions, defined_actions)
 
+        # dry run functions should not be called
+        self.assertEqual(defined_actions.action2.dry_run_fn.call_count, 0)
+
         defined_actions.action1.assert_called_once_with()
         defined_actions.action2.assert_called_once_with(param1='foo', param2=10)
+
+    def test_do_actions_dry_run(self):
+        def dry_run_with_params(param1, param2):
+            pass
+
+        def dry_run_fn():
+            pass
+
+        actions = [ {'name': 'action1'},
+                    {'name': 'action2',
+                     'params': {'param1': 'foo', 'param2': 10},
+                     'dry_run_fn': dry_run_with_params},
+                    {'name': 'action3',
+                     'dry_run_fn': dry_run_fn}]
+        defined_actions = BaseActions()
+        defined_actions.action1 = MagicMock()
+        defined_actions.action2 = MagicMock()
+        defined_actions.action3 = MagicMock()
+
+        engine.do_actions(actions, defined_actions, True)
+
+        # actions should not be called
+        self.assertEqual(defined_actions.action1.call_count, 0)
+        self.assertEqual(defined_actions.action2.call_count, 0)
+        self.assertEqual(defined_actions.action3.call_count, 0)
+
+        # dry_run_fn should be called with params
+        defined_actions.action2.dry_run_fn.assert_called_once_with(param1='foo', param2=10)
+        # dry_run_fn should be called with no params
+        defined_actions.action3.dry_run_fn.assert_called_once_with()
 
     def test_do_with_invalid_action(self):
         actions = [{'name': 'fakeone'}]

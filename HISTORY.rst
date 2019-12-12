@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.3
++++++
+released 2019-12-11
+
+- Added dry run support for actions
+
 1.0.2
 +++++
 released 2019-11-11

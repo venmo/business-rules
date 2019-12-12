@@ -3,22 +3,23 @@ from .fields import FIELD_NO_INPUT
 def run_all(rule_list,
             defined_variables,
             defined_actions,
-            stop_on_first_trigger=False):
+            stop_on_first_trigger=False,
+            dry_run=False):
 
     rule_was_triggered = False
     for rule in rule_list:
-        result = run(rule, defined_variables, defined_actions)
+        result = run(rule, defined_variables, defined_actions, dry_run)
         if result:
             rule_was_triggered = True
             if stop_on_first_trigger:
                 return True
     return rule_was_triggered
 
-def run(rule, defined_variables, defined_actions):
+def run(rule, defined_variables, defined_actions, dry_run=False):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
-        do_actions(actions, defined_actions)
+        do_actions(actions, defined_actions, dry_run)
         return True
     return False
 
@@ -86,7 +87,7 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     return method(comparison_value)
 
 
-def do_actions(actions, defined_actions):
+def do_actions(actions, defined_actions, dry_run=False):
     for action in actions:
         method_name = action['name']
         def fallback(*args, **kwargs):
@@ -94,4 +95,8 @@ def do_actions(actions, defined_actions):
                     .format(method_name, defined_actions.__class__.__name__))
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
-        method(**params)
+        if dry_run:
+            if hasattr(method, 'dry_run_fn') and method.dry_run_fn:
+                method.dry_run_fn(**params)
+        else:
+            method(**params)

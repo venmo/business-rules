@@ -97,6 +97,6 @@ def do_actions(actions, defined_actions, dry_run=False):
         method = getattr(defined_actions, method_name, fallback)
         if dry_run:
             if hasattr(method, 'dry_run_fn') and method.dry_run_fn:
-                method.dry_run_fn(**params)
+                method.dry_run_fn(defined_actions, **params)
         else:
             method(**params)

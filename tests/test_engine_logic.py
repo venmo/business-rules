@@ -202,16 +202,15 @@ class EngineTests(TestCase):
     ### Actions
     ###
     def test_do_actions(self):
-        def dry_run_fn(param1, param2):
-            pass
+        defined_actions = BaseActions()
+        defined_actions.action1 = MagicMock()
+        defined_actions.action2 = MagicMock()
+        defined_actions.dry_run_fn = MagicMock()
 
         actions = [ {'name': 'action1'},
                     {'name': 'action2',
                      'params': {'param1': 'foo', 'param2': 10},
-                     'dry_run_fn': dry_run_fn}]
-        defined_actions = BaseActions()
-        defined_actions.action1 = MagicMock()
-        defined_actions.action2 = MagicMock()
+                     'dry_run_fn': defined_actions.dry_run_fn}]
 
         engine.do_actions(actions, defined_actions)
 
@@ -222,22 +221,19 @@ class EngineTests(TestCase):
         defined_actions.action2.assert_called_once_with(param1='foo', param2=10)
 
     def test_do_actions_dry_run(self):
-        def dry_run_with_params(param1, param2):
-            pass
-
-        def dry_run_fn():
-            pass
-
-        actions = [ {'name': 'action1'},
-                    {'name': 'action2',
-                     'params': {'param1': 'foo', 'param2': 10},
-                     'dry_run_fn': dry_run_with_params},
-                    {'name': 'action3',
-                     'dry_run_fn': dry_run_fn}]
         defined_actions = BaseActions()
         defined_actions.action1 = MagicMock()
         defined_actions.action2 = MagicMock()
         defined_actions.action3 = MagicMock()
+        defined_actions.dry_run_with_params = MagicMock()
+        defined_actions.dry_run_fn = MagicMock()
+
+        actions = [ {'name': 'action1'},
+                    {'name': 'action2',
+                     'params': {'param1': 'foo', 'param2': 10},
+                     'dry_run_fn': defined_actions.dry_run_with_params},
+                    {'name': 'action3',
+                     'dry_run_fn': defined_actions.dry_run_fn}]
 
         engine.do_actions(actions, defined_actions, True)
 
@@ -247,9 +243,9 @@ class EngineTests(TestCase):
         self.assertEqual(defined_actions.action3.call_count, 0)
 
         # dry_run_fn should be called with params
-        defined_actions.action2.dry_run_fn.assert_called_once_with(param1='foo', param2=10)
+        defined_actions.action2.dry_run_fn.assert_called_once_with(defined_actions, param1='foo', param2=10)
         # dry_run_fn should be called with no params
-        defined_actions.action3.dry_run_fn.assert_called_once_with()
+        defined_actions.action3.dry_run_fn.assert_called_once_with(defined_actions)
 
     def test_do_with_invalid_action(self):
         actions = [{'name': 'fakeone'}]

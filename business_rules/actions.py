@@ -37,7 +37,14 @@ def _validate_action_parameters(func, params):
                         " action {1} param {2}".format(
                         field_type, func.__name__, param_name))
 
-def rule_action(label=None, params=None, dry_run_fn=None):
+
+def _validate_dry_run_fn_name(name, action_name):
+    if name and not isinstance(name, str):
+        raise AssertionError("Invalid type for dry_run_fn_name for action {0}"\
+                ", expected str".format(action_name))
+
+
+def rule_action(label=None, params=None, dry_run_fn_name=None):
     """ Decorator to make a function into a rule action
     """
     def wrapper(func):
@@ -48,11 +55,11 @@ def rule_action(label=None, params=None, dry_run_fn=None):
                            fieldType=field_type) \
                       for name, field_type in params.items()]
         _validate_action_parameters(func, params_)
-        _validate_action_parameters(dry_run_fn, params_)
+        _validate_dry_run_fn_name(dry_run_fn_name, func.__name__)
         func.is_rule_action = True
         func.label = label \
                 or fn_name_to_pretty_label(func.__name__)
         func.params = params_
-        func.dry_run_fn = dry_run_fn
+        func.dry_run_fn_name = dry_run_fn_name
         return func
     return wrapper

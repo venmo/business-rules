@@ -96,7 +96,10 @@ def do_actions(actions, defined_actions, dry_run=False):
         params = action.get('params') or {}
         method = getattr(defined_actions, method_name, fallback)
         if dry_run:
-            if hasattr(method, 'dry_run_fn') and method.dry_run_fn:
-                method.dry_run_fn(**params)
+            dry_run_fn_name = getattr(method, 'dry_run_fn_name', None)
+            if dry_run_fn_name:
+                dry_run_fn = getattr(defined_actions, dry_run_fn_name, None)
+                if dry_run_fn:
+                    dry_run_fn(**params)
         else:
             method(**params)

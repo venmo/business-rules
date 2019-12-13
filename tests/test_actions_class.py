@@ -52,20 +52,20 @@ class ActionsClassTests(TestCase):
 
         self.assertTrue(some_action.is_rule_action)
 
-    def test_rule_action_dry_run_fn_valid_params(self):
-        """ A rule action's dry_run_fn should receive the same params as action"""
-        def dry_run_fn(foo):
-            pass
-
-        @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn=dry_run_fn)
+    def test_rule_action_dry_run_fn_valid_name(self):
+        """ A rule action's dry_run_fn should be string"""
+        @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn_name="dry_run_fn")
         def some_action(self, foo):
             pass
 
+        self.assertTrue(some_action.is_rule_action)
+
     def test_rule_action_dry_run_fn_invalid_params(self):
-        err_string = "Unknown parameter name foo specified for action dry_run_fn"
+        err_string = "Invalid type for dry_run_fn_name for action some_action, expected str"
+
         def dry_run_fn():
             pass
         with self.assertRaisesRegexp(AssertionError, err_string):
-            @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn=dry_run_fn)
+            @rule_action(params={'foo': FIELD_TEXT}, dry_run_fn_name=dry_run_fn)
             def some_action(self, foo):
                 pass

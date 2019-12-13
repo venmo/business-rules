@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.4
++++++
+released 2019-12-13
+
+- Action decorator accepts dry run function name instead of the function itself
+
 1.0.3
 +++++
 released 2019-12-11

@@ -26,19 +26,24 @@ def run(rule, defined_variables, defined_actions, dry_run=False):
 
 def check_conditions_recursively(conditions, defined_variables):
     keys = list(conditions.keys())
+    # If one condition fails, we can't leave these recursive calls early
+    # since checking the other conditions is when we compute and record important
+    # fields that we want to log (eg. total_gmv_before_refund)
     if keys == ['all']:
         assert len(conditions['all']) >= 1
+        res = True
         for condition in conditions['all']:
             if not check_conditions_recursively(condition, defined_variables):
-                return False
-        return True
+                res = False
+        return res
 
     elif keys == ['any']:
         assert len(conditions['any']) >= 1
+        res = False
         for condition in conditions['any']:
             if check_conditions_recursively(condition, defined_variables):
-                return True
-        return False
+                res = True
+        return res
 
     else:
         # help prevent errors - any and all can only be in the condition dict

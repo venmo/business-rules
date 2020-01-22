@@ -1,5 +1,10 @@
 History
 -------
+1.0.5
++++++
+released 2020-01-21
+
+- Ensures we check all rulesets so that we can cache their results
 
 1.0.4
 +++++

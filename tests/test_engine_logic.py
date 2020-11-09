@@ -1,5 +1,5 @@
 from business_rules import engine
-from business_rules.variables import BaseVariables
+from business_rules.variables import BaseVariables, boolean_rule_variable
 from business_rules.operators import StringType
 from business_rules.actions import BaseActions
 
@@ -171,6 +171,23 @@ class EngineTests(TestCase):
             self.assertTrue(result)
             string_type.contains.assert_called_once_with('its mocked')
 
+    ###
+    ### Keyword arguments
+    ###
+    def test_kwargs_passed_into_variable_method(self):
+        class TestVariables(BaseVariables):
+            @boolean_rule_variable
+            def test_eq_one(self, arg1=0):
+                return arg1 == 1
+
+        conditions = {'all': [
+            {'name': 'test_eq_one', 'operator': 'is_false', 'value': True},
+            {'name': 'test_eq_one', 'operator': 'is_false', 'value': True, 'kwargs': {'arg1': 2}},
+            {'name': 'test_eq_one', 'operator': 'is_true', 'value': True, 'kwargs': {'arg1': 1}}]}
+        tv = TestVariables()
+
+        result = engine.check_conditions_recursively(conditions, tv)
+        self.assertTrue(result)
 
     ###
     ### Actions

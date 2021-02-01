@@ -287,6 +287,6 @@ Open up a pull request, making sure to add tests for any new functionality. To s
 
 ```bash
 $ mkvirtualenv business-rules
-$ pip install -r dev-requirements.txt
+$ pip install -r requirements-dev.txt
 $ nosetests
 ```

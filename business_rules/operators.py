@@ -1,7 +1,6 @@
 import inspect
 import re
 from functools import wraps
-from .six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
@@ -62,7 +61,7 @@ class StringType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
-        if not isinstance(value, string_types):
+        if not isinstance(value, str):
             raise AssertionError("{0} is not a valid string type.".
                                  format(value))
         return value
@@ -107,7 +106,7 @@ class NumericType(BaseType):
         if isinstance(value, float):
             # In python 2.6, casting float to Decimal doesn't work
             return float_to_decimal(value)
-        if isinstance(value, integer_types):
+        if isinstance(value, int):
             return Decimal(value)
         if isinstance(value, Decimal):
             return value
@@ -168,8 +167,8 @@ class SelectType(BaseType):
 
     @staticmethod
     def _case_insensitive_equal_to(value_from_list, other_value):
-        if isinstance(value_from_list, string_types) and \
-                isinstance(other_value, string_types):
+        if isinstance(value_from_list, str) and \
+                isinstance(other_value, str):
                     return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value

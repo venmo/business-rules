@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 
 from .operators import BaseType, BooleanType, NumericType, SelectMultipleType, SelectType, StringType

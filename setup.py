@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import annotations
+
 import setuptools
 
 from business_rules import __version__ as version

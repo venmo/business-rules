@@ -1,8 +1,6 @@
 from decimal import Decimal
 from unittest import TestCase
 
-import sys
-
 from business_rules.operators import BooleanType, NumericType, SelectMultipleType, SelectType, StringType
 
 
@@ -56,10 +54,7 @@ class NumericOperatorTests(TestCase):
         ten_dec = Decimal(10)
         ten_int = 10
         ten_float = 10.0
-        if sys.version_info[0] == 2:
-            ten_long = long(10)
-        else:
-            ten_long = int(10)  # long and int are same in python3
+        ten_long = int(10)
         ten_var_dec = NumericType(ten_dec)  # this should not throw an exception
         ten_var_int = NumericType(ten_int)
         ten_var_float = NumericType(ten_float)

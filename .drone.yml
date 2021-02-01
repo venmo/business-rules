@@ -1,0 +1,151 @@
+kind: pipeline
+type: kubernetes
+name: test
+
+shared:
+  commands:
+    - .: &load-dep-cache |
+        ln -s $PWD/cache ~/.local
+        export PATH=$PATH:$(realpath ~/.local/bin) PYTHONPATH=$PWD/src MYPYPATH=$PWD/src
+
+steps:
+  # s3 cache
+  # http://plugins.drone.io/drone-plugins/drone-s3-cache/
+  - name: restore
+    image: plugins/s3-cache:1.4
+    settings:
+      pull: true
+      restore: true
+      endpoint: https://s3.ap-northeast-1.amazonaws.com
+      region: ap-northeast-1
+      path: drone.buzzvil-internal.com/cache/${DRONE_REPO_NAME}/${DRONE_SOURCE_BRANCH}
+      fallback_path: drone.buzzvil-internal.com/cache/${DRONE_REPO_NAME}/${DRONE_TARGET_BRANCH}
+
+  # create the checksum to compare the requirements-dev.txt with the cached requirements-dev.txt.
+  - name: install_dependencies
+    image: python:3.9
+    commands:
+      - if [ -f checksum ]; then mv checksum checksum.cache; else touch checksum.cache; fi
+      - sha256sum requirements-dev.txt > checksum
+      - >
+        if diff checksum checksum.cache;
+        then
+          echo "same, use cache.";
+        else
+          echo "not same, install packages.";
+          mkdir -p $PWD/cache;
+          ln -s $PWD/cache ~/.local;
+          pip install --no-warn-script-location --user -U pip pip-tools;
+          python -m piptools sync --pip-args='--no-warn-script-location' --user requirements-dev.txt;
+        fi
+    depends_on:
+      - restore
+
+  - name: test
+    image: python:3.9
+    environment:
+      GRPC_VERBOSITY: DEBUG
+      LOG_LEVEL: DEBUG
+      DJANGO_DEBUG: DEBUG
+    commands:
+      - *load-dep-cache
+      - pytest --cov-report=xml:./coverage.xml --cov=./src --cov-config=./pyproject.toml ./tests
+    depends_on:
+      - install_dependencies
+
+  - name: coverage
+    image: plugins/codecov
+    settings:
+      token:
+        # TODO: refer https://buzzvil.atlassian.net/wiki/spaces/DEV/pages/1135214663/Test+Coverage+Report+Codecov and setup on Drone Dashboard
+        from_secret: codecov-token
+      files:
+        - "coverage.xml"
+    depends_on:
+      - test
+    when:
+      status:
+        - failure
+        - success
+
+  - name: lint
+    image: python:3.9
+    failure: ignore
+    commands:
+      - *load-dep-cache
+      - flake8 --extend-exclude cache .
+    depends_on:
+      - install_dependencies
+
+  - name: type_check
+    image: python:3.9
+    failure: ignore
+    commands:
+      - *load-dep-cache
+      - mypy -p business_rules  --skip-cache-mtime-checks --cache-fine-grained
+    depends_on:
+      - install_dependencies
+
+  - name: rebuild
+    image: plugins/s3-cache:1.4
+    settings:
+      pull: true
+      rebuild: true
+      endpoint: https://s3.ap-northeast-1.amazonaws.com
+      region: ap-northeast-1
+      path: drone.buzzvil-internal.com/cache/${DRONE_REPO_NAME}/${DRONE_SOURCE_BRANCH}
+      fallback_path: drone.buzzvil-internal.com/cache/${DRONE_REPO_NAME}/${DRONE_TARGET_BRANCH}
+      mount:
+        - cache
+        - checksum
+        - .pytest_cache
+        - .mypy_cache
+    depends_on:
+      - test
+      - type_check
+    when:
+      status:
+        - failure
+        - success
+
+  - name: flush
+    image: plugins/s3-cache:1.4
+    settings:
+      pull: true
+      flush: true
+      endpoint: https://s3.ap-northeast-1.amazonaws.com
+      region: ap-northeast-1
+      flush_path: drone.buzzvil-internal.com/cache/${DRONE_REPO_NAME}
+    depends_on:
+      - restore
+    when:
+      status:
+        - failure
+        - success
+
+trigger:
+  ref:
+    - refs/heads/master
+    - refs/pull/**
+
+
+---
+kind: pipeline
+type: kubernetes
+name: publish
+
+steps:
+  - name: pypi_publish
+    image: plugins/pypi
+    settings:
+      username: $USERNAME
+      password: $PASSWORD
+      repository: http://pypi.buzzvil-internal.com
+      distributions:
+        - bdist_wheel
+
+trigger:
+  branch:
+    - master
+  event:
+    - tag

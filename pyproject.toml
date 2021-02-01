@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 120
+target-version = ['py37']
+skip-string-normalization = true
+force-exclude = "(\n  /(\n    \\.eggs\n  | \\.git\n  | \\.hg\n  | \\.mypy_cache\n  | \\.tox\n  | \\.venv\n  | _build\n  | buck-out\n  | build\n  | dist\n  )/\n  | migrations/\n  | venv.?\n)\n"
+
+[tool.nitpick]
+style = "https://github.com/Buzzvil/buzzvil-python-styleguide/raw/v0.2.7/src/buzzvil_python_styleguide/styles/nitpick-style.toml"
+
+[tool.coverage.run]
+omit = ['*/__init__.py']
+
+[tool.coverage.report]
+exclude_lines = ['pragma: no cover']
+
+[tool.pytest.ini_options]
+python_files = 'test_*.py'

@@ -1,0 +1,7 @@
+--extra-index-url http://pypi.buzzvil-internal.com
+--trusted-host pypi.buzzvil-internal.com
+
+mock==1.0.1
+buzzvil-python-styleguide==0.2.7
+pytest==6.2.2
+pytest-cov==2.11.1

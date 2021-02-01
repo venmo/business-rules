@@ -1,9 +1,10 @@
+from unittest import TestCase
+
 from business_rules import export_rule_data
 from business_rules.actions import BaseActions, rule_action
 from business_rules.engine import check_condition
 from business_rules.fields import FIELD_NUMERIC, FIELD_SELECT, FIELD_TEXT
 from business_rules.variables import BaseVariables, boolean_rule_variable, numeric_rule_variable, string_rule_variable
-from . import TestCase
 
 
 class SomeVariables(BaseVariables):

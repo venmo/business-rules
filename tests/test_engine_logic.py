@@ -1,10 +1,11 @@
+from unittest import TestCase
+
 from mock import MagicMock, patch
 
 from business_rules import engine
 from business_rules.actions import BaseActions
 from business_rules.operators import StringType
 from business_rules.variables import BaseVariables
-from . import TestCase
 
 
 class EngineTests(TestCase):

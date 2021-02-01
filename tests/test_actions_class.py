@@ -1,6 +1,7 @@
+from unittest import TestCase
+
 from business_rules.actions import BaseActions, rule_action
 from business_rules.fields import FIELD_TEXT
-from . import TestCase
 
 
 class ActionsClassTests(TestCase):

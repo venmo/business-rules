@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 from business_rules.operators import BooleanType, NumericType, SelectMultipleType, SelectType, StringType
 from business_rules.utils import fn_name_to_pretty_label
 from business_rules.variables import (
@@ -8,7 +10,6 @@ from business_rules.variables import (
     select_rule_variable,
     string_rule_variable,
 )
-from . import TestCase
 
 
 class RuleVariableTests(TestCase):

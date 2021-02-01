@@ -1,9 +1,9 @@
 from decimal import Decimal
+from unittest import TestCase
 
 import sys
 
 from business_rules.operators import BooleanType, NumericType, SelectMultipleType, SelectType, StringType
-from . import TestCase
 
 
 class StringOperatorTests(TestCase):

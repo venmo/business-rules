@@ -1,11 +1,11 @@
 import inspect
 import re
+from decimal import Decimal
 from functools import wraps
 
-from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal
-from decimal import Decimal, Inexact, Context
+from .fields import FIELD_NO_INPUT, FIELD_NUMERIC, FIELD_SELECT, FIELD_SELECT_MULTIPLE, FIELD_TEXT
+from .utils import float_to_decimal, fn_name_to_pretty_label
+
 
 class BaseType(object):
     def __init__(self, value):
@@ -17,10 +17,11 @@ class BaseType(object):
     @classmethod
     def get_all_operators(cls):
         methods = inspect.getmembers(cls)
-        return [{'name': m[0],
-                 'label': m[1].label,
-                 'input_type': m[1].input_type}
-                for m in methods if getattr(m[1], 'is_operator', False)]
+        return [
+            {'name': m[0], 'label': m[1].label, 'input_type': m[1].input_type}
+            for m in methods
+            if getattr(m[1], 'is_operator', False)
+        ]
 
 
 def export_type(cls):
@@ -29,28 +30,28 @@ def export_type(cls):
     return cls
 
 
-def type_operator(input_type, label=None,
-                  assert_type_for_arguments=True):
-    """ Decorator to make a function into a type operator.
+def type_operator(input_type, label=None, assert_type_for_arguments=True):
+    """Decorator to make a function into a type operator.
 
     - assert_type_for_arguments - if True this patches the operator function
       so that arguments passed to it will have _assert_valid_value_and_cast
       called on them to make type errors explicit.
     """
+
     def wrapper(func):
         func.is_operator = True
-        func.label = label \
-            or fn_name_to_pretty_label(func.__name__)
+        func.label = label or fn_name_to_pretty_label(func.__name__)
         func.input_type = input_type
 
         @wraps(func)
         def inner(self, *args, **kwargs):
             if assert_type_for_arguments:
                 args = [self._assert_valid_value_and_cast(arg) for arg in args]
-                kwargs = dict((k, self._assert_valid_value_and_cast(v))
-                              for k, v in kwargs.items())
+                kwargs = dict((k, self._assert_valid_value_and_cast(v)) for k, v in kwargs.items())
             return func(self, *args, **kwargs)
+
         return inner
+
     return wrapper
 
 
@@ -62,8 +63,7 @@ class StringType(BaseType):
     def _assert_valid_value_and_cast(self, value):
         value = value or ""
         if not isinstance(value, str):
-            raise AssertionError("{0} is not a valid string type.".
-                                 format(value))
+            raise AssertionError("{0} is not a valid string type.".format(value))
         return value
 
     @type_operator(FIELD_TEXT)
@@ -111,8 +111,7 @@ class NumericType(BaseType):
         if isinstance(value, Decimal):
             return value
         else:
-            raise AssertionError("{0} is not a valid numeric type.".
-                                 format(value))
+            raise AssertionError("{0} is not a valid numeric type.".format(value))
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
@@ -142,8 +141,7 @@ class BooleanType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         if type(value) != bool:
-            raise AssertionError("{0} is not a valid boolean type".
-                                 format(value))
+            raise AssertionError("{0} is not a valid boolean type".format(value))
         return value
 
     @type_operator(FIELD_NO_INPUT)
@@ -154,6 +152,7 @@ class BooleanType(BaseType):
     def is_false(self):
         return not self.value
 
+
 @export_type
 class SelectType(BaseType):
 
@@ -161,15 +160,13 @@ class SelectType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
-            raise AssertionError("{0} is not a valid select type".
-                                 format(value))
+            raise AssertionError("{0} is not a valid select type".format(value))
         return value
 
     @staticmethod
     def _case_insensitive_equal_to(value_from_list, other_value):
-        if isinstance(value_from_list, str) and \
-                isinstance(other_value, str):
-                    return value_from_list.lower() == other_value.lower()
+        if isinstance(value_from_list, str) and isinstance(other_value, str):
+            return value_from_list.lower() == other_value.lower()
         else:
             return value_from_list == other_value
 
@@ -195,8 +192,7 @@ class SelectMultipleType(BaseType):
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
-            raise AssertionError("{0} is not a valid select multiple type".
-                                 format(value))
+            raise AssertionError("{0} is not a valid select multiple type".format(value))
         return value
 
     @type_operator(FIELD_SELECT_MULTIPLE)

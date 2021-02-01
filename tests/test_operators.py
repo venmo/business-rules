@@ -1,13 +1,12 @@
-from business_rules.operators import (StringType,
-                                      NumericType, BooleanType, SelectType,
-                                      SelectMultipleType)
-
-from . import TestCase
 from decimal import Decimal
+
 import sys
 
-class StringOperatorTests(TestCase):
+from business_rules.operators import BooleanType, NumericType, SelectMultipleType, SelectType, StringType
+from . import TestCase
 
+
+class StringOperatorTests(TestCase):
     def test_operator_decorator(self):
         self.assertTrue(StringType("foo").equal_to.is_operator)
 
@@ -48,7 +47,6 @@ class StringOperatorTests(TestCase):
 
 
 class NumericOperatorTests(TestCase):
-
     def test_instantiate(self):
         err_string = "foo is not a valid numeric type"
         with self.assertRaisesRegexp(AssertionError, err_string):
@@ -61,8 +59,8 @@ class NumericOperatorTests(TestCase):
         if sys.version_info[0] == 2:
             ten_long = long(10)
         else:
-            ten_long = int(10) # long and int are same in python3
-        ten_var_dec = NumericType(ten_dec) # this should not throw an exception
+            ten_long = int(10)  # long and int are same in python3
+        ten_var_dec = NumericType(ten_dec)  # this should not throw an exception
         ten_var_int = NumericType(ten_int)
         ten_var_float = NumericType(ten_float)
         ten_var_long = NumericType(ten_long)
@@ -118,7 +116,6 @@ class NumericOperatorTests(TestCase):
 
 
 class BooleanOperatorTests(TestCase):
-
     def test_instantiate(self):
         err_string = "foo is not a valid boolean type"
         with self.assertRaisesRegexp(AssertionError, err_string):
@@ -135,7 +132,6 @@ class BooleanOperatorTests(TestCase):
 
 
 class SelectOperatorTests(TestCase):
-
     def test_contains(self):
         self.assertTrue(SelectType([1, 2]).contains(2))
         self.assertFalse(SelectType([1, 2]).contains(3))
@@ -148,45 +144,28 @@ class SelectOperatorTests(TestCase):
 
 
 class SelectMultipleOperatorTests(TestCase):
-
     def test_contains_all(self):
-        self.assertTrue(SelectMultipleType([1, 2]).
-                        contains_all([2, 1]))
-        self.assertFalse(SelectMultipleType([1, 2]).
-                         contains_all([2, 3]))
-        self.assertTrue(SelectMultipleType([1, 2, "a"]).
-                        contains_all([2, 1, "A"]))
+        self.assertTrue(SelectMultipleType([1, 2]).contains_all([2, 1]))
+        self.assertFalse(SelectMultipleType([1, 2]).contains_all([2, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).contains_all([2, 1, "A"]))
 
     def test_is_contained_by(self):
-        self.assertTrue(SelectMultipleType([1, 2]).
-                        is_contained_by([2, 1, 3]))
-        self.assertFalse(SelectMultipleType([1, 2]).
-                         is_contained_by([2, 3, 4]))
-        self.assertTrue(SelectMultipleType([1, 2, "a"]).
-                        is_contained_by([2, 1, "A"]))
+        self.assertTrue(SelectMultipleType([1, 2]).is_contained_by([2, 1, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).is_contained_by([2, 3, 4]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).is_contained_by([2, 1, "A"]))
 
     def test_shares_at_least_one_element_with(self):
-        self.assertTrue(SelectMultipleType([1, 2]).
-                        shares_at_least_one_element_with([2, 3]))
-        self.assertFalse(SelectMultipleType([1, 2]).
-                         shares_at_least_one_element_with([4, 3]))
-        self.assertTrue(SelectMultipleType([1, 2, "a"]).
-                        shares_at_least_one_element_with([4, "A"]))
+        self.assertTrue(SelectMultipleType([1, 2]).shares_at_least_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).shares_at_least_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).shares_at_least_one_element_with([4, "A"]))
 
     def test_shares_exactly_one_element_with(self):
-        self.assertTrue(SelectMultipleType([1, 2]).
-                        shares_exactly_one_element_with([2, 3]))
-        self.assertFalse(SelectMultipleType([1, 2]).
-                         shares_exactly_one_element_with([4, 3]))
-        self.assertTrue(SelectMultipleType([1, 2, "a"]).
-                        shares_exactly_one_element_with([4, "A"]))
-        self.assertFalse(SelectMultipleType([1, 2, 3]).
-                         shares_exactly_one_element_with([2, 3, "a"]))
+        self.assertTrue(SelectMultipleType([1, 2]).shares_exactly_one_element_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).shares_exactly_one_element_with([4, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).shares_exactly_one_element_with([4, "A"]))
+        self.assertFalse(SelectMultipleType([1, 2, 3]).shares_exactly_one_element_with([2, 3, "a"]))
 
     def test_shares_no_elements_with(self):
-        self.assertTrue(SelectMultipleType([1, 2]).
-                        shares_no_elements_with([4, 3]))
-        self.assertFalse(SelectMultipleType([1, 2]).
-                         shares_no_elements_with([2, 3]))
-        self.assertFalse(SelectMultipleType([1, 2, "a"]).
-                         shares_no_elements_with([4, "A"]))
+        self.assertTrue(SelectMultipleType([1, 2]).shares_no_elements_with([4, 3]))
+        self.assertFalse(SelectMultipleType([1, 2]).shares_no_elements_with([2, 3]))
+        self.assertFalse(SelectMultipleType([1, 2, "a"]).shares_no_elements_with([4, "A"]))

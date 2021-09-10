@@ -54,7 +54,7 @@ def check_condition(condition, defined_variables):
     operator_type = _get_variable_value(defined_variables, name)
     return _do_operator_comparison(operator_type, op, value)
 
-def _get_variable_value(defined_variables, name):
+def _get_variable_value(defined_variables, name, params = None):
     """ Call the function provided on the defined_variables object with the
     given name (raise exception if that doesn't exist) and casts it to the
     specified type.
@@ -65,7 +65,10 @@ def _get_variable_value(defined_variables, name):
         raise AssertionError("Variable {0} is not defined in class {1}".format(
                 name, defined_variables.__class__.__name__))
     method = getattr(defined_variables, name, fallback)
-    val = method()
+    if params:
+        val = method(params)
+    else:
+        val = method()
     return method.field_type(val)
 
 def _do_operator_comparison(operator_type, operator_name, comparison_value):

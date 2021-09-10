@@ -6,7 +6,8 @@ from .operators import (BaseType,
                         StringType,
                         BooleanType,
                         SelectType,
-                        SelectMultipleType)
+                        SelectMultipleType,
+                        GenericType)
 
 class BaseVariables(object):
     """ Classes that hold a collection of variables to use with the rules
@@ -59,3 +60,6 @@ def select_rule_variable(label=None, options=None):
 
 def select_multiple_rule_variable(label=None, options=None):
     return rule_variable(SelectMultipleType, label=label, options=options)
+
+def generic_rule_variable(label=None, options=None):
+    return rule_variable(GenericType, label=label, options=options)

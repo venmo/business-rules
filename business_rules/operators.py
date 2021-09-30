@@ -257,15 +257,34 @@ class GenericType(SelectMultipleType, SelectType, StringType, NumericType, Boole
             return Decimal(value)
         else:
             return value
+
+    def equal_to(self, other):
+        if isinstance(self.value, Decimal):
+            return self.num_equal_to(other)
+        else:
+            return self.str_equal_to(other)
     
+    def not_equal_to(self, other):
+        if isinstance(self.value, Decimal):
+            return self.num_not_equal_to(other)
+        else:
+            return self.str_not_equal_to(other)
+
     @type_operator(FIELD_NUMERIC)
-    def equal_to(self, other_numeric):
+    def num_equal_to(self, other_numeric):
         return abs(self.value - other_numeric) <= self.EPSILON
     
     @type_operator(FIELD_TEXT)
     def str_equal_to(self, other_string):
         return self.value == other_string
 
+    @type_operator(FIELD_NUMERIC)
+    def num_not_equal_to(self, other_numeric):
+        return abs(self.value - other_numeric) > self.EPSILON
+
     @type_operator(FIELD_TEXT)
-    def str_contains(self, other_string):
+    def str_not_equal_to(self, other_string):
+        return self.value != other_string
+
+    def contains(self, other_string):
         return other_string in self.value

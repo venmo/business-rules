@@ -203,7 +203,7 @@ class GenericOperatorTests(TestCase):
     def test_contains(self):
         self.assertTrue(GenericType([1, 2]).contains(2))
         self.assertFalse(GenericType([1, 2]).contains(3))
-        self.assertTrue(GenericType([1, 2, "a"]).contains("A"))
+        self.assertTrue(GenericType([1, 2, "a"]).contains("a"))
 
     def test_does_not_contain(self):
         self.assertTrue(GenericType([1, 2]).does_not_contain(3))
@@ -226,6 +226,16 @@ class GenericOperatorTests(TestCase):
         self.assertTrue(GenericType(10).equal_to(Decimal('10.0')))
         self.assertFalse(GenericType(10).equal_to(10.00001))
         self.assertFalse(GenericType(10).equal_to(11))
+
+    def test_numeric_not_equal_to(self):
+        self.assertFalse(GenericType(10).not_equal_to(10))
+        self.assertFalse(GenericType(10).not_equal_to(10.0))
+        self.assertFalse(GenericType(10).not_equal_to(10.000001))
+        self.assertFalse(GenericType(10.000001).not_equal_to(10))
+        self.assertFalse(GenericType(Decimal('10.0')).not_equal_to(10))
+        self.assertFalse(GenericType(10).not_equal_to(Decimal('10.0')))
+        self.assertTrue(GenericType(10).not_equal_to(10.00001))
+        self.assertTrue(GenericType(10).not_equal_to(11))
 
     def test_numeric_greater_than(self):
         self.assertTrue(GenericType(10).greater_than(1))
@@ -258,8 +268,12 @@ class GenericOperatorTests(TestCase):
         self.assertTrue(GenericType(10).less_than_or_equal_to(10))
     
     def test_string_equal_to(self):
-        self.assertTrue(GenericType("foo").str_equal_to("foo"))
-        self.assertFalse(GenericType("foo").str_equal_to("Foo"))
+        self.assertTrue(GenericType("foo").equal_to("foo"))
+        self.assertFalse(GenericType("foo").equal_to("Foo"))
+
+    def test_string_not_equal_to(self):
+        self.assertTrue(GenericType("foo").not_equal_to("POKEMON"))
+        self.assertFalse(GenericType("foo").not_equal_to("foo"))
 
     def test_string_equal_to_case_insensitive(self):
         self.assertTrue(GenericType("foo").equal_to_case_insensitive("FOo"))
@@ -277,11 +291,11 @@ class GenericOperatorTests(TestCase):
         self.assertFalse(GenericType("hello").ends_with("Lo"))
 
     def test_string_contains(self):
-        self.assertTrue(GenericType("hello").str_contains("ell"))
-        self.assertTrue(GenericType("hello").str_contains("he"))
-        self.assertTrue(GenericType("hello").str_contains("lo"))
-        self.assertFalse(GenericType("hello").str_contains("asdf"))
-        self.assertFalse(GenericType("hello").str_contains("ElL"))
+        self.assertTrue(GenericType("hello").contains("ell"))
+        self.assertTrue(GenericType("hello").contains("he"))
+        self.assertTrue(GenericType("hello").contains("lo"))
+        self.assertFalse(GenericType("hello").contains("asdf"))
+        self.assertFalse(GenericType("hello").contains("ElL"))
 
     def test_string_matches_regex(self):
         self.assertTrue(GenericType("hello").matches_regex(r"^h"))

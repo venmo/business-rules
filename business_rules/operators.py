@@ -235,3 +235,56 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+@export_type
+class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
+
+    """
+    This is meant to be a generic operator type to support all operations on a given value. Use this when you don't know the type of the value that will be returned.
+    """
+    EPSILON = Decimal('0.000001')
+    name = "generic"
+
+    def _assert_valid_value_and_cast(self, value):        
+        if isinstance(value, string_types):
+            # String type
+            return str(value)
+        
+        elif isinstance(value, float):
+            # In python 2.6, casting float to Decimal doesn't work
+            return float_to_decimal(value)
+        elif isinstance(value, integer_types):
+            return Decimal(value)
+        else:
+            return value
+
+    def equal_to(self, other):
+        if isinstance(self.value, Decimal):
+            return self.num_equal_to(other)
+        else:
+            return self.str_equal_to(other)
+    
+    def not_equal_to(self, other):
+        if isinstance(self.value, Decimal):
+            return self.num_not_equal_to(other)
+        else:
+            return self.str_not_equal_to(other)
+
+    @type_operator(FIELD_NUMERIC)
+    def num_equal_to(self, other_numeric):
+        return abs(self.value - other_numeric) <= self.EPSILON
+    
+    @type_operator(FIELD_TEXT)
+    def str_equal_to(self, other_string):
+        return self.value == other_string
+
+    @type_operator(FIELD_NUMERIC)
+    def num_not_equal_to(self, other_numeric):
+        return abs(self.value - other_numeric) > self.EPSILON
+
+    @type_operator(FIELD_TEXT)
+    def str_not_equal_to(self, other_string):
+        return self.value != other_string
+
+    def contains(self, other_string):
+        return other_string in self.value

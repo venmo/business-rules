@@ -1,10 +1,11 @@
-from business_rules.operators import (StringType,
+from business_rules.operators import (DataframeType, StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType, GenericType)
 
 from . import TestCase
 from decimal import Decimal
 import sys
+import pandas
 
 class StringOperatorTests(TestCase):
 
@@ -190,7 +191,24 @@ class SelectMultipleOperatorTests(TestCase):
                          shares_no_elements_with([2, 3]))
         self.assertFalse(SelectMultipleType([1, 2, "a"]).
                          shares_no_elements_with([4, "A"]))
-                
+
+class DataframeTests(TestCase):
+    def test_exists(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6]
+        })
+        self.assertTrue(DataframeType(df).exists("var1"))
+        self.assertFalse(DataframeType(df).exists("invalid"))
+
+    def test_not_exists(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6]
+        })
+        self.assertTrue(DataframeType(df).not_exists("invalid"))
+        self.assertFalse(DataframeType(df).not_exists("var1"))
+
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):
         self.assertTrue(GenericType([1, 2]).
@@ -305,3 +323,27 @@ class GenericOperatorTests(TestCase):
         self.assertTrue(GenericType("hello").non_empty())
         self.assertFalse(GenericType("").non_empty())
         self.assertFalse(GenericType(None).non_empty())
+
+    def test_is_contained_by(self):
+        self.assertTrue(GenericType("hello").is_contained_by(["hello", "world"]))
+        self.assertFalse(GenericType("earth").is_contained_by(["hello", "world"]))
+
+    def test_is_not_contained_by(self):
+        self.assertTrue(GenericType("rat").is_not_contained_by(["moose", "chicken"]))
+        self.assertFalse(GenericType("chicken").is_not_contained_by(["moose", "chicken"]))
+
+    def test_exists(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6]
+        })
+        self.assertTrue(GenericType(df).exists("var1"))
+        self.assertFalse(GenericType(df).exists("invalid"))
+
+    def test_not_exists(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6]
+        })
+        self.assertTrue(GenericType(df).not_exists("invalid"))
+        self.assertFalse(GenericType(df).not_exists("var1"))

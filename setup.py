@@ -13,9 +13,8 @@ setuptools.setup(
         name='business-rules-enhanced',
         version=version,
         description='{0}\n\n{1}'.format(description, history),
-        author='nhaydel',
-        author_email='nicholas.haydel1@gmail.com',
-        url='https://github.com/nhaydel/business-rules',
+        author='cdisc-org',
+        url='https://github.com/cdisc-org/business-rules',
         packages=['business_rules'],
         license='MIT'
 )

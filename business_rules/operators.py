@@ -3,7 +3,7 @@ import re
 from functools import wraps
 from .six import string_types, integer_types
 
-from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
+from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
@@ -214,6 +214,10 @@ class SelectMultipleType(BaseType):
         return other_select_multiple.contains_all(self.value)
 
     @type_operator(FIELD_SELECT_MULTIPLE)
+    def is_not_contained_by(self, other_value):
+        return not self.is_contained_by(other_value)
+
+    @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_at_least_one_element_with(self, other_value):
         select = SelectType(self.value)
         for other_val in other_value:
@@ -237,7 +241,26 @@ class SelectMultipleType(BaseType):
         return not self.shares_at_least_one_element_with(other_value)
 
 @export_type
-class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
+class DataframeType(BaseType):
+
+    name = "dataframe"
+
+    def _assert_valid_value_and_cast(self, value):
+        if not hasattr(value, '__iter__'):
+            raise AssertionError("{0} is not a valid select multiple type".
+                                 format(value))
+        return value
+
+    @type_operator(FIELD_DATAFRAME)
+    def exists(self, other_value):
+        return other_value in self.value
+
+    @type_operator(FIELD_DATAFRAME)
+    def not_exists(self, other_value):
+        return not self.exists(other_value)
+
+@export_type
+class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 
     """
     This is meant to be a generic operator type to support all operations on a given value. Use this when you don't know the type of the value that will be returned.
@@ -270,6 +293,11 @@ class GenericType(SelectMultipleType, SelectType, StringType, NumericType, Boole
         else:
             return self.str_not_equal_to(other)
 
+    def is_contained_by(self, other_value):
+        if not isinstance(self.value, list):
+            self.value = [self.value]
+        return super().is_contained_by(other_value)
+
     @type_operator(FIELD_NUMERIC)
     def num_equal_to(self, other_numeric):
         return abs(self.value - other_numeric) <= self.EPSILON
@@ -286,5 +314,6 @@ class GenericType(SelectMultipleType, SelectType, StringType, NumericType, Boole
     def str_not_equal_to(self, other_string):
         return self.value != other_string
 
+    @type_operator(FIELD_TEXT)
     def contains(self, other_string):
         return other_string in self.value

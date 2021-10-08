@@ -7,7 +7,8 @@ from .operators import (BaseType,
                         BooleanType,
                         SelectType,
                         SelectMultipleType,
-                        GenericType)
+                        GenericType,
+                        DataframeType)
 
 class BaseVariables(object):
     """ Classes that hold a collection of variables to use with the rules
@@ -63,3 +64,6 @@ def select_multiple_rule_variable(label=None, options=None):
 
 def generic_rule_variable(label=None, options=None):
     return rule_variable(GenericType, label=label, options=options)
+
+def dataframe_rule_variable(label=None, options=None):
+    return rule_variable(DataframeType, label=label, options=options)

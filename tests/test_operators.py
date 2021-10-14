@@ -16,6 +16,11 @@ class StringOperatorTests(TestCase):
         self.assertTrue(StringType("foo").equal_to("foo"))
         self.assertFalse(StringType("foo").equal_to("Foo"))
 
+    def test_string_not_equal_to(self):
+        self.assertTrue(StringType("foo").not_equal_to("Foo"))
+        self.assertTrue(StringType("foo").not_equal_to("boo"))
+        self.assertFalse(StringType("foo").not_equal_to("foo"))
+
     def test_string_equal_to_case_insensitive(self):
         self.assertTrue(StringType("foo").equal_to_case_insensitive("FOo"))
         self.assertTrue(StringType("foo").equal_to_case_insensitive("foo"))
@@ -81,6 +86,15 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).equal_to(Decimal('10.0')))
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
+
+    def test_numeric_not_equal_to(self):
+        self.assertTrue(NumericType(10).not_equal_to(10.00001))
+        self.assertTrue(NumericType(10).not_equal_to(11))
+        self.assertTrue(NumericType(Decimal('10.0')).not_equal_to(Decimal('10.1')))
+
+        self.assertFalse(NumericType(10).not_equal_to(10))
+        self.assertFalse(NumericType(10).not_equal_to(10.0))
+        self.assertFalse(NumericType(Decimal('10.0')).not_equal_to(Decimal('10.0')))
 
     def test_other_value_not_numeric(self):
         error_string = "10 is not a valid numeric type"

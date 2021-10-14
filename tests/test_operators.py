@@ -16,6 +16,11 @@ class StringOperatorTests(TestCase):
         self.assertTrue(StringType("foo").equal_to("foo"))
         self.assertFalse(StringType("foo").equal_to("Foo"))
 
+    def test_string_not_equal_to(self):
+        self.assertTrue(StringType("foo").not_equal_to("Foo"))
+        self.assertTrue(StringType("foo").not_equal_to("boo"))
+        self.assertFalse(StringType("foo").not_equal_to("foo"))
+
     def test_string_equal_to_case_insensitive(self):
         self.assertTrue(StringType("foo").equal_to_case_insensitive("FOo"))
         self.assertTrue(StringType("foo").equal_to_case_insensitive("foo"))

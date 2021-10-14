@@ -71,6 +71,10 @@ class StringType(BaseType):
     def equal_to(self, other_string):
         return self.value == other_string
 
+    @type_operator(FIELD_TEXT)
+    def not_equal_to(self, other_string):
+        return self.value != other_string
+
     @type_operator(FIELD_TEXT, label="Equal To (case insensitive)")
     def equal_to_case_insensitive(self, other_string):
         return self.value.lower() == other_string.lower()

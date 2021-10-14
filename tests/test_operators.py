@@ -82,6 +82,15 @@ class NumericOperatorTests(TestCase):
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
 
+    def test_numeric_not_equal_to(self):
+        self.assertTrue(NumericType(10).not_equal_to(10.00001))
+        self.assertTrue(NumericType(10).not_equal_to(11))
+        self.assertTrue(NumericType(Decimal('10.0')).not_equal_to(Decimal('10.1')))
+
+        self.assertFalse(NumericType(10).not_equal_to(10))
+        self.assertFalse(NumericType(10).not_equal_to(10.0))
+        self.assertFalse(NumericType(Decimal('10.0')).not_equal_to(Decimal('10.0')))
+
     def test_other_value_not_numeric(self):
         error_string = "10 is not a valid numeric type"
         with self.assertRaisesRegexp(AssertionError, error_string):

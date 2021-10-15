@@ -7,6 +7,7 @@ from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
+import numpy as np
 
 class BaseType(object):
     def __init__(self, value):
@@ -261,12 +262,68 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def exists(self, other_value):
-        return other_value in self.value
+        target_column = other_value.get("target")
+        return target_column in self.value
 
     @type_operator(FIELD_DATAFRAME)
     def not_exists(self, other_value):
         return not self.exists(other_value)
-
+    
+    @type_operator(FIELD_DATAFRAME)
+    def equal_to(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value.get(target) == self.value.get(comparator, comparator), True, False)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def less_than(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value.get(target) < self.value.get(comparator, comparator), True, False)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def less_than_or_equal_to(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value.get(target) <= self.value.get(comparator, comparator), True, False)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def greater_than_or_equal_to(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value.get(target) >= self.value.get(comparator, comparator), True, False)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def greater_than(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value.get(target) > self.value.get(comparator, comparator), True, False)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def contains(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = self.value[target].str.contains(comparator)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def is_contained_by(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] =  self.value[target].isin(comparator)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_contained_by(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = ~self.value[target].isin(comparator)
+        return True in self.value.result
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 

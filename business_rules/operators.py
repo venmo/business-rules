@@ -308,14 +308,21 @@ class DataframeType(BaseType):
     def contains(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.contains(comparator)
+        self.value["result"] = np.where(self.value[comparator, comparator] in self.value[target], True, False)
         return True in self.value.result
     
+    @type_operator(FIELD_DATAFRAME)
+    def not_contains(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = np.where(self.value[comparator, comparator] not in self.value[target], True, False)
+        return True in self.value.result
+
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] =  self.value[target].isin(comparator)
+        self.value["result"] = self.value[target].isin(comparator)
         return True in self.value.result
     
     @type_operator(FIELD_DATAFRAME)
@@ -324,6 +331,83 @@ class DataframeType(BaseType):
         comparator = other_value.get("comparator")
         self.value["result"] = ~self.value[target].isin(comparator)
         return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def is_contained_by_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = [val.lower() for val in other_value.get("comparator", [])]
+        self.value["result"] = self.value[target].lower().isin(comparator)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_contained_by_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = [val.lower() for val in other_value.get("comparator", [])]
+        self.value["result"] = ~self.value[target].lower().isin(comparator)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def prefix_matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        prefix = other_value.get("prefix")
+        self.value["result"] =  self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
+        print(self.value["result"])
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def not_prefix_matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        prefix = other_value.get("prefix")
+        self.value["result"] =  self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
+        print(self.value["result"])
+        return True in self.value.result
+  
+    @type_operator(FIELD_DATAFRAME)
+    def suffix_matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        suffix = other_value.get("suffix")
+        self.value["result"] =  self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def not_suffix_matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        suffix = other_value.get("suffix")
+        self.value["result"] =  self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = ~self.value[target].str.match(comparator)
+        return True in self.value.result
+    
+    @type_operator(FIELD_DATAFRAME)
+    def not_matches_regex(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = self.value[target].str.match(comparator)
+        return True in self.value.result
+     
+    @type_operator(FIELD_DATAFRAME)
+    def starts_with(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] =  self.value[target].str.startswith(comparator)
+        return True in self.value.result
+
+    @type_operator(FIELD_DATAFRAME)
+    def ends_with(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] =  self.value[target].str.endswith(comparator)
+        return True in self.value.result
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 

@@ -415,6 +415,13 @@ class DataframeType(BaseType):
         self.value["result"] = self.value[target].str.len().eq(comparator)
         return True in self.value.result
 
+    @type_operator(FIELD_DATAFRAME)
+    def has_not_equal_length(self, other_value: dict):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = self.value[target].str.len().ne(comparator)
+        return True in self.value.result
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 

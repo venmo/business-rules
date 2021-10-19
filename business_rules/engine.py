@@ -26,18 +26,20 @@ def run(rule, defined_variables, defined_actions):
 def check_conditions_recursively(conditions, defined_variables):
     keys = list(conditions.keys())
     if keys == ['all']:
+        result = True
         assert len(conditions['all']) >= 1
+        # Always check all conditions in the case that we are operating on a dataframe
         for condition in conditions['all']:
-            if not check_conditions_recursively(condition, defined_variables):
-                return False
-        return True
+            result = check_conditions_recursively(condition, defined_variables) and result
+        return result
 
     elif keys == ['any']:
+        result = False
         assert len(conditions['any']) >= 1
         for condition in conditions['any']:
-            if check_conditions_recursively(condition, defined_variables):
-                return True
-        return False
+            # Always check all conditions in the case that we are operating on a dataframe
+            result = check_conditions_recursively(condition, defined_variables) or result
+        return result
 
     else:
         # help prevent errors - any and all can only be in the condition dict

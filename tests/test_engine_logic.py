@@ -101,7 +101,6 @@ class EngineTests(TestCase):
 
         result = engine.check_conditions_recursively(conditions, variables)
         self.assertEqual(result, False)
-        engine.check_condition.assert_called_once_with({'thing1': ''}, variables)
 
 
     def test_check_all_condition_with_no_items_fails(self):
@@ -116,7 +115,6 @@ class EngineTests(TestCase):
 
         result = engine.check_conditions_recursively(conditions, variables)
         self.assertEqual(result, True)
-        engine.check_condition.assert_called_once_with({'thing1': ''}, variables)
 
 
     @patch.object(engine, 'check_condition', return_value=False)

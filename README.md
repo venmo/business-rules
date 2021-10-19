@@ -277,6 +277,24 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
 
+**dataframe** - A pandas deataframe
+`@dataframe_rule_variable` operators:
+
+* `contains`
+* `does_not_contain`
+* `equal_to`
+* `starts_with`
+* `ends_with`
+* `matches_regex`
+* `greater_than`
+* `less_than`
+* `greater_than_or_equal_to`
+* `less_than_or_equal_to`
+* `non_empty`
+* `empty`
+* `contains_all`
+* `exists`
+* `not_exists`
 ### Returning data to your client
 
 

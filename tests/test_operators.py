@@ -206,22 +206,440 @@ class SelectMultipleOperatorTests(TestCase):
         self.assertFalse(SelectMultipleType([1, 2, "a"]).
                          shares_no_elements_with([4, "A"]))
 
-class DataframeTests(TestCase):
+class DataframeOperatorTests(TestCase):
     def test_exists(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
             "var2": [3,5,6]
         })
-        self.assertTrue(DataframeType(df).exists("var1"))
-        self.assertFalse(DataframeType(df).exists("invalid"))
+        self.assertTrue(DataframeType(df).exists({"target": "var1"}))
+        self.assertFalse(DataframeType(df).exists({"target": "invalid"}))
 
     def test_not_exists(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
             "var2": [3,5,6]
         })
-        self.assertTrue(DataframeType(df).not_exists("invalid"))
-        self.assertFalse(DataframeType(df).not_exists("var1"))
+        self.assertTrue(DataframeType(df).not_exists({"target": "invalid"}))
+        self.assertFalse(DataframeType(df).not_exists({"target": "var1"}))
+
+    def test_equal_to(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8]
+        })
+        self.assertTrue(DataframeType(df).equal_to({
+            "target": "var1",
+            "comparator": 2
+        }))
+        self.assertTrue(DataframeType(df).equal_to({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertFalse(DataframeType(df).equal_to({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+        self.assertFalse(DataframeType(df).equal_to({
+            "target": "var1",
+            "comparator": 20
+        }))
+
+    def test_not_equal_to(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertFalse(DataframeType(df).not_equal_to({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertTrue(DataframeType(df).not_equal_to({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+        self.assertTrue(DataframeType(df).not_equal_to({
+            "target": "var1",
+            "comparator": 20
+        }))
+
+    def test_less_than(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertFalse(DataframeType(df).less_than({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertTrue(DataframeType(df).less_than({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertFalse(DataframeType(df).less_than({
+            "target": "var2",
+            "comparator": 2
+        }))
+        self.assertTrue(DataframeType(df).less_than({
+            "target": "var1",
+            "comparator": 3
+        }))
+
+    def test_less_than_or_equal_to(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).less_than_or_equal_to({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertFalse(DataframeType(df).less_than_or_equal_to({
+            "target": "var2",
+            "comparator": "var1"
+        }))
+        self.assertFalse(DataframeType(df).less_than_or_equal_to({
+            "target": "var2",
+            "comparator": 2
+        }))
+        self.assertTrue(DataframeType(df).less_than_or_equal_to({
+            "target": "var2",
+            "comparator": "var3"
+        }))
+
+    def test_greater_than(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertFalse(DataframeType(df).greater_than({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertFalse(DataframeType(df).greater_than({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertTrue(DataframeType(df).greater_than({
+            "target": "var2",
+            "comparator": 2
+        }))
+        self.assertFalse(DataframeType(df).greater_than({
+            "target": "var1",
+            "comparator": 5000
+        }))
+
+    def test_greater_than_or_equal_to(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).greater_than_or_equal_to({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertTrue(DataframeType(df).greater_than_or_equal_to({
+            "target": "var2",
+            "comparator": "var3"
+        }))
+        self.assertTrue(DataframeType(df).greater_than_or_equal_to({
+            "target": "var2",
+            "comparator": 2
+        }))
+
+    def test_contains(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).contains({
+            "target": "var1",
+            "comparator": 2
+        }))
+        self.assertTrue(DataframeType(df).contains({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertFalse(DataframeType(df).contains({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+
+    def test_does_not_contain(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).does_not_contain({
+            "target": "var1",
+            "comparator": 5
+        }))
+        self.assertFalse(DataframeType(df).does_not_contain({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertTrue(DataframeType(df).does_not_contain({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+
+    def test_is_contained_by(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).is_contained_by({
+            "target": "var1",
+            "comparator": [4,5,6]
+        }))
+        self.assertTrue(DataframeType(df).is_contained_by({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertFalse(DataframeType(df).is_contained_by({
+            "target": "var1",
+            "comparator": [9, 10, 11]
+        }))
+        self.assertFalse(DataframeType(df).is_contained_by({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+
+    def test_is_not_contained_by(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": [1,2,4],
+            "var2": [3,5,6],
+            "var3": [1,3,8],
+            "var4": [1,2,4]
+        })
+        self.assertTrue(DataframeType(df).is_not_contained_by({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+        self.assertTrue(DataframeType(df).is_not_contained_by({
+            "target": "var1",
+            "comparator": [9, 10, 11]
+        }))
+        self.assertFalse(DataframeType(df).is_not_contained_by({
+            "target": "var1",
+            "comparator": "var1"
+        }))
+
+    def test_is_contained_by_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertTrue(DataframeType(df).is_contained_by_case_insensitive({
+            "target": "var1",
+            "comparator": ["word", "TEST"]
+        }))
+        self.assertFalse(DataframeType(df).is_contained_by_case_insensitive({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+
+    def test_is_not_contained_by_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertFalse(DataframeType(df).is_not_contained_by_case_insensitive({
+            "target": "var1",
+            "comparator": ["word", "TEST"]
+        }))
+        self.assertTrue(DataframeType(df).is_not_contained_by_case_insensitive({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+
+    def test_prefix_matches_regex(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertTrue(DataframeType(df).prefix_matches_regex({
+            "target": "var2",
+            "comparator": "w.*",
+            "prefix": 2
+        }))
+        self.assertFalse(DataframeType(df).prefix_matches_regex({
+            "target": "var2",
+            "comparator": "[0-9].*",
+            "prefix": 2
+        }))
+
+    def test_suffix_matches_regex(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertTrue(DataframeType(df).suffix_matches_regex({
+            "target": "var1",
+            "comparator": "es.*",
+            "suffix": 3
+        }))
+        self.assertFalse(DataframeType(df).suffix_matches_regex({
+            "target": "var1",
+            "comparator": "[0-9].*",
+            "suffix": 3
+        }))
+
+    def test_not_prefix_matches_suffix(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertFalse(DataframeType(df).not_prefix_matches_regex({
+            "target": "var1",
+            "comparator": ".*",
+            "prefix": 2
+        }))
+        self.assertTrue(DataframeType(df).not_prefix_matches_regex({
+            "target": "var2",
+            "comparator": "[0-9].*",
+            "prefix": 2
+        }))
+
+    def test_not_suffix_matches_regex(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertFalse(DataframeType(df).not_suffix_matches_regex({
+            "target": "var1",
+            "comparator": ".*",
+            "suffix": 3
+        }))
+        self.assertTrue(DataframeType(df).not_suffix_matches_regex({
+            "target": "var1",
+            "comparator": "[0-9].*",
+            "suffix": 3
+        }))
+
+    def test_matches_suffix(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertTrue(DataframeType(df).matches_regex({
+            "target": "var1",
+            "comparator": ".*",
+        }))
+        self.assertFalse(DataframeType(df).matches_regex({
+            "target": "var2",
+            "comparator": "[0-9].*",
+        }))
+
+    def test_not_matches_regex(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertFalse(DataframeType(df).not_matches_regex({
+            "target": "var1",
+            "comparator": ".*",
+        }))
+        self.assertTrue(DataframeType(df).not_matches_regex({
+            "target": "var1",
+            "comparator": "[0-9].*",
+        }))
+
+    def test_starts_with(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertTrue(DataframeType(df).starts_with({
+            "target": "var1",
+            "comparator": "WO",
+        }))
+        self.assertFalse(DataframeType(df).starts_with({
+            "target": "var2",
+            "comparator": "ABC",
+        }))
+
+    def test_ends_with(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["WORD", "test"],
+            "var2": ["word", "TEST"],
+            "var3": ["another", "item"]
+        })
+        self.assertFalse(DataframeType(df).ends_with({
+            "target": "var1",
+            "comparator": "abc",
+        }))
+        self.assertTrue(DataframeType(df).ends_with({
+            "target": "var1",
+            "comparator": "est",
+        }))
+
+    def test_has_equal_length(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var_1": ['test', 'value']
+            }
+        )
+        df_operator = DataframeType(df)
+        result = df_operator.has_equal_length({"target": "var_1", "comparator": 4})
+        self.assertTrue(result)
+
+    def test_has_not_equal_length(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var_1": ['test', 'value']
+            }
+        )
+        df_operator = DataframeType(df)
+        result = df_operator.has_not_equal_length({"target": "var_1", "comparator": 4})
+        self.assertTrue(result)
+
+    def test_contains_all(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": ['test', 'value', 'word'],
+                "var2": ["test", "value", "test"]
+            }
+        )
+        self.assertTrue(DataframeType(df).contains_all({
+            "target": "var1",
+            "comparator": "var2",
+        }))
+        self.assertFalse(DataframeType(df).contains_all({
+            "target": "var2",
+            "comparator": "var1",
+        }))
+        self.assertTrue(DataframeType(df).contains_all({
+            "target": "var2",
+            "comparator": ["test", "value"],
+        }))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):
@@ -351,39 +769,13 @@ class GenericOperatorTests(TestCase):
             "var1": [1,2,4],
             "var2": [3,5,6]
         })
-        self.assertTrue(GenericType(df).exists("var1"))
-        self.assertFalse(GenericType(df).exists("invalid"))
+        self.assertTrue(GenericType(df).exists({"target": "var1"}))
+        self.assertFalse(GenericType(df).exists({"target": "invalid"}))
 
     def test_not_exists(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
             "var2": [3,5,6]
         })
-        self.assertTrue(GenericType(df).not_exists("invalid"))
-        self.assertFalse(GenericType(df).not_exists("var1"))
-
-
-class DataFrameOperatorTests(TestCase):
-    def test_has_equal_length(self):
-        df = pandas.DataFrame.from_dict(
-            {
-                "var_1": ['test', 'value']
-            }
-        )
-        df_operator = DataframeType(df)
-        result = df_operator.has_equal_length({"target": "var_1", "comparator": 4})
-        self.assertTrue(result)
-        self.assertTrue(df_operator.value.result[0])
-        self.assertFalse(df_operator.value.result[1])
-
-    def test_has_not_equal_length(self):
-        df = pandas.DataFrame.from_dict(
-            {
-                "var_1": ['test', 'value']
-            }
-        )
-        df_operator = DataframeType(df)
-        result = df_operator.has_not_equal_length({"target": "var_1", "comparator": 4})
-        self.assertTrue(result)
-        self.assertFalse(df_operator.value.result[0])
-        self.assertTrue(df_operator.value.result[1])
+        self.assertTrue(GenericType(df).not_exists({"target": "invalid"}))
+        self.assertFalse(GenericType(df).not_exists({"target": "var1"}))

@@ -1,6 +1,7 @@
 import inspect
 import re
 from functools import wraps
+from uuid import uuid4
 from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
@@ -8,6 +9,7 @@ from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
 import numpy as np
+import pandas as pd
 
 class BaseType(object):
     def __init__(self, value):
@@ -273,154 +275,207 @@ class DataframeType(BaseType):
     def equal_to(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value.get(target) == self.value.get(comparator, comparator), True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(target) == self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def not_equal_to(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        results = np.where(self.value.get(target) != self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def less_than(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value.get(target) < self.value.get(comparator, comparator), True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(target) < self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def less_than_or_equal_to(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value.get(target) <= self.value.get(comparator, comparator), True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(target) <= self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def greater_than_or_equal_to(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value.get(target) >= self.value.get(comparator, comparator), True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(target) >= self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def greater_than(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value.get(target) > self.value.get(comparator, comparator), True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(target) > self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def contains(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value[comparator, comparator] in self.value[target], True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(comparator, comparator) in self.value[target].values, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
     
     @type_operator(FIELD_DATAFRAME)
-    def not_contains(self, other_value):
+    def does_not_contain(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = np.where(self.value[comparator, comparator] not in self.value[target], True, False)
-        return True in self.value.result
+        results = np.where(self.value.get(comparator, comparator) not in self.value[target].values, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].isin(comparator)
-        return True in self.value.result
+        results = self.value[target].isin(self.value.get(comparator, comparator))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_not_contained_by(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = ~self.value[target].isin(comparator)
-        return True in self.value.result
+        results = ~self.value[target].isin(self.value.get(comparator, comparator))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by_case_insensitive(self, other_value):
         target = other_value.get("target")
         comparator = [val.lower() for val in other_value.get("comparator", [])]
-        self.value["result"] = self.value[target].lower().isin(comparator)
-        return True in self.value.result
+        results = self.value[target].str.lower().isin(self.value.get(comparator, comparator))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_not_contained_by_case_insensitive(self, other_value):
         target = other_value.get("target")
         comparator = [val.lower() for val in other_value.get("comparator", [])]
-        self.value["result"] = ~self.value[target].lower().isin(comparator)
-        return True in self.value.result
+        results = ~self.value[target].str.lower().isin(self.value.get(comparator, comparator))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def prefix_matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
-        self.value["result"] = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
-        print(self.value["result"])
-        return True in self.value.result
+        results = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def not_prefix_matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
-        self.value["result"] = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
-        print(self.value["result"])
-        return True in self.value.result
+        results = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is None)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
   
     @type_operator(FIELD_DATAFRAME)
     def suffix_matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
-        self.value["result"] = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
-        return True in self.value.result
+        results = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def not_suffix_matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
-        self.value["result"] = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
-        return True in self.value.result
+        results = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = ~self.value[target].str.match(comparator)
-        return True in self.value.result
+        results = self.value[target].str.match(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def not_matches_regex(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.match(comparator)
-        return True in self.value.result
+        results = ~self.value[target].str.match(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
      
     @type_operator(FIELD_DATAFRAME)
     def starts_with(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.startswith(comparator)
-        return True in self.value.result
+        results = self.value[target].str.startswith(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def ends_with(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.endswith(comparator)
-        return True in self.value.result
+        results = self.value[target].str.endswith(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def has_equal_length(self, other_value: dict):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.len().eq(comparator)
-        return True in self.value.result
+        results = self.value[target].str.len().eq(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def has_not_equal_length(self, other_value: dict):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] = self.value[target].str.len().ne(comparator)
-        return True in self.value.result
+        results = self.value[target].str.len().ne(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def empty(self, other_value: dict):
+        target = other_value.get("target")
+        results = np.where(pd.isnull(self.value[target]))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def non_empty(self, other_value: dict):
+        target = other_value.get("target")
+        results = ~np.where(pd.isnull(self.value[target]))
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def contains_all(self, other_value: dict):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        if isinstance(comparator, list):
+            # get column as array of values
+            values = comparator
+        else:
+            values = self.value[comparator].unique()
+        self.value.get(comparator, comparator)
+        return set(values).issubset(set(self.value[target].unique()))
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

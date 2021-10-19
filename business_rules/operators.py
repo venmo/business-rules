@@ -351,7 +351,7 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
-        self.value["result"] =  self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
+        self.value["result"] = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
         print(self.value["result"])
         return True in self.value.result
     
@@ -360,7 +360,7 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
-        self.value["result"] =  self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
+        self.value["result"] = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
         print(self.value["result"])
         return True in self.value.result
   
@@ -369,7 +369,7 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
-        self.value["result"] =  self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
+        self.value["result"] = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
         return True in self.value.result
     
     @type_operator(FIELD_DATAFRAME)
@@ -377,7 +377,7 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
-        self.value["result"] =  self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
+        self.value["result"] = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
         return True in self.value.result
     
     @type_operator(FIELD_DATAFRAME)
@@ -398,14 +398,21 @@ class DataframeType(BaseType):
     def starts_with(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] =  self.value[target].str.startswith(comparator)
+        self.value["result"] = self.value[target].str.startswith(comparator)
         return True in self.value.result
 
     @type_operator(FIELD_DATAFRAME)
     def ends_with(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        self.value["result"] =  self.value[target].str.endswith(comparator)
+        self.value["result"] = self.value[target].str.endswith(comparator)
+        return True in self.value.result
+
+    @type_operator(FIELD_DATAFRAME)
+    def has_equal_length(self, other_value: dict):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        self.value["result"] = self.value[target].str.len().eq(comparator)
         return True in self.value.result
 
 @export_type

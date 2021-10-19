@@ -361,3 +361,17 @@ class GenericOperatorTests(TestCase):
         })
         self.assertTrue(GenericType(df).not_exists("invalid"))
         self.assertFalse(GenericType(df).not_exists("var1"))
+
+
+class DataFrameOperatorTests(TestCase):
+    def test_has_equal_length(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var_1": ['test', 'value']
+            }
+        )
+        df_operator = DataframeType(df)
+        result = df_operator.has_equal_length({"target": "var_1", "comparator": 4})
+        self.assertTrue(result)
+        self.assertTrue(df_operator.value.result[0])
+        self.assertFalse(df_operator.value.result[1])

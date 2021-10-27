@@ -677,6 +677,70 @@ class DataframeOperatorTests(TestCase):
             "target": "var2",
             "comparator": ["test", "value"],
         }))
+    
+    def test_invalid_date(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": ['2021', '2021', '2021', '2021', '2099'],
+                "var2": ["2099", "2022", "2034", "90999", "20999"],
+                "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"], 
+            }
+        )
+        self.assertFalse(DataframeType(df).invalid_date({"target": "var1"}))
+        self.assertFalse(DataframeType(df).invalid_date({"target": "var3"}))
+        self.assertTrue(DataframeType(df).invalid_date({"target": "var2"}))
+    
+    def test_date_equal_to(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": ['2021', '2021', '2021', '2021', '2021'],
+                "var2": ["2099", "2022", "2034", "90999", "20999"],
+                "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
+                "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
+                "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+            }
+        )
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var1", "comparator": '2021'}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "1997-07-16T19:20:30.45+01:00"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var4"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "hour"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "minute"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "second"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "microsecond"}))
+        self.assertTrue(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "year"}))
+        self.assertFalse(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "month"}))
+        self.assertFalse(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "year"}))
+        self.assertFalse(DataframeType(df).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"}))
+    
+    def test_date_not_equal_to(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": ['2021', '2021', '2021', '2021', '2021'],
+                "var2": ["2099", "2022", "2034", "90999", "20999"],
+                "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
+                "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
+                "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+            }
+        )
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var1", "comparator": '2022'}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var4"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "hour"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "minute"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "second"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "microsecond"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "year"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "year"}))
+        self.assertTrue(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "month"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "day"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "hour"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "second"}))
+        self.assertFalse(DataframeType(df).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "microsecond"}))
 
 
 class GenericOperatorTests(TestCase):

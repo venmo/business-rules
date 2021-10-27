@@ -6,8 +6,9 @@ from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal
+from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component
 from decimal import Decimal, Inexact, Context
+import operator
 import numpy as np
 import pandas as pd
 
@@ -508,6 +509,45 @@ class DataframeType(BaseType):
             values = self.value[comparator].unique()
         self.value.get(comparator, comparator)
         return set(values).issubset(set(self.value[target].unique()))
+    
+    @type_operator(FIELD_DATAFRAME)
+    def invalid_date(self, other_value):
+        target = other_value.get("target")
+        results = ~vectorized_is_valid(self.value[target])
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+    
+    def date_comparison(self, other_value, operator):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        component = other_value.get("date_component")
+        results = np.where(operator(vectorized_date_component(component, self.value.get(target)), vectorized_date_component(component, self.value.get(comparator, comparator))), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+    
+    @type_operator(FIELD_DATAFRAME)
+    def date_equal_to(self, other_value):
+        return self.date_comparison(other_value, operator.eq)
+
+    @type_operator(FIELD_DATAFRAME)
+    def date_not_equal_to(self, other_value):
+        return self.date_comparison(other_value, operator.ne)
+    
+    @type_operator(FIELD_DATAFRAME)
+    def date_less_than(self, other_value):
+        return self.date_comparison(other_value, operator.lt)
+    
+    @type_operator(FIELD_DATAFRAME)
+    def date_less_than_or_equal_to(self, other_value):
+        return self.date_comparison(other_value, operator.le)
+    
+    @type_operator(FIELD_DATAFRAME)
+    def date_greater_than_or_equal_to(self, other_value):
+        return self.date_comparison(other_value, operator.ge)
+    
+    @type_operator(FIELD_DATAFRAME)
+    def date_greater_than(self, other_value):
+        return self.date_comparison(other_value, operator.gt)
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

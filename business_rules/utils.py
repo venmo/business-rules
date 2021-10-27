@@ -1,5 +1,11 @@
 from decimal import Decimal, Inexact, Context
+from datetime import datetime
+import re
 import inspect
+import numpy as np
+from dateutil.parser import parse
+
+iso_8601_regex = re.compile("^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$")
 
 def fn_name_to_pretty_label(name):
     return ' '.join([w.title() for w in name.split('_')])
@@ -39,4 +45,54 @@ def float_to_decimal(f):
         ctx.prec *= 2
         result = ctx.divide(numerator, denominator)
     return result
+
+def is_valid_date(date_string: str) -> bool:
+    return bool(iso_8601_regex.match(date_string))
+
+def get_year(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.year
+
+def get_month(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.month
+
+def get_day(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.day
+
+def get_hour(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.hour
+
+def get_minute(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.minute
+
+def get_second(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.second
+
+def get_microsecond(date_string: str):
+    timestamp = parse(date_string)
+    return timestamp.microsecond
+
+def get_date_component(component: str, date_string: str):
+    component_func_map = {
+        "year": get_year,
+        "month": get_month,
+        "day": get_day,
+        "hour": get_hour,
+        "minute": get_minute,
+        "microsecond": get_microsecond,
+        "second": get_second
+    }
+    component_function = component_func_map.get(component)
+    if component_function:
+        return component_function(date_string)
+    else:
+        return parse(date_string)
+
+vectorized_date_component = np.vectorize(get_date_component)
+vectorized_is_valid = np.vectorize(is_valid_date)
 

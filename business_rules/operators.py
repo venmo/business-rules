@@ -452,6 +452,22 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def longer_than(self, other_value: dict):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        results = self.value[target].str.len().gt(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def shorter_than(self, other_value: dict):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        results = self.value[target].str.len().lt(comparator)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
     def empty(self, other_value: dict):
         target = other_value.get("target")
         results = np.where(pd.isnull(self.value[target]))

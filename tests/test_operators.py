@@ -633,7 +633,7 @@ class DataframeOperatorTests(TestCase):
     def test_shorter_than(self):
         df = pandas.DataFrame.from_dict(
             {
-                "var_1": ['test', 'value']
+                "var_1": ['test', 'val']
             }
         )
         df_operator = DataframeType(df)

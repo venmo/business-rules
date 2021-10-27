@@ -811,6 +811,7 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var3", "comparator": "var4"}))
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"}))
+        
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

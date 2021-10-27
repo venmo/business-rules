@@ -11,6 +11,7 @@ from decimal import Decimal, Inexact, Context
 import operator
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 class BaseType(object):
     def __init__(self, value):
@@ -549,6 +550,22 @@ class DataframeType(BaseType):
     def date_greater_than(self, other_value):
         return self.date_comparison(other_value, operator.gt)
 
+@export_type
+class DateTimeType(StringType):
+    
+    @type_operator(FIELD_DATETIME)
+    def is_iso_8601(self):
+        try:
+            datetime.fromisoformat(self.value)
+        except:
+            try:
+                datetime.fromisoformat(self.value.replace('Z', '+00:00'))
+            except:
+                return False
+            return True
+        return True
+        
+     
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 

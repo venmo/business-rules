@@ -627,8 +627,17 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType(df)
-        result = df_operator.longer_than({"target": "var_1", "comparator": 3})
-        self.assertTrue(result)
+        self.assertTrue(df_operator.longer_than({"target": "var_1", "comparator": 3}))
+
+    def test_longer_than_or_equal_to(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var_1": ['test', 'alex']
+            }
+        )
+        df_operator = DataframeType(df)
+        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "var_1", "comparator": 3}))
+        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "var_1", "comparator": 4}))
 
     def test_shorter_than(self):
         df = pandas.DataFrame.from_dict(
@@ -637,8 +646,17 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType(df)
-        positive_result = df_operator.shorter_than({"target": "var_1", "comparator": 5})
-        self.assertTrue(positive_result)
+        self.assertTrue(df_operator.shorter_than({"target": "var_1", "comparator": 5}))
+
+    def test_shorter_than_or_equal_to(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var_1": ['test', 'alex']
+            }
+        )
+        df_operator = DataframeType(df)
+        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "var_1", "comparator": 5}))
+        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "var_1", "comparator": 4}))
 
     def test_contains_all(self):
         df = pandas.DataFrame.from_dict(

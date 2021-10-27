@@ -457,7 +457,7 @@ class DataframeType(BaseType):
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().gt(comparator)
         self.value[f"result_{uuid4()}"] = results
-        return True in results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def longer_than_or_equal_to(self, other_value: dict):
@@ -465,7 +465,7 @@ class DataframeType(BaseType):
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().ge(comparator)
         self.value[f"result_{uuid4()}"] = results
-        return True in results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def shorter_than(self, other_value: dict):
@@ -473,7 +473,7 @@ class DataframeType(BaseType):
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().lt(comparator)
         self.value[f"result_{uuid4()}"] = results
-        return True in results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def shorter_than_or_equal_to(self, other_value: dict):
@@ -481,7 +481,7 @@ class DataframeType(BaseType):
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().le(comparator)
         self.value[f"result_{uuid4()}"] = results
-        return True in results
+        return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
     def empty(self, other_value: dict):

@@ -1,9 +1,10 @@
 from decimal import Decimal, Inexact, Context
-from datetime import datetime
+from datetime import datetime, tzinfo
 import re
 import inspect
 import numpy as np
 from dateutil.parser import parse
+import pytz
 
 iso_8601_regex = re.compile("^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$")
 
@@ -50,31 +51,31 @@ def is_valid_date(date_string: str) -> bool:
     return bool(iso_8601_regex.match(date_string))
 
 def get_year(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.year
 
 def get_month(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.month
 
 def get_day(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.day
 
 def get_hour(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.hour
 
 def get_minute(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.minute
 
 def get_second(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.second
 
 def get_microsecond(date_string: str):
-    timestamp = parse(date_string)
+    timestamp = get_date(date_string)
     return timestamp.microsecond
 
 def get_date_component(component: str, date_string: str):
@@ -91,7 +92,19 @@ def get_date_component(component: str, date_string: str):
     if component_function:
         return component_function(date_string)
     else:
-        return parse(date_string)
+        return get_date(date_string)
+
+def get_date(date_string: str):
+    """
+    Returns a utc timestamp for comparison
+    """
+    date = parse(date_string)
+    utc = pytz.UTC
+    if date.tzinfo is not None and date.tzinfo.utcoffset(date) is not None:
+        # timezone aware
+        return date.astimezone(utc)
+    else:
+        return utc.localize(date)
 
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)

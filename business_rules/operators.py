@@ -6,12 +6,11 @@ from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component
+from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component, vectorized_is_completed_date
 from decimal import Decimal, Inexact, Context
 import operator
 import numpy as np
 import pandas as pd
-from datetime import datetime
 
 class BaseType(object):
     def __init__(self, value):
@@ -565,7 +564,15 @@ class DateTimeType(StringType):
             return True
         return True
         
-     
+    @type_operator(FIELD_DATAFRAME)
+    def is_incomplete_date(self, other_value):
+        target = other_value.get("target")
+        results = ~vectorized_is_completed_date(self.value[target])
+        self.value[f"result_{uuid4()}"] = results
+        print(results)
+        return True in results
+       
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
 

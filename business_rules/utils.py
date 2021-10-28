@@ -2,11 +2,16 @@ from decimal import Decimal, Inexact, Context
 from datetime import datetime, tzinfo
 import re
 import inspect
+<<<<<<< HEAD
 import numpy as np
 from dateutil.parser import parse
 import pytz
 
 iso_8601_regex = re.compile("^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$")
+=======
+from datetime import datetime
+import numpy as np
+>>>>>>> 501b6f3... Move operator to Dataframe
 
 def fn_name_to_pretty_label(name):
     return ' '.join([w.title() for w in name.split('_')])
@@ -106,6 +111,18 @@ def get_date(date_string: str):
     else:
         return utc.localize(date)
 
+def is_complete_date(date_string: str) -> bool:
+    try:
+        datetime.fromisoformat(date_string)
+    except:
+        try:
+            datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+        except:
+            print(date_string)
+            return False
+        return True
+    return True
+
+vectorized_is_completed_date = np.vectorize(is_complete_date)
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)
-

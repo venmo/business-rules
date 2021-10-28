@@ -549,27 +549,11 @@ class DataframeType(BaseType):
     def date_greater_than(self, other_value):
         return self.date_comparison(other_value, operator.gt)
 
-@export_type
-class DateTimeType(StringType):
-    
-    @type_operator(FIELD_DATETIME)
-    def is_iso_8601(self):
-        try:
-            datetime.fromisoformat(self.value)
-        except:
-            try:
-                datetime.fromisoformat(self.value.replace('Z', '+00:00'))
-            except:
-                return False
-            return True
-        return True
-        
     @type_operator(FIELD_DATAFRAME)
     def is_incomplete_date(self, other_value):
         target = other_value.get("target")
         results = ~vectorized_is_completed_date(self.value[target])
         self.value[f"result_{uuid4()}"] = results
-        print(results)
         return True in results
        
 

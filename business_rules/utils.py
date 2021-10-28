@@ -117,6 +117,6 @@ def is_complete_date(date_string: str) -> bool:
         return True
     return True
 
-vectorized_is_completed_date = np.vectorize(is_complete_date)
+vectorized_is_complete_date = np.vectorize(is_complete_date)
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)

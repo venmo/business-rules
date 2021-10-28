@@ -6,7 +6,7 @@ from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component
+from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component, vectorized_is_complete_date
 from decimal import Decimal, Inexact, Context
 import operator
 import numpy as np
@@ -548,6 +548,14 @@ class DataframeType(BaseType):
     @type_operator(FIELD_DATAFRAME)
     def date_greater_than(self, other_value):
         return self.date_comparison(other_value, operator.gt)
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_incomplete_date(self, other_value):
+        target = other_value.get("target")
+        results = ~vectorized_is_complete_date(self.value[target])
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+       
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

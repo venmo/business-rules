@@ -811,6 +811,17 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var3", "comparator": "var4"}))
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
         self.assertTrue(DataframeType(df).date_less_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"}))
+        
+    def test_is_complete_date(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": [ '2021', '2021', '2099'],
+                "var2": [ "1997-07-16", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"], 
+            }
+        )
+        self.assertTrue(DataframeType(df).is_incomplete_date({"target" : "var1"}))
+        self.assertFalse(DataframeType(df).is_incomplete_date({"target" : "var2"}))
+        
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

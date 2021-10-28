@@ -106,6 +106,17 @@ def get_date(date_string: str):
     else:
         return utc.localize(date)
 
+def is_complete_date(date_string: str) -> bool:
+    try:
+        datetime.fromisoformat(date_string)
+    except:
+        try:
+            datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+        except:
+            return False
+        return True
+    return True
+
+vectorized_is_complete_date = np.vectorize(is_complete_date)
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)
-

@@ -555,7 +555,18 @@ class DataframeType(BaseType):
         results = ~vectorized_is_complete_date(self.value[target])
         self.value[f"result_{uuid4()}"] = results
         return True in results
-       
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_unique(self, other_value):
+        target = other_value.get("target")
+        unique_target = self.value[target].duplicated()
+        self.value[f"result_{uuid4()}"] = unique_target
+        comparator = other_value.get("comparator")
+        if comparator:
+            unique_comparator = self.value[comparator].duplicated()
+            self.value[f"result_{uuid4()}"] = unique_comparator
+            return (True in unique_target.values) or (True in unique_comparator.values)
+        return True in unique_target.values
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

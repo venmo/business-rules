@@ -821,7 +821,20 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(DataframeType(df).is_incomplete_date({"target" : "var1"}))
         self.assertFalse(DataframeType(df).is_incomplete_date({"target" : "var2"}))
-        
+
+    def test_is_not_unique(self):
+        # case when all columns have unique rows
+        unique_df = pandas.DataFrame.from_dict({"var_1": [1, 2, 3], "var_2": [1, 2, 3], })
+        self.assertFalse(DataframeType(unique_df).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+
+        # case when one column has a duplicate row
+        df_one_col_duplicate = pandas.DataFrame.from_dict({"var_1": [1, 2, 2], "var_2": [1, 2, 3], })
+        self.assertTrue(DataframeType(df_one_col_duplicate).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+
+        # case when all columns have a duplicate row
+        df_all_cols_duplicate = pandas.DataFrame.from_dict({"var_1": [1, 2, 2], "var_2": [1, 2, 1], })
+        self.assertTrue(DataframeType(df_all_cols_duplicate).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

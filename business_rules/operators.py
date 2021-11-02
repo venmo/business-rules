@@ -6,7 +6,8 @@ from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component, vectorized_is_complete_date
+from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component, \
+    vectorized_is_complete_date, vectorized_len, vectorized_get_dict_key
 from decimal import Decimal, Inexact, Context
 import operator
 import numpy as np
@@ -635,10 +636,11 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
-        invalid_keys = [key for key, val in grouped_dict.items() if len(val) > 1]
-        results = self.value[comparator].isin(invalid_keys)
+        results = np.where(
+            vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) > 1, True, False
+        )
         self.value[f"result_{uuid4()}"] = results
-        return True in results.values
+        return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_unique_set(self, other_value):

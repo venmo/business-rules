@@ -557,12 +557,14 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
-    def is_not_unique(self, other_value):
+    def is_not_unique_within(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
-        no_dupl_rows_df = self.value.drop_duplicates()
-        no_dupl_rows_df[[target, comparator]].groupby(target).count()
-        no_dupl_rows_df[[target, comparator]].groupby(comparator).count()
+        grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
+        invalid_keys = [key for key, val in grouped_dict.items() if len(val) > 1]
+        results = self.value[comparator].isin(invalid_keys)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

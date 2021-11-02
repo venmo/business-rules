@@ -822,18 +822,51 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType(df).is_incomplete_date({"target" : "var1"}))
         self.assertFalse(DataframeType(df).is_incomplete_date({"target" : "var2"}))
 
-    def test_is_not_unique(self):
-        # case when all columns have unique rows
-        unique_df = pandas.DataFrame.from_dict({"var_1": [1, 2, 3], "var_2": [1, 2, 3], })
-        self.assertFalse(DataframeType(unique_df).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+    def test_is_not_unique_within(self):
+        """
+        Test validates one-to-one relationship against a dataset.
+        One-to-one means that a pir of columns can be duplicated
+        but its integrity should not be violated.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "VISITNUM": [1, 2, 1, 3],
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+            }
+        )
+        self.assertFalse(DataframeType(valid_df).is_not_unique_within({"target": "VISITNUM", "comparator": "VISIT"}))
 
-        # case when one column has a duplicate row
-        df_one_col_duplicate = pandas.DataFrame.from_dict({"var_1": [1, 2, 2], "var_2": [1, 2, 3], })
-        self.assertTrue(DataframeType(df_one_col_duplicate).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+        valid_df_1 = pandas.DataFrame.from_dict(
+            {
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+                "VISITDESC": [
+                    "Doctor Consultation", "Heart Surgery", "Doctor Consultation", "Long Lasting Treatment",
+                ],
+            }
+        )
+        self.assertFalse(DataframeType(valid_df_1).is_not_unique_within(
+            {"target": "VISIT", "comparator": "VISITDESC"})
+        )
 
-        # case when all columns have a duplicate row
-        df_all_cols_duplicate = pandas.DataFrame.from_dict({"var_1": [1, 2, 2], "var_2": [1, 2, 1], })
-        self.assertTrue(DataframeType(df_all_cols_duplicate).is_not_unique({"target": "var_1", "comparator": "var_2"}))
+        df_violates_one_to_one = pandas.DataFrame.from_dict(
+            {
+                "VISITNUM": [1, 2, 1, 3],
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Consulting", ],
+            }
+        )
+        self.assertTrue(DataframeType(df_violates_one_to_one).is_not_unique_within(
+            {"target": "VISITNUM", "comparator": "VISIT"})
+        )
+
+        df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
+            {
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+                "VISITDESC": ["Doctor Consultation", "Heart Surgery", "Heart Surgery", "Long Lasting Treatment", ],
+            }
+        )
+        self.assertTrue(DataframeType(df_violates_one_to_one_1).is_not_unique_within(
+            {"target": "VISIT", "comparator": "VISITDESC"})
+        )
 
 
 class GenericOperatorTests(TestCase):

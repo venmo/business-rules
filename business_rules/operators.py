@@ -263,6 +263,13 @@ class DataframeType(BaseType):
                                  format(value))
         return value
 
+    def convert_string_data_to_lower(self, data):
+        if isinstance(data, pd.core.series.Series):
+            data = data.str.lower()
+        else:
+            data = data.lower()
+        return data
+
     @type_operator(FIELD_DATAFRAME)
     def exists(self, other_value):
         target_column = other_value.get("target")
@@ -277,6 +284,26 @@ class DataframeType(BaseType):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         results = np.where(self.value.get(target) == self.value.get(comparator, comparator), True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def equal_to_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        comparison_data = self.value.get(comparator, comparator)
+        comparison_data = self.convert_string_data_to_lower(comparison_data)
+        results = np.where(self.value.get(target).str.lower() == comparison_data, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def not_equal_to_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        comparison_data = self.value.get(comparator, comparator)
+        comparison_data = self.convert_string_data_to_lower(comparison_data)
+        results = np.where(self.value.get(target).str.lower() != comparison_data, True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
@@ -337,6 +364,26 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def contains_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        comparison_data = self.value.get(comparator, comparator)
+        comparison_data = self.convert_string_data_to_lower(comparison_data)
+        results = np.where(comparison_data in self.value[target].str.lower().values, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def does_not_contain_case_insensitive(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        comparison_data = self.value.get(comparator, comparator)
+        comparison_data = self.convert_string_data_to_lower(comparison_data)
+        results = np.where(comparison_data not in self.value[target].str.lower().values, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
     def is_contained_by(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
@@ -355,16 +402,26 @@ class DataframeType(BaseType):
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by_case_insensitive(self, other_value):
         target = other_value.get("target")
-        comparator = [val.lower() for val in other_value.get("comparator", [])]
-        results = self.value[target].str.lower().isin(self.value.get(comparator, comparator))
+        comparator = other_value.get("comparator", [])
+        if isinstance(comparator, list):
+            comparator = [val.lower() for val in comparator]
+        comparison_data = self.value.get(comparator, comparator)
+        if isinstance(comparison_data, pd.core.series.Series):
+            comparison_data = comparison_data.str.lower()
+        results = self.value[target].str.lower().isin(comparison_data)
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_not_contained_by_case_insensitive(self, other_value):
         target = other_value.get("target")
-        comparator = [val.lower() for val in other_value.get("comparator", [])]
-        results = ~self.value[target].str.lower().isin(self.value.get(comparator, comparator))
+        comparator = other_value.get("comparator", [])
+        if isinstance(comparator, list):
+            comparator = [val.lower() for val in comparator]
+        comparison_data = self.value.get(comparator, comparator)
+        if isinstance(comparison_data, pd.core.series.Series):
+            comparison_data = comparison_data.str.lower()
+        results = ~self.value[target].str.lower().isin(comparison_data)
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
     
@@ -507,9 +564,12 @@ class DataframeType(BaseType):
             values = comparator
         else:
             values = self.value[comparator].unique()
-        self.value.get(comparator, comparator)
         return set(values).issubset(set(self.value[target].unique()))
     
+    @type_operator(FIELD_DATAFRAME)
+    def not_contains_all(self, other_value: dict):
+        return not self.contains_all(other_value)
+
     @type_operator(FIELD_DATAFRAME)
     def invalid_date(self, other_value):
         target = other_value.get("target")
@@ -557,6 +617,20 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def is_unique_set(self, other_value):
+        target = other_value.get("target")
+        value = other_value.get("comparator")
+        if isinstance(value, list):
+            value.append(target)
+            target_data = value
+        else:
+            target_data = [value, target]
+        counts = self.value[target_data].groupby(target_data)[target].transform('size')
+        results = np.where(counts <= 1, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return not (False in results)
+
+    @type_operator(FIELD_DATAFRAME)
     def is_not_unique_within(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
@@ -565,6 +639,21 @@ class DataframeType(BaseType):
         results = self.value[comparator].isin(invalid_keys)
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_unique_set(self, other_value):
+        target = other_value.get("target")
+        value = other_value.get("comparator")
+        if isinstance(value, list):
+            value.append(target)
+            target_data = value
+        else:
+            target_data = [value, target]
+        counts = self.value[target_data].groupby(target_data)[target].transform('size')
+        results = np.where(counts > 1, True, False)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):

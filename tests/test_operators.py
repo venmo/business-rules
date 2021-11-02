@@ -1,3 +1,4 @@
+from pandas.core.frame import DataFrame
 from business_rules.operators import (DataframeType, StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType, GenericType)
@@ -266,6 +267,41 @@ class DataframeOperatorTests(TestCase):
             "comparator": 20
         }))
 
+    def test_equal_to_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["word", "new", "val"],
+            "var2": ["WORD", "test", "VAL"],
+            "var3": ["LET", "GO", "read"]
+        })
+        self.assertTrue(DataframeType(df).equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "NEW"
+        }))
+        self.assertTrue(DataframeType(df).equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+        self.assertFalse(DataframeType(df).equal_to({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+
+    def test_not_equal_to_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["word", "new", "val"],
+            "var2": ["WORD", "test", "VAL"],
+            "var3": ["LET", "GO", "read"],
+            "var4": ["WORD", "NEW", "VAL"]
+        })
+        self.assertFalse(DataframeType(df).not_equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "var4"
+        }))
+        self.assertTrue(DataframeType(df).not_equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+
     def test_less_than(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
@@ -398,6 +434,40 @@ class DataframeOperatorTests(TestCase):
             "comparator": "var2"
         }))
 
+    def test_contains_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["pikachu", "charmander", "squirtle"],
+            "var2": ["PIKACHU", "CHARIZARD", "BULBASAUR"],
+            "var3": ["POKEMON", "CHARIZARD", "BULBASAUR"],
+        })
+        self.assertTrue(DataframeType(df).contains_case_insensitive({
+            "target": "var1",
+            "comparator": "PIKACHU"
+        }))
+        self.assertTrue(DataframeType(df).contains_case_insensitive({
+            "target": "var1",
+            "comparator": "var2"
+        }))
+        self.assertFalse(DataframeType(df).contains_case_insensitive({
+            "target": "var1",
+            "comparator": "var3"
+        }))
+
+    def test_does_not_contain_case_insensitive(self):
+        df = pandas.DataFrame.from_dict({
+            "var1": ["pikachu", "charmander", "squirtle"],
+            "var2": ["PIKACHU", "CHARIZARD", "BULBASAUR"],
+            "var3": ["pikachu", "charizard", "bulbasaur"],
+        })
+        self.assertTrue(DataframeType(df).does_not_contain_case_insensitive({
+            "target": "var1",
+            "comparator": "IVYSAUR"
+        }))
+        self.assertFalse(DataframeType(df).does_not_contain_case_insensitive({
+            "target": "var3",
+            "comparator": "var2"
+        }))
+
     def test_is_contained_by(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
@@ -451,6 +521,10 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType(df).is_contained_by_case_insensitive({
             "target": "var1",
             "comparator": ["word", "TEST"]
+        }))
+        self.assertTrue(DataframeType(df).is_contained_by_case_insensitive({
+            "target": "var1",
+            "comparator": "var1"
         }))
         self.assertFalse(DataframeType(df).is_contained_by_case_insensitive({
             "target": "var1",
@@ -677,7 +751,27 @@ class DataframeOperatorTests(TestCase):
             "target": "var2",
             "comparator": ["test", "value"],
         }))
-    
+
+    def test_not_contains_all(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "var1": ['test', 'value', 'word'],
+                "var2": ["test", "value", "test"]
+            }
+        )
+        self.assertTrue(DataframeType(df).contains_all({
+            "target": "var1",
+            "comparator": "var2",
+        }))
+        self.assertFalse(DataframeType(df).contains_all({
+            "target": "var2",
+            "comparator": "var1",
+        }))
+        self.assertTrue(DataframeType(df).contains_all({
+            "target": "var2",
+            "comparator": ["test", "value"],
+        }))
+
     def test_invalid_date(self):
         df = pandas.DataFrame.from_dict(
             {
@@ -821,6 +915,20 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(DataframeType(df).is_incomplete_date({"target" : "var1"}))
         self.assertFalse(DataframeType(df).is_incomplete_date({"target" : "var2"}))
+
+    def test_is_unique_set(self):
+        df = pandas.DataFrame.from_dict( {"ARM": ["PLACEBO", "PLACEBO", "A", "A"], "TAE": [1,1,1,2], "LAE": [1,2,1,2], "OTHER": [1,2,3,4]})
+        self.assertTrue(DataframeType(df).is_unique_set({"target" : "ARM", "comparator": "LAE"}))
+        self.assertTrue(DataframeType(df).is_unique_set({"target" : "ARM", "comparator": ["LAE"]}))
+        self.assertFalse(DataframeType(df).is_unique_set({"target" : "ARM", "comparator": ["TAE"]}))
+        self.assertFalse(DataframeType(df).is_unique_set({"target" : "ARM", "comparator": "TAE"}))
+
+    def test_is_not_unique_set(self):
+        df = pandas.DataFrame.from_dict( {"ARM": ["PLACEBO", "PLACEBO", "A", "A"], "TAE": [1,1,1,2], "LAE": [1,2,1,2], "OTHER": [1,2,3,4]})
+        self.assertFalse(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": "LAE"}))
+        self.assertFalse(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": ["LAE"]}))
+        self.assertTrue(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": ["TAE"]}))
+        self.assertTrue(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": "TAE"}))
 
     def test_is_not_unique_within(self):
         """

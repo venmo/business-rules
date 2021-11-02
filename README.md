@@ -283,6 +283,8 @@ Note: to compare floating point equality we just check that the difference is le
 
 * `contains`
 * `does_not_contain`
+* `contains_case_insensitive`
+* `does_not_contain_case_insensitive`
 * `equal_to`
 * `not_equal_to`
 * `starts_with`
@@ -296,10 +298,32 @@ Note: to compare floating point equality we just check that the difference is le
 * `non_empty`
 * `empty`
 * `contains_all`
+* `not_contains_all`
 * `exists`
 * `not_exists`
 * `has_equal_length`
 * `has_not_equal_length`
+* `equal_to_case_insensitive`
+* `not_equal_to_case_insensitive`
+* `is_contained_by`
+* `is_not_contained_by`
+* `is_contained_by_case_insensitive`
+* `is_not_contained_by_case_insensitive`
+* `longer_than`
+* `longer_than_or_equal_to`
+* `shorter_than`
+* `shorter_than_or_equal_to`
+* `invalid_date`
+* `date_equal_to`
+* `date_not_equal_to`
+* `date_less_than`
+* `date_less_than_or_equal_to`
+* `date_greater_than`
+* `date_greater_than_or_equal_to`
+* `is_incomplete_date`
+* `is_unique_set`
+* `is_not_unique_set`
+
 ### Returning data to your client
 
 

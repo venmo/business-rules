@@ -771,7 +771,7 @@ class DataframeOperatorTests(TestCase):
             "target": "var2",
             "comparator": ["test", "value"],
         }))
-    
+
     def test_invalid_date(self):
         df = pandas.DataFrame.from_dict(
             {
@@ -929,7 +929,83 @@ class DataframeOperatorTests(TestCase):
         self.assertFalse(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": ["LAE"]}))
         self.assertTrue(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": ["TAE"]}))
         self.assertTrue(DataframeType(df).is_not_unique_set({"target" : "ARM", "comparator": "TAE"}))
-        
+
+    def test_is_unique_relationship(self):
+        """
+        Test validates one-to-one relationship against a dataset.
+        One-to-one means that a pir of columns can be duplicated
+        but its integrity should not be violated.
+        """
+        one_to_one_related_df = pandas.DataFrame.from_dict(
+            {
+                "STUDYID": [1, 2, 3, 1, 2],
+                "STUDYDESC": ["Russia", "USA", "China", "Russia", "USA", ],
+            }
+        )
+        self.assertTrue(
+            DataframeType(one_to_one_related_df).is_unique_relationship(
+                {"target": "STUDYID", "comparator": "STUDYDESC"}
+            )
+        )
+
+        df_violates_one_to_one = pandas.DataFrame.from_dict(
+            {
+                "TESTID": [1, 2, 1, 3],
+                "TESTNAME": ["Functional", "Stress", "Functional", "Stress", ],
+            }
+        )
+        self.assertFalse(DataframeType(df_violates_one_to_one).is_unique_relationship(
+            {"target": "TESTID", "comparator": "TESTNAME"})
+        )
+
+    def test_is_not_unique_relationship(self):
+        """
+        Test validates one-to-one relationship against a dataset.
+        One-to-one means that a pir of columns can be duplicated
+        but its integrity should not be violated.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "VISITNUM": [1, 2, 1, 3],
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+            }
+        )
+        self.assertFalse(DataframeType(valid_df).is_not_unique_relationship(
+            {"target": "VISITNUM", "comparator": "VISIT"})
+        )
+
+        valid_df_1 = pandas.DataFrame.from_dict(
+            {
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+                "VISITDESC": [
+                    "Doctor Consultation", "Heart Surgery", "Doctor Consultation", "Long Lasting Treatment",
+                ],
+            }
+        )
+        self.assertFalse(DataframeType(valid_df_1).is_not_unique_relationship(
+            {"target": "VISIT", "comparator": "VISITDESC"})
+        )
+
+        df_violates_one_to_one = pandas.DataFrame.from_dict(
+            {
+                "VISITNUM": [1, 2, 1, 3],
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Consulting", ],
+            }
+        )
+        self.assertTrue(DataframeType(df_violates_one_to_one).is_not_unique_relationship(
+            {"target": "VISITNUM", "comparator": "VISIT"})
+        )
+
+        df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
+            {
+                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
+                "VISITDESC": ["Doctor Consultation", "Heart Surgery", "Heart Surgery", "Long Lasting Treatment", ],
+            }
+        )
+        self.assertTrue(DataframeType(df_violates_one_to_one_1).is_not_unique_relationship(
+            {"target": "VISIT", "comparator": "VISITDESC"})
+        )
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

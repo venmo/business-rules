@@ -117,6 +117,11 @@ def is_complete_date(date_string: str) -> bool:
         return True
     return True
 
+def get_dict_key_val(dict_to_get: dict, key):
+    return dict_to_get.get(key)
+
 vectorized_is_complete_date = np.vectorize(is_complete_date)
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)
+vectorized_get_dict_key = np.vectorize(get_dict_key_val)
+vectorized_len = np.vectorize(len)

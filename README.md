@@ -323,7 +323,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `is_incomplete_date`
 * `is_unique_set`
 * `is_not_unique_set`
-* `is_not_unique_within`
+* `is_not_unique_relationship`
+* `is_unique_relationship`
 
 ### Returning data to your client
 

@@ -632,7 +632,18 @@ class DataframeType(BaseType):
         return not (False in results)
 
     @type_operator(FIELD_DATAFRAME)
-    def is_not_unique_within(self, other_value):
+    def is_unique_relationship(self, other_value):
+        target = other_value.get("target")
+        comparator = other_value.get("comparator")
+        grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
+        results = np.where(
+            vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
+        )
+        self.value[f"result_{uuid4()}"] = results
+        return not (False in results)
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_unique_relationship(self, other_value):
         target = other_value.get("target")
         comparator = other_value.get("comparator")
         grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()

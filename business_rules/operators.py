@@ -28,7 +28,6 @@ class BaseType(object):
                  'input_type': m[1].input_type}
                 for m in methods if getattr(m[1], 'is_operator', False)]
 
-
 def export_type(cls):
     """ Decorator to expose the given class to business_rules.export_rule_data. """
     cls.export_in_rule_data = True
@@ -258,6 +257,10 @@ class DataframeType(BaseType):
 
     name = "dataframe"
 
+    def __init__(self, value, column_prefix_map = {}):
+        self.value = self._assert_valid_value_and_cast(value)
+        self.column_prefix_map = column_prefix_map
+
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
             raise AssertionError("{0} is not a valid select multiple type".
@@ -271,9 +274,21 @@ class DataframeType(BaseType):
             data = data.lower()
         return data
 
+    def replace_prefix(self, value: str) -> str:
+        if isinstance(value, str):
+            for prefix, replacement in self.column_prefix_map.items():
+                if value.startswith(prefix):
+                    return value.replace(prefix, replacement, 1)
+        return value
+
+    def replace_all_prefixes(self, values: [str]) -> [str]:
+        for i in range(len(values)):
+            values[i] = self.replace_prefix(values[i])
+        return values
+
     @type_operator(FIELD_DATAFRAME)
     def exists(self, other_value):
-        target_column = other_value.get("target")
+        target_column = self.replace_prefix(other_value.get("target"))
         return target_column in self.value
 
     @type_operator(FIELD_DATAFRAME)
@@ -282,16 +297,16 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def equal_to(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) == self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def equal_to_case_insensitive(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         comparison_data = self.value.get(comparator, comparator)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
         results = np.where(self.value.get(target).str.lower() == comparison_data, True, False)
@@ -300,8 +315,8 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def not_equal_to_case_insensitive(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         comparison_data = self.value.get(comparator, comparator)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
         results = np.where(self.value.get(target).str.lower() != comparison_data, True, False)
@@ -310,64 +325,64 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def not_equal_to(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) != self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def less_than(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) < self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def less_than_or_equal_to(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) <= self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def greater_than_or_equal_to(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) >= self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def greater_than(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(target) > self.value.get(comparator, comparator), True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def contains(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(comparator, comparator) in self.value[target].values, True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     @type_operator(FIELD_DATAFRAME)
     def does_not_contain(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         results = np.where(self.value.get(comparator, comparator) not in self.value[target].values, True, False)
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def contains_case_insensitive(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         comparison_data = self.value.get(comparator, comparator)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
         results = np.where(comparison_data in self.value[target].str.lower().values, True, False)
@@ -376,8 +391,8 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def does_not_contain_case_insensitive(self, other_value):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         comparison_data = self.value.get(comparator, comparator)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
         results = np.where(comparison_data not in self.value[target].str.lower().values, True, False)
@@ -386,26 +401,35 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
+        if isinstance(comparator, str):
+            # column name provided
+            comparator = self.replace_prefix(comparator)
         results = self.value[target].isin(self.value.get(comparator, comparator))
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_not_contained_by(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
+        if isinstance(comparator, str):
+            # column name provided
+            comparator = self.replace_prefix(comparator)
         results = ~self.value[target].isin(self.value.get(comparator, comparator))
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
     
     @type_operator(FIELD_DATAFRAME)
     def is_contained_by_case_insensitive(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator", [])
         if isinstance(comparator, list):
             comparator = [val.lower() for val in comparator]
+        elif isinstance(comparator, str):
+            # column name provided
+            comparator = self.replace_prefix(comparator)
         comparison_data = self.value.get(comparator, comparator)
         if isinstance(comparison_data, pd.core.series.Series):
             comparison_data = comparison_data.str.lower()
@@ -415,10 +439,13 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def is_not_contained_by_case_insensitive(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator", [])
         if isinstance(comparator, list):
             comparator = [val.lower() for val in comparator]
+        elif isinstance(comparator, str):
+            # column name provided
+            comparator = self.replace_prefix(comparator)
         comparison_data = self.value.get(comparator, comparator)
         if isinstance(comparison_data, pd.core.series.Series):
             comparison_data = comparison_data.str.lower()
@@ -428,7 +455,7 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def prefix_matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
         results = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is not None)
@@ -437,7 +464,7 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def not_prefix_matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         prefix = other_value.get("prefix")
         results = self.value[target].map(lambda x: re.search(comparator, x[:prefix]) is None)
@@ -446,7 +473,7 @@ class DataframeType(BaseType):
   
     @type_operator(FIELD_DATAFRAME)
     def suffix_matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
         results = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is not None)
@@ -455,7 +482,7 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def not_suffix_matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         suffix = other_value.get("suffix")
         results = self.value[target].apply(lambda x: re.search(comparator, x[-suffix:]) is None)
@@ -464,7 +491,7 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.match(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -472,7 +499,7 @@ class DataframeType(BaseType):
     
     @type_operator(FIELD_DATAFRAME)
     def not_matches_regex(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = ~self.value[target].str.match(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -480,7 +507,7 @@ class DataframeType(BaseType):
      
     @type_operator(FIELD_DATAFRAME)
     def starts_with(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.startswith(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -488,7 +515,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def ends_with(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.endswith(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -496,7 +523,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def has_equal_length(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().eq(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -504,7 +531,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def has_not_equal_length(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().ne(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -512,7 +539,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def longer_than(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().gt(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -520,7 +547,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def longer_than_or_equal_to(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().ge(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -528,7 +555,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def shorter_than(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().lt(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -536,7 +563,7 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def shorter_than_or_equal_to(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         results = self.value[target].str.len().le(comparator)
         self.value[f"result_{uuid4()}"] = results
@@ -544,26 +571,27 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def empty(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         results = np.where(pd.isnull(self.value[target]))
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def non_empty(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         results = ~np.where(pd.isnull(self.value[target]))
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def contains_all(self, other_value: dict):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         if isinstance(comparator, list):
             # get column as array of values
             values = comparator
         else:
+            comparator = self.replace_prefix(comparator)
             values = self.value[comparator].unique()
         return set(values).issubset(set(self.value[target].unique()))
     
@@ -573,14 +601,14 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def invalid_date(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         results = ~vectorized_is_valid(self.value[target])
         self.value[f"result_{uuid4()}"] = results
         return True in results
     
     def date_comparison(self, other_value, operator):
-        target = other_value.get("target")
-        comparator = other_value.get("comparator")
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
         component = other_value.get("date_component")
         results = np.where(operator(vectorized_date_component(component, self.value.get(target)), vectorized_date_component(component, self.value.get(comparator, comparator))), True, False)
         self.value[f"result_{uuid4()}"] = results
@@ -612,20 +640,21 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def is_incomplete_date(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         results = ~vectorized_is_complete_date(self.value[target])
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
     def is_unique_set(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         value = other_value.get("comparator")
         if isinstance(value, list):
             value.append(target)
             target_data = value
         else:
             target_data = [value, target]
+        target_data = self.replace_all_prefixes(target_data)
         counts = self.value[target_data].groupby(target_data)[target].transform('size')
         results = np.where(counts <= 1, True, False)
         self.value[f"result_{uuid4()}"] = results
@@ -633,8 +662,12 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def is_unique_relationship(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
+        if isinstance(comparator, list):
+            comparator = self.replace_all_prefixes(comparator)
+        else:
+            comparator = self.replace_prefix(comparator)
         grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
         results = np.where(
             vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
@@ -644,8 +677,12 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_unique_relationship(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
+        if isinstance(comparator, list):
+            comparator = self.replace_all_prefixes(comparator)
+        else:
+            comparator = self.replace_prefix(comparator)
         grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
         results = np.where(
             vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) > 1, True, False
@@ -655,13 +692,14 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_unique_set(self, other_value):
-        target = other_value.get("target")
+        target = self.replace_prefix(other_value.get("target"))
         value = other_value.get("comparator")
         if isinstance(value, list):
             value.append(target)
             target_data = value
         else:
             target_data = [value, target]
+        target_data = self.replace_all_prefixes(target_data)
         counts = self.value[target_data].groupby(target_data)[target].transform('size')
         results = np.where(counts > 1, True, False)
         self.value[f"result_{uuid4()}"] = results

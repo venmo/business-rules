@@ -257,9 +257,9 @@ class DataframeType(BaseType):
 
     name = "dataframe"
 
-    def __init__(self, value, column_prefix_map = {}):
-        self.value = self._assert_valid_value_and_cast(value)
-        self.column_prefix_map = column_prefix_map
+    def __init__(self, data):
+        self.value = self._assert_valid_value_and_cast(data["value"])
+        self.column_prefix_map = data.get("column_prefix_map", {})
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
@@ -707,7 +707,7 @@ class DataframeType(BaseType):
 
 
 @export_type
-class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType, DataframeType):
+class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
 
     """
     This is meant to be a generic operator type to support all operations on a given value. Use this when you don't know the type of the value that will be returned.

@@ -577,11 +577,25 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def empty_except_last_row(self, other_value: dict):
+        target = self.replace_prefix(other_value.get("target"))
+        results = pd.isnull(self.value[target][:-1])
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
+
+    @type_operator(FIELD_DATAFRAME)
     def non_empty(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
         results = ~np.where(pd.isnull(self.value[target]))
         self.value[f"result_{uuid4()}"] = results
         return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def non_empty_except_last_row(self, other_value: dict):
+        target = self.replace_prefix(other_value.get("target"))
+        results = ~pd.isnull(self.value[target][:-1])
+        self.value[f"result_{uuid4()}"] = results
+        return not(False in results.values)
 
     @type_operator(FIELD_DATAFRAME)
     def contains_all(self, other_value: dict):

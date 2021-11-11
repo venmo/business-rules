@@ -1080,6 +1080,33 @@ class DataframeOperatorTests(TestCase):
             {"target": "--SIT", "comparator": "--SITDESC"})
         )
 
+    def test_empty_except_last_row(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "SEENDTC": ["2020-10-10", "2020", "2021-12", None],
+                "SESTDTC": ["2020-10-10", None, "2021-12", None],
+            }
+        )
+        self.assertFalse(
+            DataframeType({"value": df}).empty_except_last_row({"target": "SEENDTC"})
+        )
+        self.assertTrue(
+            DataframeType({"value": df}).empty_except_last_row({"target": "SESTDTC"})
+        )
+
+    def test_non_empty_except_last_row(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "SEENDTC": ["2020-10-10", "2020", "2021-12", None],
+                "SESTDTC": ["2020-10-10", None, "2021-12", None],
+            }
+        )
+        self.assertTrue(
+            DataframeType({"value": df}).non_empty_except_last_row({"target": "SEENDTC"})
+        )
+        self.assertFalse(
+            DataframeType({"value": df}).non_empty_except_last_row({"target": "SESTDTC"})
+        )
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

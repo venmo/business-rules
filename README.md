@@ -320,6 +320,7 @@ Note: to compare floating point equality we just check that the difference is le
 * `date_less_than_or_equal_to`
 * `date_greater_than`
 * `date_greater_than_or_equal_to`
+* `is_complete_date`
 * `is_incomplete_date`
 * `is_unique_set`
 * `is_not_unique_set`

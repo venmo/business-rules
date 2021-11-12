@@ -1090,6 +1090,35 @@ class DataframeOperatorTests(TestCase):
             {"target": "--SIT", "comparator": "--SITDESC"})
         )
 
+    def test_empty_within_except_last_row(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2],
+                "valid": ["2020-10-10", "2020-10-10", "2020-10-10", "2021", "2021", "2021", ],
+                "invalid": ["2020-10-10", None, None, "2020", "2020", None, ],
+            }
+        )
+        self.assertFalse(
+            DataframeType({"value": df}).empty_within_except_last_row({"target": "valid", "comparator": "USUBJID"})
+        )
+        self.assertTrue(
+            DataframeType({"value": df}).empty_within_except_last_row({"target": "invalid", "comparator": "USUBJID"})
+        )
+
+    def test_non_empty_within_except_last_row(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2],
+                "valid": ["2020-10-10", "2020-10-10", "2020-10-10", "2021", "2021", "2021", ],
+                "invalid": ["2020-10-10", None, None, "2020", "2020", None, ],
+            }
+        )
+        self.assertTrue(
+            DataframeType({"value": df}).non_empty_within_except_last_row({"target": "valid", "comparator": "USUBJID"})
+        )
+        self.assertFalse(
+            DataframeType({"value": df}).non_empty_within_except_last_row({"target": "invalid", "comparator": "USUBJID"})
+        )
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

@@ -2,6 +2,9 @@ import inspect
 import re
 from functools import wraps
 from uuid import uuid4
+
+import pandas
+
 from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
@@ -577,11 +580,35 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def empty_within_except_last_row(self, other_value: dict):
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = other_value.get("comparator")
+        # group all targets by comparator
+        grouped_target = self.value.groupby(comparator)[target]
+        # validate all targets except the last one
+        results = grouped_target.apply(lambda x: x[:-1]).apply(pd.isnull)
+        # extract values with corresponding indexes from results
+        self.value[f"result_{uuid4()}"] = results.reset_index(level=0, drop=True)
+        return True in results.values
+
+    @type_operator(FIELD_DATAFRAME)
     def non_empty(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
         results = ~np.where(pd.isnull(self.value[target]))
         self.value[f"result_{uuid4()}"] = results
         return True in results
+
+    @type_operator(FIELD_DATAFRAME)
+    def non_empty_within_except_last_row(self, other_value: dict):
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = other_value.get("comparator")
+        # group all targets by comparator
+        grouped_target = self.value.groupby(comparator)[target]
+        # validate all targets except the last one
+        results = ~grouped_target.apply(lambda x: x[:-1]).apply(pd.isnull)
+        # extract values with corresponding indexes from results
+        self.value[f"result_{uuid4()}"] = results.reset_index(level=0, drop=True)
+        return not(False in results.values)
 
     @type_operator(FIELD_DATAFRAME)
     def contains_all(self, other_value: dict):

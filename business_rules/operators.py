@@ -669,6 +669,13 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
+    def is_complete_date(self, other_value):
+        target = self.replace_prefix(other_value.get("target"))
+        results = vectorized_is_complete_date(self.value[target])
+        self.value[f"result_{uuid4()}"] = results
+        return True in results
+
+    @type_operator(FIELD_DATAFRAME)
     def is_unique_set(self, other_value):
         target = self.replace_prefix(other_value.get("target"))
         value = other_value.get("comparator")

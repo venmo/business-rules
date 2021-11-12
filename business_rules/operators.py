@@ -583,10 +583,12 @@ class DataframeType(BaseType):
     def empty_within_except_last_row(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
-        results = pd.Series()
-        for _, split_df in self.value.groupby(comparator):
-            results = results.append(pd.isnull(split_df[target][:-1]))
-        self.value[f"result_{uuid4()}"] = results
+        # group all targets by comparator
+        grouped_target = self.value.groupby(comparator)[target]
+        # validate all targets except the last one
+        results = grouped_target.apply(lambda x: x[:-1]).apply(pd.isnull)
+        # extract values with corresponding indexes from results
+        self.value[f"result_{uuid4()}"] = results.reset_index(level=0, drop=True)
         return True in results.values
 
     @type_operator(FIELD_DATAFRAME)
@@ -600,10 +602,12 @@ class DataframeType(BaseType):
     def non_empty_within_except_last_row(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
-        results = pd.Series()
-        for _, split_df in self.value.groupby(comparator):
-            results = results.append(~pd.isnull(split_df[target][:-1]))
-        self.value[f"result_{uuid4()}"] = results
+        # group all targets by comparator
+        grouped_target = self.value.groupby(comparator)[target]
+        # validate all targets except the last one
+        results = ~grouped_target.apply(lambda x: x[:-1]).apply(pd.isnull)
+        # extract values with corresponding indexes from results
+        self.value[f"result_{uuid4()}"] = results.reset_index(level=0, drop=True)
         return not(False in results.values)
 
     @type_operator(FIELD_DATAFRAME)

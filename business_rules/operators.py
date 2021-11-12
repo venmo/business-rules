@@ -2,6 +2,9 @@ import inspect
 import re
 from functools import wraps
 from uuid import uuid4
+
+import pandas
+
 from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
@@ -577,9 +580,12 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
-    def empty_except_last_row(self, other_value: dict):
+    def empty_within_except_last_row(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
-        results = pd.isnull(self.value[target][:-1])
+        comparator = other_value.get("comparator")
+        results = pd.Series()
+        for _, split_df in self.value.groupby(comparator):
+            results = results.append(pd.isnull(split_df[target][:-1]))
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
 
@@ -591,9 +597,12 @@ class DataframeType(BaseType):
         return True in results
 
     @type_operator(FIELD_DATAFRAME)
-    def non_empty_except_last_row(self, other_value: dict):
+    def non_empty_within_except_last_row(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
-        results = ~pd.isnull(self.value[target][:-1])
+        comparator = other_value.get("comparator")
+        results = pd.Series()
+        for _, split_df in self.value.groupby(comparator):
+            results = results.append(~pd.isnull(split_df[target][:-1]))
         self.value[f"result_{uuid4()}"] = results
         return not(False in results.values)
 

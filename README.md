@@ -296,9 +296,9 @@ Note: to compare floating point equality we just check that the difference is le
 * `greater_than_or_equal_to`
 * `less_than_or_equal_to`
 * `non_empty`
-* `non_empty_except_last_row`
+* `non_empty_within_except_last_row`
 * `empty`
-* `empty_except_last_row`
+* `empty_within_except_last_row`
 * `contains_all`
 * `not_contains_all`
 * `exists`

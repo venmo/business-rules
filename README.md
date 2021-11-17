@@ -328,6 +328,10 @@ Note: to compare floating point equality we just check that the difference is le
 * `is_not_unique_set`
 * `is_not_unique_relationship`
 * `is_unique_relationship`
+* `is_not_valid_relationship`
+* `is_valid_relationship`
+* `is_not_valid_reference`
+* `is_valid_reference`
 
 ### Returning data to your client
 

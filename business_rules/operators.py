@@ -263,6 +263,7 @@ class DataframeType(BaseType):
     def __init__(self, data):
         self.value = self._assert_valid_value_and_cast(data["value"])
         self.column_prefix_map = data.get("column_prefix_map", {})
+        self.relationship_data = data.get("relationship_data", {})
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
@@ -739,6 +740,40 @@ class DataframeType(BaseType):
         self.value[f"result_{uuid4()}"] = results
         return True in results
 
+    @type_operator(FIELD_DATAFRAME)
+    def is_valid_reference(self, other_value):
+        target = self.replace_prefix(other_value.get("target"))
+        results = self.value[target].isin(self.relationship_data)
+        self.value[f"result_{uuid4()}"] = results
+        return not(False in results.values)
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_valid_reference(self, other_value):
+        target = self.replace_prefix(other_value.get("target"))
+        results = ~self.value[target].isin(self.relationship_data)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_valid_relationship(self, other_value):
+        target = self.replace_prefix(other_value.get("target"))
+        value_column = self.replace_prefix(other_value.get("comparator"))
+        results = self.value.apply(lambda row: self.detect_reference(row, value_column, target), axis=1)
+        self.value[f"result_{uuid4()}"] = results
+        return not(False in results.values)
+
+    @type_operator(FIELD_DATAFRAME)
+    def is_not_valid_relationship(self, other_value):
+        target = self.replace_prefix(other_value.get("target"))
+        value_column = self.replace_prefix(other_value.get("comparator"))
+        results = ~self.value.apply(lambda row: self.detect_reference(row, value_column, target), axis=1)
+        self.value[f"result_{uuid4()}"] = results
+        return True in results.values
+
+    def detect_reference(self, row, value_column, target_column):
+        target_data = self.relationship_data.get(row[target_column], pd.Series([]).values)
+        value = row[value_column]
+        return (value in target_data) or (value in target_data.astype(int).astype(str)) or (value in target_data.astype(str))
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):

@@ -1120,6 +1120,82 @@ class DataframeOperatorTests(TestCase):
             DataframeType({"value": df}).non_empty_within_except_last_row({"target": "invalid", "comparator": "USUBJID"})
         )
 
+    def test_is_valid_reference(self):
+        reference_data = {
+            "TEST": [],
+            "DATA": [1,2,3]
+        }
+        df = pandas.DataFrame.from_dict(
+            {
+                "IDVAR1": ["TEST", "DATA"],
+                "IDVAR2": ["TEST", "COOL"]
+            }
+        )
+        self.assertTrue(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_valid_reference({"target": "IDVAR1"})
+        )
+        self.assertFalse(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_valid_reference({"target": "IDVAR2"})
+        )
+
+    def test_not_valid_reference(self):
+        reference_data = {
+            "TEST": [],
+            "DATA": [1,2,3]
+        }
+        df = pandas.DataFrame.from_dict(
+            {
+                "IDVAR1": ["TEST", "DATA"],
+                "IDVAR2": ["TEST", "COOL"]
+            }
+        )
+        self.assertFalse(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_reference({"target": "IDVAR1"})
+        )
+        self.assertTrue(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_reference({"target": "IDVAR2"})
+        )
+
+    def test_is_valid_relationship(self):
+        reference_data = {
+            "TEST": pandas.Series([4,5,6]).values,
+            "DATA": pandas.Series([1,2,3]).values
+        }
+        df = pandas.DataFrame.from_dict(
+            {
+                "IDVAR1": ["TEST", "DATA"],
+                "IDVAR2": ["TEST", "DATA"],
+                "IDVARVAL1": [4, 1],
+                "IDVARVAL2": [5, 31]
+            }
+        )
+        self.assertTrue(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_valid_relationship({"target": "IDVAR1", "comparator": "IDVARVAL1"})
+        )
+        self.assertFalse(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_valid_relationship({"target": "IDVAR2", "comparator": "IDVARVAL2"})
+        )
+
+    def test_not_valid_relationship(self):
+        reference_data = {
+            "TEST": pandas.Series([4,5,6]).values,
+            "DATA": pandas.Series([1,2,3]).values
+        }
+        df = pandas.DataFrame.from_dict(
+            {
+                "IDVAR1": ["TEST", "DATA"],
+                "IDVAR2": ["TEST", "DATA"],
+                "IDVARVAL1": [4, 1],
+                "IDVARVAL2": [5, 31]
+            }
+        )
+        self.assertFalse(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_relationship({"target": "IDVAR1", "comparator": "IDVARVAL1"})
+        )
+        self.assertTrue(
+            DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_relationship({"target": "IDVAR2", "comparator": "IDVARVAL2"})
+        )
+
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):
         self.assertTrue(GenericType([1, 2]).

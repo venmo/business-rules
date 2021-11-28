@@ -743,14 +743,22 @@ class DataframeType(BaseType):
     @type_operator(FIELD_DATAFRAME)
     def is_valid_reference(self, other_value):
         target = self.replace_prefix(other_value.get("target"))
-        results = self.value[target].isin(self.relationship_data)
+        context = self.replace_prefix(other_value.get("context"))
+        if context:
+            results = self.value.apply(lambda row: row[target] in self.relationship_data.get(row[context], {}), axis=1)
+        else:
+            results = self.value[target].isin(self.relationship_data)
         self.value[f"result_{uuid4()}"] = results
         return not(False in results.values)
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_valid_reference(self, other_value):
         target = self.replace_prefix(other_value.get("target"))
-        results = ~self.value[target].isin(self.relationship_data)
+        context = self.replace_prefix(other_value.get("context"))
+        if context:
+            results = ~self.value.apply(lambda row: row[target] in self.relationship_data.get(row[context], {}), axis=1)
+        else:
+            results = ~self.value[target].isin(self.relationship_data)
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
 
@@ -758,7 +766,8 @@ class DataframeType(BaseType):
     def is_valid_relationship(self, other_value):
         target = self.replace_prefix(other_value.get("target"))
         value_column = self.replace_prefix(other_value.get("comparator"))
-        results = self.value.apply(lambda row: self.detect_reference(row, value_column, target), axis=1)
+        context = self.replace_prefix(other_value.get("context"))
+        results = self.value.apply(lambda row: self.detect_reference(row, value_column, target, context), axis=1)
         self.value[f"result_{uuid4()}"] = results
         return not(False in results.values)
 
@@ -766,12 +775,16 @@ class DataframeType(BaseType):
     def is_not_valid_relationship(self, other_value):
         target = self.replace_prefix(other_value.get("target"))
         value_column = self.replace_prefix(other_value.get("comparator"))
-        results = ~self.value.apply(lambda row: self.detect_reference(row, value_column, target), axis=1)
+        context = self.replace_prefix(other_value.get("context"))
+        results = ~self.value.apply(lambda row: self.detect_reference(row, value_column, target, context), axis=1)
         self.value[f"result_{uuid4()}"] = results
         return True in results.values
 
-    def detect_reference(self, row, value_column, target_column):
-        target_data = self.relationship_data.get(row[target_column], pd.Series([]).values)
+    def detect_reference(self, row, value_column, target_column, context=None):
+        if context:
+            target_data = self.relationship_data.get(row[context], {}).get(row[target_column], pd.Series([]).values)
+        else:
+            target_data = self.relationship_data.get(row[target_column], pd.Series([]).values)
         value = row[value_column]
         return (value in target_data) or (value in target_data.astype(int).astype(str)) or (value in target_data.astype(str))
 

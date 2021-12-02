@@ -1006,6 +1006,24 @@ class DataframeOperatorTests(TestCase):
         self.assertFalse(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": "--F"}))
         self.assertFalse(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": ["--F"]}))
 
+    def test_is_ordered_set(self):
+        df = pandas.DataFrame.from_dict( {"USUBJID": [1,2,1,2], "SESEQ": [1,1,2,2] })
+        self.assertTrue(DataframeType({"value": df}).is_ordered_set({"target" : "SESEQ", "comparator": "USUBJID"}))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "SE"}}).is_ordered_set({"target" : "--SEQ", "comparator": "USUBJID"}))
+        
+        df2 = pandas.DataFrame.from_dict( {"USUBJID": [1,2,1,2], "SESEQ": [3,1,2,2] })
+        self.assertFalse(DataframeType({"value": df2}).is_ordered_set({"target" : "SESEQ", "comparator": "USUBJID"}))
+        self.assertFalse(DataframeType({"value":df2, "column_prefix_map": {"--": "SE"}}).is_ordered_set({"target" : "--SEQ", "comparator": "USUBJID"}))
+        
+    def test_is_not_ordered_set(self):
+        df = pandas.DataFrame.from_dict( {"USUBJID": [1,2,1,2], "SESEQ": [3,1,2,2] })
+        self.assertTrue(DataframeType({"value": df}).is_not_ordered_set({"target" : "SESEQ", "comparator": "USUBJID"}))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "SE"}}).is_not_ordered_set({"target" : "--SEQ", "comparator": "USUBJID"}))
+        
+        df2 = pandas.DataFrame.from_dict( {"USUBJID": [1,2,1,2], "SESEQ": [1,1,2,2] })
+        self.assertFalse(DataframeType({"value": df2}).is_not_ordered_set({"target" : "SESEQ", "comparator": "USUBJID"}))
+        self.assertFalse(DataframeType({"value":df2, "column_prefix_map": {"--": "SE"}}).is_not_ordered_set({"target" : "--SEQ", "comparator": "USUBJID"}))
+       
     def test_is_unique_relationship(self):
         """
         Test validates one-to-one relationship against a dataset.

@@ -326,6 +326,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `is_incomplete_date`
 * `is_unique_set`
 * `is_not_unique_set`
+* `is_ordered_set`
+* `is_not_ordered_set`
 * `is_not_unique_relationship`
 * `is_unique_relationship`
 * `is_not_valid_relationship`

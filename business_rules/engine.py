@@ -1,4 +1,5 @@
 from .fields import FIELD_NO_INPUT
+import pandas as pd
 
 def run_all(rule_list,
             defined_variables,
@@ -16,9 +17,13 @@ def run_all(rule_list,
 
 def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
-    rule_triggered = check_conditions_recursively(conditions, defined_variables)
+    rule_results = check_conditions_recursively(conditions, defined_variables)
+    if isinstance(rule_results, pd.core.series.Series):
+        rule_triggered = True in rule_results.values
+    else:
+        rule_triggered = rule_results
     if rule_triggered:
-        do_actions(actions, defined_actions)
+        do_actions(actions, defined_actions, results = rule_results)
         return True
     return False
 
@@ -30,7 +35,8 @@ def check_conditions_recursively(conditions, defined_variables):
         assert len(conditions['all']) >= 1
         # Always check all conditions in the case that we are operating on a dataframe
         for condition in conditions['all']:
-            result = check_conditions_recursively(condition, defined_variables) and result
+            check_result = check_conditions_recursively(condition, defined_variables)
+            result = result & check_result
         return result
 
     elif keys == ['any']:
@@ -38,7 +44,8 @@ def check_conditions_recursively(conditions, defined_variables):
         assert len(conditions['any']) >= 1
         for condition in conditions['any']:
             # Always check all conditions in the case that we are operating on a dataframe
-            result = check_conditions_recursively(condition, defined_variables) or result
+            check_result = check_conditions_recursively(condition, defined_variables)
+            result = check_result | result
         return result
 
     else:
@@ -91,12 +98,14 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     return method(comparison_value)
 
 
-def do_actions(actions, defined_actions):
+def do_actions(actions, defined_actions, results = None):
     for action in actions:
         method_name = action['name']
         def fallback(*args, **kwargs):
             raise AssertionError("Action {0} is not defined in class {1}"\
                     .format(method_name, defined_actions.__class__.__name__))
         params = action.get('params') or {}
+        params["results"] = results
         method = getattr(defined_actions, method_name, fallback)
         method(**params)
+        

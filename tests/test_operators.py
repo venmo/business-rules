@@ -235,23 +235,23 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": 2
-        }))
+        }).equals(pandas.Series([False, True, False])))
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([True, False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).equal_to({
             "target": "--r1",
             "comparator": "--r3"
-        }))
-        self.assertFalse(DataframeType({"value": df}).equal_to({
+        }).equals(pandas.Series([True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": "var2"
-        }))
-        self.assertFalse(DataframeType({"value": df}).equal_to({
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": 20
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_not_equal_to(self):
         df = pandas.DataFrame.from_dict({
@@ -260,22 +260,22 @@ class DataframeOperatorTests(TestCase):
             "var3": [1,3,8],
             "var4": [1,2,4]
         })
-        self.assertFalse(DataframeType({"value": df}).not_equal_to({
+        self.assertTrue(DataframeType({"value": df}).not_equal_to({
             "target": "var1",
             "comparator": "var4"
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).not_equal_to({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([True, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_equal_to({
             "target": "--r1",
             "comparator": "--r2"
-        }))
+        }).equals(pandas.Series([True, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_equal_to({
             "target": "--r1",
             "comparator": 20
-        }))
+        }).equals(pandas.Series([True, True, True])))
 
     def test_equal_to_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -286,19 +286,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "NEW"
-        }))
+        }).equals(pandas.Series([False, True, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).equal_to_case_insensitive({
             "target": "--r1",
             "comparator": "--r2"
-        }))
+        }).equals(pandas.Series([True, False, True])))
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var2"
-        }))
-        self.assertFalse(DataframeType({"value": df}).equal_to({
+        }).equals(pandas.Series([True, False, True])))
+        self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_not_equal_to_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -307,14 +307,14 @@ class DataframeOperatorTests(TestCase):
             "var3": ["LET", "GO", "read"],
             "var4": ["WORD", "NEW", "VAL"]
         })
-        self.assertFalse(DataframeType({"value": df}).not_equal_to_case_insensitive({
+        self.assertTrue(DataframeType({"value": df}).not_equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var4"
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).not_equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([False, True, False])))
 
     def test_less_than(self):
         df = pandas.DataFrame.from_dict({
@@ -323,26 +323,26 @@ class DataframeOperatorTests(TestCase):
             "var3": [1,3,8],
             "var4": [1,2,4]
         })
-        self.assertFalse(DataframeType({"value": df}).less_than({
+        self.assertTrue(DataframeType({"value": df}).less_than({
             "target": "var1",
             "comparator": "var4"
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).less_than({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([False, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).less_than({
             "target": "--r1",
             "comparator": "var3"
-        }))
-        self.assertFalse(DataframeType({"value": df}).less_than({
+        }).equals(pandas.Series([False, True, True])))
+        self.assertTrue(DataframeType({"value": df}).less_than({
             "target": "var2",
             "comparator": 2
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).less_than({
             "target": "var1",
             "comparator": 3
-        }))
+        }).equals(pandas.Series([True, True, False])))
 
     def test_less_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict({
@@ -354,23 +354,23 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).less_than_or_equal_to({
             "target": "var1",
             "comparator": "var4"
-        }))
+        }).equals(pandas.Series([True, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).less_than_or_equal_to({
             "target": "--r1",
             "comparator": "var4"
-        }))
-        self.assertFalse(DataframeType({"value": df}).less_than_or_equal_to({
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).less_than_or_equal_to({
             "target": "var2",
             "comparator": "var1"
-        }))
-        self.assertFalse(DataframeType({"value": df}).less_than_or_equal_to({
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).less_than_or_equal_to({
             "target": "var2",
             "comparator": 2
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).less_than_or_equal_to({
             "target": "var2",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([False, False, True])))
 
     def test_greater_than(self):
         df = pandas.DataFrame.from_dict({
@@ -379,26 +379,26 @@ class DataframeOperatorTests(TestCase):
             "var3": [1,3,8],
             "var4": [1,2,4]
         })
-        self.assertFalse(DataframeType({"value": df}).greater_than({
+        self.assertTrue(DataframeType({"value": df}).greater_than({
             "target": "var1",
             "comparator": "var4"
-        }))
-        self.assertFalse(DataframeType({"value": df}).greater_than({
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).greater_than({
             "target": "var1",
             "comparator": "var3"
-        }))
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).greater_than({
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).greater_than({
             "target": "var1",
             "comparator": "--r3"
-        }))
+        }).equals(pandas.Series([False, False, False])))
         self.assertTrue(DataframeType({"value": df}).greater_than({
             "target": "var2",
             "comparator": 2
-        }))
-        self.assertFalse(DataframeType({"value": df}).greater_than({
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).greater_than({
             "target": "var1",
             "comparator": 5000
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_greater_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict({
@@ -410,19 +410,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).greater_than_or_equal_to({
             "target": "var1",
             "comparator": "var4"
-        }))
+        }).equals(pandas.Series([True, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).greater_than_or_equal_to({
             "target": "var1",
             "comparator": "--r4"
-        }))
+        }).equals(pandas.Series([True, True, True])))
         self.assertTrue(DataframeType({"value": df}).greater_than_or_equal_to({
             "target": "var2",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([True, True, False])))
         self.assertTrue(DataframeType({"value": df}).greater_than_or_equal_to({
             "target": "var2",
             "comparator": 2
-        }))
+        }).equals(pandas.Series([True, True, True])))
 
     def test_contains(self):
         df = pandas.DataFrame.from_dict({
@@ -434,19 +434,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).contains({
             "target": "var1",
             "comparator": 2
-        }))
+        }).equals(pandas.Series([False, True, False])))
         self.assertTrue(DataframeType({"value": df}).contains({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([True, False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).contains({
             "target": "var1",
             "comparator": "--r3"
-        }))
-        self.assertFalse(DataframeType({"value": df}).contains({
+        }).equals(pandas.Series([True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).contains({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_does_not_contain(self):
         df = pandas.DataFrame.from_dict({
@@ -458,19 +458,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).does_not_contain({
             "target": "var1",
             "comparator": 5
-        }))
-        self.assertFalse(DataframeType({"value": df}).does_not_contain({
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain({
             "target": "var1",
             "comparator": "var3"
-        }))
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).does_not_contain({
+        }).equals(pandas.Series([False, True, True])))
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).does_not_contain({
             "target": "var1",
             "comparator": "--r3"
-        }))
+        }).equals(pandas.Series([False, True, True])))
         self.assertTrue(DataframeType({"value": df}).does_not_contain({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([True, True, True])))
 
     def test_contains_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -481,19 +481,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).contains_case_insensitive({
             "target": "var1",
             "comparator": "PIKACHU"
-        }))
+        }).equals(pandas.Series([True, False, False])))
         self.assertTrue(DataframeType({"value": df}).contains_case_insensitive({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([True, False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).contains_case_insensitive({
-            "target": "var1",
-            "comparator": "var2"
-        }))
-        self.assertFalse(DataframeType({"value": df}).contains_case_insensitive({
+            "target": "--r1",
+            "comparator": "--r2"
+        }).equals(pandas.Series([True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).contains_case_insensitive({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_does_not_contain_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -504,11 +504,11 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).does_not_contain_case_insensitive({
             "target": "var1",
             "comparator": "IVYSAUR"
-        }))
-        self.assertFalse(DataframeType({"value": df}).does_not_contain_case_insensitive({
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain_case_insensitive({
             "target": "var3",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_is_contained_by(self):
         df = pandas.DataFrame.from_dict({
@@ -520,23 +520,23 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).is_contained_by({
             "target": "var1",
             "comparator": [4,5,6]
-        }))
+        }).equals(pandas.Series([False, False, True])))
         self.assertTrue(DataframeType({"value": df}).is_contained_by({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([True, False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).is_contained_by({
             "target": "var1",
             "comparator": "--r3"
-        }))
-        self.assertFalse(DataframeType({"value": df}).is_contained_by({
+        }).equals(pandas.Series([True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_contained_by({
             "target": "var1",
             "comparator": [9, 10, 11]
-        }))
-        self.assertFalse(DataframeType({"value": df}).is_contained_by({
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_contained_by({
             "target": "var1",
             "comparator": "var2"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_is_not_contained_by(self):
         df = pandas.DataFrame.from_dict({
@@ -548,19 +548,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).is_not_contained_by({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([False, True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).is_not_contained_by({
             "target": "var1",
             "comparator": "--r3"
-        }))
+        }).equals(pandas.Series([False, True, True])))
         self.assertTrue(DataframeType({"value": df}).is_not_contained_by({
             "target": "var1",
             "comparator": [9, 10, 11]
-        }))
-        self.assertFalse(DataframeType({"value": df}).is_not_contained_by({
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_not_contained_by({
             "target": "var1",
             "comparator": "var1"
-        }))
+        }).equals(pandas.Series([False, False, False])))
 
     def test_is_contained_by_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -571,19 +571,19 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).is_contained_by_case_insensitive({
             "target": "var1",
             "comparator": ["word", "TEST"]
-        }))
+        }).equals(pandas.Series([True, True])))
         self.assertTrue(DataframeType({"value": df}).is_contained_by_case_insensitive({
             "target": "var1",
             "comparator": "var1"
-        }))
-        self.assertFalse(DataframeType({"value": df}).is_contained_by_case_insensitive({
+        }).equals(pandas.Series([True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_contained_by_case_insensitive({
             "target": "var1",
             "comparator": "var3"
-        }))
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).is_contained_by_case_insensitive({
+        }).equals(pandas.Series([False, False])))
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).is_contained_by_case_insensitive({
             "target": "var1",
             "comparator": "--r3"
-        }))
+        }).equals(pandas.Series([False, False])))
 
     def test_is_not_contained_by_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -591,18 +591,18 @@ class DataframeOperatorTests(TestCase):
             "var2": ["word", "TEST"],
             "var3": ["another", "item"]
         })
-        self.assertFalse(DataframeType({"value": df}).is_not_contained_by_case_insensitive({
+        self.assertTrue(DataframeType({"value": df}).is_not_contained_by_case_insensitive({
             "target": "var1",
             "comparator": ["word", "TEST"]
-        }))
+        }).equals(pandas.Series([False, False])))
         self.assertTrue(DataframeType({"value": df}).is_not_contained_by_case_insensitive({
             "target": "var1",
             "comparator": "var3"
-        }))
+        }).equals(pandas.Series([True, True])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).is_not_contained_by_case_insensitive({
             "target": "var1",
             "comparator": "--r3"
-        }))
+        }).equals(pandas.Series([True, True])))
 
     def test_prefix_matches_regex(self):
         df = pandas.DataFrame.from_dict({
@@ -614,12 +614,12 @@ class DataframeOperatorTests(TestCase):
             "target": "--r2",
             "comparator": "w.*",
             "prefix": 2
-        }))
-        self.assertFalse(DataframeType({"value": df}).prefix_matches_regex({
+        }).equals(pandas.Series([True, False])))
+        self.assertTrue(DataframeType({"value": df}).prefix_matches_regex({
             "target": "var2",
             "comparator": "[0-9].*",
             "prefix": 2
-        }))
+        }).equals(pandas.Series([False, False])))
 
     def test_suffix_matches_regex(self):
         df = pandas.DataFrame.from_dict({
@@ -631,12 +631,12 @@ class DataframeOperatorTests(TestCase):
             "target": "--r1",
             "comparator": "es.*",
             "suffix": 3
-        }))
-        self.assertFalse(DataframeType({"value": df}).suffix_matches_regex({
+        }).equals(pandas.Series([False, True])))
+        self.assertTrue(DataframeType({"value": df}).suffix_matches_regex({
             "target": "var1",
             "comparator": "[0-9].*",
             "suffix": 3
-        }))
+        }).equals(pandas.Series([False, False])))
 
     def test_not_prefix_matches_suffix(self):
         df = pandas.DataFrame.from_dict({
@@ -644,16 +644,16 @@ class DataframeOperatorTests(TestCase):
             "var2": ["word", "TEST"],
             "var3": ["another", "item"]
         })
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_prefix_matches_regex({
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_prefix_matches_regex({
             "target": "--r1",
             "comparator": ".*",
             "prefix": 2
-        }))
+        }).equals(pandas.Series([False, False])))
         self.assertTrue(DataframeType({"value": df}).not_prefix_matches_regex({
             "target": "var2",
             "comparator": "[0-9].*",
             "prefix": 2
-        }))
+        }).equals(pandas.Series([True, True])))
 
     def test_not_suffix_matches_regex(self):
         df = pandas.DataFrame.from_dict({
@@ -661,16 +661,16 @@ class DataframeOperatorTests(TestCase):
             "var2": ["word", "TEST"],
             "var3": ["another", "item"]
         })
-        self.assertFalse(DataframeType({"value": df}).not_suffix_matches_regex({
+        self.assertTrue(DataframeType({"value": df}).not_suffix_matches_regex({
             "target": "var1",
             "comparator": ".*",
             "suffix": 3
-        }))
+        }).equals(pandas.Series([False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_suffix_matches_regex({
             "target": "--r1",
             "comparator": "[0-9].*",
             "suffix": 3
-        }))
+        }).equals(pandas.Series([True, True])))
 
     def test_matches_suffix(self):
         df = pandas.DataFrame.from_dict({
@@ -681,11 +681,11 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).matches_regex({
             "target": "--r1",
             "comparator": ".*",
-        }))
-        self.assertFalse(DataframeType({"value": df}).matches_regex({
+        }).equals(pandas.Series([True, True])))
+        self.assertTrue(DataframeType({"value": df}).matches_regex({
             "target": "var2",
             "comparator": "[0-9].*",
-        }))
+        }).equals(pandas.Series([False, False])))
 
     def test_not_matches_regex(self):
         df = pandas.DataFrame.from_dict({
@@ -693,14 +693,14 @@ class DataframeOperatorTests(TestCase):
             "var2": ["word", "TEST"],
             "var3": ["another", "item"]
         })
-        self.assertFalse(DataframeType({"value": df}).not_matches_regex({
+        self.assertTrue(DataframeType({"value": df}).not_matches_regex({
             "target": "var1",
             "comparator": ".*",
-        }))
+        }).equals(pandas.Series([False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_matches_regex({
             "target": "--r1",
             "comparator": "[0-9].*",
-        }))
+        }).equals(pandas.Series([True, True])))
 
     def test_starts_with(self):
         df = pandas.DataFrame.from_dict({
@@ -711,11 +711,11 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).starts_with({
             "target": "--r1",
             "comparator": "WO",
-        }))
-        self.assertFalse(DataframeType({"value": df}).starts_with({
+        }).equals(pandas.Series([True, False])))
+        self.assertTrue(DataframeType({"value": df}).starts_with({
             "target": "var2",
             "comparator": "ABC",
-        }))
+        }).equals(pandas.Series([False, False])))
 
     def test_ends_with(self):
         df = pandas.DataFrame.from_dict({
@@ -723,14 +723,14 @@ class DataframeOperatorTests(TestCase):
             "var2": ["word", "TEST"],
             "var3": ["another", "item"]
         })
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).ends_with({
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).ends_with({
             "target": "--r1",
             "comparator": "abc",
-        }))
+        }).equals(pandas.Series([False, False])))
         self.assertTrue(DataframeType({"value": df}).ends_with({
             "target": "var1",
             "comparator": "est",
-        }))
+        }).equals(pandas.Series([False, True])))
 
     def test_has_equal_length(self):
         df = pandas.DataFrame.from_dict(
@@ -740,7 +740,7 @@ class DataframeOperatorTests(TestCase):
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
         result = df_operator.has_equal_length({"target": "--r_1", "comparator": 4})
-        self.assertTrue(result)
+        self.assertTrue(result.equals(pandas.Series([True, False])))
 
     def test_has_not_equal_length(self):
         df = pandas.DataFrame.from_dict(
@@ -750,7 +750,7 @@ class DataframeOperatorTests(TestCase):
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
         result = df_operator.has_not_equal_length({"target": "--r_1", "comparator": 4})
-        self.assertTrue(result)
+        self.assertTrue(result.equals(pandas.Series([False, True])))
 
     def test_longer_than(self):
         df = pandas.DataFrame.from_dict(
@@ -759,7 +759,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
-        self.assertTrue(df_operator.longer_than({"target": "--r_1", "comparator": 3}))
+        self.assertTrue(df_operator.longer_than({"target": "--r_1", "comparator": 3}).equals(pandas.Series([True, True])))
 
     def test_longer_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -768,8 +768,8 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
-        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "--r_1", "comparator": 3}))
-        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "var_1", "comparator": 4}))
+        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "--r_1", "comparator": 3}).equals(pandas.Series([True, True])))
+        self.assertTrue(df_operator.longer_than_or_equal_to({"target": "var_1", "comparator": 4}).equals(pandas.Series([True, True])))
 
     def test_shorter_than(self):
         df = pandas.DataFrame.from_dict(
@@ -778,7 +778,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
-        self.assertTrue(df_operator.shorter_than({"target": "--r_1", "comparator": 5}))
+        self.assertTrue(df_operator.shorter_than({"target": "--r_1", "comparator": 5}).equals(pandas.Series([True, True])))
 
     def test_shorter_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -787,8 +787,8 @@ class DataframeOperatorTests(TestCase):
             }
         )
         df_operator = DataframeType({"value": df, "column_prefix_map": {"--": "va"}})
-        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "--r_1", "comparator": 5}))
-        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "var_1", "comparator": 4}))
+        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "--r_1", "comparator": 5}).equals(pandas.Series([True, True])))
+        self.assertTrue(df_operator.shorter_than_or_equal_to({"target": "var_1", "comparator": 4}).equals(pandas.Series([True, True])))
 
     def test_contains_all(self):
         df = pandas.DataFrame.from_dict(
@@ -842,9 +842,12 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"], 
             }
         )
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).invalid_date({"target": "--r1"}))
-        self.assertFalse(DataframeType({"value": df}).invalid_date({"target": "var3"}))
-        self.assertTrue(DataframeType({"value": df}).invalid_date({"target": "var2"}))
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).invalid_date({"target": "--r1"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).invalid_date({"target": "var3"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).invalid_date({"target": "var2"})
+            .equals(pandas.Series([False, False, False, True, True])))
     
     def test_date_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -857,18 +860,30 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var1", "comparator": '2021'}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "1997-07-16T19:20:30.45+01:00"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var4"}))
-        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).date_equal_to({"target": "--r3", "comparator": "--r4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "hour"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "minute"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "second"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "microsecond"}))
-        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "year"}))
-        self.assertFalse(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "month"}))
-        self.assertFalse(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "year"}))
-        self.assertFalse(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"}))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var1", "comparator": '2021'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "1997-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([False, False, True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).date_equal_to({"target": "--r3", "comparator": "--r4", "date_component": "year"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "hour"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "minute"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "second"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "microsecond"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "year"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var5", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "year"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
     
     def test_date_not_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -881,22 +896,16 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var1", "comparator": '2022'}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var4"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "hour"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "minute"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "second"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "microsecond"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "month"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "day"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "hour"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "second"}))
-        self.assertFalse(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var5", "date_component": "microsecond"}))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var1", "comparator": '2022'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "hour"})
+            .equals(pandas.Series([False, False, True, True, True])))
     
     def test_date_less_than(self):
         df = pandas.DataFrame.from_dict(
@@ -909,11 +918,16 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var1", "comparator": '2022'}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"}))
-        self.assertFalse(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var4"}))
-        self.assertFalse(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var6", "date_component": "hour"}))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var1", "comparator": '2022'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var4", "date_component": "year"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var6", "date_component": "hour"})
+            .equals(pandas.Series([False, False, True, True, True])))
 
     def test_date_greater_than(self):
         df = pandas.DataFrame.from_dict(
@@ -926,11 +940,16 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var1", "comparator": '2020'}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "1996-07-16T19:20:30.45+01:00"}))
-        self.assertFalse(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "var4"}))
-        self.assertFalse(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "var4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var6", "comparator": "var3", "date_component": "hour"}))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var1", "comparator": '2020'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "1996-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "var4", "date_component": "year"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var6", "comparator": "var3", "date_component": "hour"})
+            .equals(pandas.Series([False, False, True, True, True])))
     
     def test_date_greater_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -943,12 +962,18 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var1", "comparator": '2020'}))
-        self.assertFalse(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var1", "comparator": '2023'}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "1996-07-16T19:20:30.45+01:00"}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "var4"}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"}))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var1", "comparator": '2020'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var1", "comparator": '2023'})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "1996-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"})
+            .equals(pandas.Series([True, True, True, True, True])))
     
     def test_date_less_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -961,12 +986,18 @@ class DataframeOperatorTests(TestCase):
                 "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
             }
         )
-        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var1", "comparator": '2022'}))
-        self.assertFalse(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var1", "comparator": '2020'}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "var4"}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"}))
-        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"}))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var1", "comparator": '2022'})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var1", "comparator": '2020'})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "1998-07-16T19:20:30.45+01:00"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "var4"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "var4", "date_component": "year"})
+            .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"})
+            .equals(pandas.Series([True, True, False, False, False])))
         
     def test_is_incomplete_date(self):
         df = pandas.DataFrame.from_dict(
@@ -975,8 +1006,10 @@ class DataframeOperatorTests(TestCase):
                 "var2": [ "1997-07-16", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"], 
             }
         )
-        self.assertTrue(DataframeType({"value": df}).is_incomplete_date({"target" : "var1"}))
-        self.assertFalse(DataframeType({"value": df}).is_incomplete_date({"target" : "var2"}))
+        self.assertTrue(DataframeType({"value": df}).is_incomplete_date({"target" : "var1"})
+            .equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_incomplete_date({"target" : "var2"})
+            .equals(pandas.Series([False, False, False])))
 
     def test_is_complete_date(self):
         df = pandas.DataFrame.from_dict(
@@ -985,26 +1018,40 @@ class DataframeOperatorTests(TestCase):
                 "var2": ["1997-07-16", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
             }
         )
-        self.assertFalse(DataframeType({"value": df}).is_complete_date({"target": "var1"}))
-        self.assertTrue(DataframeType({"value": df}).is_complete_date({"target": "var2"}))
+        self.assertTrue(DataframeType({"value": df}).is_complete_date({"target": "var1"})
+            .equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_complete_date({"target": "var2"})
+            .equals(pandas.Series([True, True, True])))
 
     def test_is_unique_set(self):
         df = pandas.DataFrame.from_dict( {"ARM": ["PLACEBO", "PLACEBO", "A", "A"], "TAE": [1,1,1,2], "LAE": [1,2,1,2], "ARF": [1,2,3,4]})
-        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": "LAE"}))
-        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": ["LAE"]}))
-        self.assertFalse(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": ["TAE"]}))
-        self.assertFalse(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": "TAE"}))
-        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_unique_set({"target" : "--M", "comparator": "--F"}))
-        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_unique_set({"target" : "--M", "comparator": ["--F"]}))
+        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": "LAE"})
+            .equals(pandas.Series([True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": ["LAE"]})
+            .equals(pandas.Series([True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": ["TAE"]})
+            .equals(pandas.Series([False, False, True, True])))
+        self.assertTrue(DataframeType({"value": df}).is_unique_set({"target" : "ARM", "comparator": "TAE"})
+            .equals(pandas.Series([False, False, True, True])))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_unique_set({"target" : "--M", "comparator": "--F"})
+            .equals(pandas.Series([True, True, True, True])))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_unique_set({"target" : "--M", "comparator": ["--F"]})
+            .equals(pandas.Series([True, True, True, True])))
 
     def test_is_not_unique_set(self):
         df = pandas.DataFrame.from_dict( {"ARM": ["PLACEBO", "PLACEBO", "A", "A"], "TAE": [1,1,1,2], "LAE": [1,2,1,2], "ARF": [1,2,3,4]})
-        self.assertFalse(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": "LAE"}))
-        self.assertFalse(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": ["LAE"]}))
-        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": ["TAE"]}))
-        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": "TAE"}))
-        self.assertFalse(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": "--F"}))
-        self.assertFalse(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": ["--F"]}))
+        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": "LAE"})
+            .equals(pandas.Series([False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": ["LAE"]})
+            .equals(pandas.Series([False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": ["TAE"]})
+            .equals(pandas.Series([True, True, False, False])))
+        self.assertTrue(DataframeType({"value": df}).is_not_unique_set({"target" : "ARM", "comparator": "TAE"})
+            .equals(pandas.Series([True, True, False, False])))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": "--F"})
+            .equals(pandas.Series([False, False, False, False])))
+        self.assertTrue(DataframeType({"value":df, "column_prefix_map": {"--": "AR"}}).is_not_unique_set({"target" : "--M", "comparator": ["--F"]})
+            .equals(pandas.Series([False, False, False, False])))
 
     def test_is_ordered_set(self):
         df = pandas.DataFrame.from_dict( {"USUBJID": [1,2,1,2], "SESEQ": [1,1,2,2] })
@@ -1039,12 +1086,12 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(
             DataframeType({"value": one_to_one_related_df}).is_unique_relationship(
                 {"target": "STUDYID", "comparator": "STUDYDESC"}
-            )
+            ).equals(pandas.Series([True, True, True, True, True]))
         )
         self.assertTrue(
             DataframeType({"value": one_to_one_related_df, "column_prefix_map":{"--": "STUDY"}}).is_unique_relationship(
                 {"target": "--ID", "comparator": "--DESC"}
-            )
+            ).equals(pandas.Series([True, True, True, True, True]))
         )
 
         df_violates_one_to_one = pandas.DataFrame.from_dict(
@@ -1053,8 +1100,8 @@ class DataframeOperatorTests(TestCase):
                 "TESTNAME": ["Functional", "Stress", "Functional", "Stress", ],
             }
         )
-        self.assertFalse(DataframeType({"value": df_violates_one_to_one}).is_unique_relationship(
-            {"target": "TESTID", "comparator": "TESTNAME"})
+        self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_unique_relationship(
+            {"target": "TESTID", "comparator": "TESTNAME"}).equals(pandas.Series([True, False, True, False]))
         )
 
     def test_is_not_unique_relationship(self):
@@ -1069,8 +1116,8 @@ class DataframeOperatorTests(TestCase):
                 "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
             }
         )
-        self.assertFalse(DataframeType({"value": valid_df}).is_not_unique_relationship(
-            {"target": "VISITNUM", "comparator": "VISIT"})
+        self.assertTrue(DataframeType({"value": valid_df}).is_not_unique_relationship(
+            {"target": "VISITNUM", "comparator": "VISIT"}).equals(pandas.Series([False, False, False, False]))
         )
 
         valid_df_1 = pandas.DataFrame.from_dict(
@@ -1081,8 +1128,8 @@ class DataframeOperatorTests(TestCase):
                 ],
             }
         )
-        self.assertFalse(DataframeType({"value": valid_df_1}).is_not_unique_relationship(
-            {"target": "VISIT", "comparator": "VISITDESC"})
+        self.assertTrue(DataframeType({"value": valid_df_1}).is_not_unique_relationship(
+            {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([False, False, False, False]))
         )
 
         df_violates_one_to_one = pandas.DataFrame.from_dict(
@@ -1092,7 +1139,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_not_unique_relationship(
-            {"target": "VISITNUM", "comparator": "VISIT"})
+            {"target": "VISITNUM", "comparator": "VISIT"}).equals(pandas.Series([True, False, True, True]))
         )
 
         df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
@@ -1102,10 +1149,10 @@ class DataframeOperatorTests(TestCase):
             }
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1}).is_not_unique_relationship(
-            {"target": "VISIT", "comparator": "VISITDESC"})
+            {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([False, True, True, False]))
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1, "column_prefix_map": {"--": "VI"}}).is_not_unique_relationship(
-            {"target": "--SIT", "comparator": "--SITDESC"})
+            {"target": "--SIT", "comparator": "--SITDESC"}).equals(pandas.Series([False, True, True, False]))
         )
 
     def test_empty_within_except_last_row(self):
@@ -1157,9 +1204,11 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_valid_reference({"target": "IDVAR1", "context": "RDOMAIN"})
+                .equals(pandas.Series([True, True, True]))
         )
-        self.assertFalse(
+        self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_valid_reference({"target": "IDVAR2", "context": "RDOMAIN"})
+                .equals(pandas.Series([True, False, True]))
         )
 
     def test_not_valid_reference(self):
@@ -1179,11 +1228,13 @@ class DataframeOperatorTests(TestCase):
                 "IDVAR2": ["TEST", "AETERM", "AETERM"]
             }
         )
-        self.assertFalse(
+        self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_reference({"target": "IDVAR1", "context": "RDOMAIN"})
+                .equals(pandas.Series([False, False, False]))
         )
         self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_reference({"target": "IDVAR2", "context": "RDOMAIN"})
+                .equals(pandas.Series([False, True, False]))
         )
 
     def test_is_valid_relationship(self):
@@ -1207,9 +1258,11 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_valid_relationship({"target": "IDVAR1", "comparator": "IDVARVAL1", "context": "RDOMAIN"})
+                .equals(pandas.Series([True, True, True]))
         )
-        self.assertFalse(
+        self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_valid_relationship({"target": "IDVAR2", "comparator": "IDVARVAL2", "context": "RDOMAIN"})
+                .equals(pandas.Series([True, True, False]))
         )
 
     def test_not_valid_relationship(self):
@@ -1231,11 +1284,13 @@ class DataframeOperatorTests(TestCase):
                 "IDVARVAL2": [5, 1, 35]
             }
         )
-        self.assertFalse(
+        self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_relationship({"target": "IDVAR1", "comparator": "IDVARVAL1", "context": "RDOMAIN"})
+                .equals(pandas.Series([False, False, False]))
         )
         self.assertTrue(
             DataframeType({"value": df, "relationship_data": reference_data}).is_not_valid_relationship({"target": "IDVAR2", "comparator": "IDVARVAL2", "context": "RDOMAIN"})
+                .equals(pandas.Series([False, False, True]))
         )
 
 class GenericOperatorTests(TestCase):

@@ -62,7 +62,7 @@ class EngineTests(TestCase):
         self.assertEqual(result, True)
         engine.check_conditions_recursively.assert_called_once_with(
                 rule['conditions'], variables)
-        engine.do_actions.assert_called_once_with(rule['actions'], actions)
+        engine.do_actions.assert_called_once_with(rule['actions'], actions, results=True)
 
 
     @patch.object(engine, 'check_conditions_recursively', return_value=False)
@@ -183,8 +183,8 @@ class EngineTests(TestCase):
 
         engine.do_actions(actions, defined_actions)
 
-        defined_actions.action1.assert_called_once_with()
-        defined_actions.action2.assert_called_once_with(param1='foo', param2=10)
+        defined_actions.action1.assert_called_once_with(results=None)
+        defined_actions.action2.assert_called_once_with(param1='foo', param2=10, results=None)
 
     def test_do_with_invalid_action(self):
         actions = [{'name': 'fakeone'}]

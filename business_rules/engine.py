@@ -105,7 +105,5 @@ def do_actions(actions, defined_actions, results = None):
             raise AssertionError("Action {0} is not defined in class {1}"\
                     .format(method_name, defined_actions.__class__.__name__))
         params = action.get('params') or {}
-        params["results"] = results
         method = getattr(defined_actions, method_name, fallback)
-        method(**params)
-        
+        method(**params, results=results)

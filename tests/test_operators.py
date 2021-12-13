@@ -1293,6 +1293,106 @@ class DataframeOperatorTests(TestCase):
                 .equals(pandas.Series([False, False, True]))
         )
 
+    def test_non_conformant_value_length(self):
+        def filter_func(row):
+            return row["IDVAR1"] == "TEST"
+        
+        def length_check(row):
+            return len(row["IDVAR2"]) <= 4
+
+        df = pandas.DataFrame.from_dict(
+            {
+                "RDOMAIN": ["LB", "LB", "AE"],
+                "IDVAR1": ["TEST", "TEST", "AETERM"],
+                "IDVAR2": ["TEST", "TOOLONG", "AETERM"],
+            }
+        )
+
+        vlm = [
+            {
+                "filter": filter_func,
+                "length_check": length_check
+            }
+        ]
+
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_length({})
+        self.assertTrue(result.equals(pandas.Series([False, True, False])))
+
+    def test_non_conformant_value_data_type(self):
+        def filter_func(row):
+            return row["IDVAR1"] == "TEST"
+        
+        def type_check(row):
+            return isinstance(row["IDVAR2"], str)
+
+        df = pandas.DataFrame.from_dict(
+            {
+                "RDOMAIN": ["LB", "LB", "AE"],
+                "IDVAR1": ["TEST", "TEST", "AETERM"],
+                "IDVAR2": ["TEST", 1, "AETERM"],
+            }
+        )
+
+        vlm = [
+            {
+                "filter": filter_func,
+                "type_check": type_check
+            }
+        ]
+
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_data_type({})
+        self.assertTrue(result.equals(pandas.Series([False, True, False])))
+
+    def test_conformant_value_length(self):
+        def filter_func(row):
+            return row["IDVAR1"] == "TEST"
+        
+        def length_check(row):
+            return len(row["IDVAR2"]) <= 4
+
+        df = pandas.DataFrame.from_dict(
+            {
+                "RDOMAIN": ["LB", "LB", "AE"],
+                "IDVAR1": ["TEST", "TEST", "AETERM"],
+                "IDVAR2": ["TEST", "TOOLONG", "AETERM"],
+            }
+        )
+
+        vlm = [
+            {
+                "filter": filter_func,
+                "length_check": length_check
+            }
+        ]
+
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_length({})
+        self.assertTrue(result.equals(pandas.Series([True, False, False])))
+
+    def test_conformant_value_data_type(self):
+        def filter_func(row):
+            return row["IDVAR1"] == "TEST"
+        
+        def type_check(row):
+            return isinstance(row["IDVAR2"], str)
+
+        df = pandas.DataFrame.from_dict(
+            {
+                "RDOMAIN": ["LB", "LB", "AE"],
+                "IDVAR1": ["TEST", "TEST", "AETERM"],
+                "IDVAR2": ["TEST", 1, "AETERM"],
+            }
+        )
+
+        vlm = [
+            {
+                "filter": filter_func,
+                "type_check": type_check
+            }
+        ]
+
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
+        self.assertTrue(result.equals(pandas.Series([True, False, False])))
+
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):
         self.assertTrue(GenericType([1, 2]).

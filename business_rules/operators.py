@@ -265,6 +265,7 @@ class DataframeType(BaseType):
         self.value = self._assert_valid_value_and_cast(data["value"])
         self.column_prefix_map = data.get("column_prefix_map", {})
         self.relationship_data = data.get("relationship_data", {})
+        self.value_level_metadata = data.get("value_level_metadata", [])
 
     def _assert_valid_value_and_cast(self, value):
         if not hasattr(value, '__iter__'):
@@ -668,6 +669,34 @@ class DataframeType(BaseType):
     @type_operator(FIELD_DATAFRAME)
     def is_not_valid_relationship(self, other_value):
         return ~self.is_valid_relationship(other_value)
+
+    @type_operator(FIELD_DATAFRAME)
+    def non_comformant_value_data_type(self, other_value):
+        results = False
+        for vlm in self.value_level_metadata:
+            results |= self.value.apply(lambda row: vlm["filter"](row) and not vlm["type_check"](row), axis=1)
+        return pd.Series(results.values)
+
+    @type_operator(FIELD_DATAFRAME)
+    def non_comformant_value_length(self, other_value):
+        results = False
+        for vlm in self.value_level_metadata:
+            results |= self.value.apply(lambda row: vlm["filter"](row) and not vlm["length_check"](row), axis=1)
+        return pd.Series(results.values)
+    
+    @type_operator(FIELD_DATAFRAME)
+    def comformant_value_data_type(self, other_value):
+        results = False
+        for vlm in self.value_level_metadata:
+            results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["type_check"](row), axis=1)
+        return pd.Series(results.values)
+
+    @type_operator(FIELD_DATAFRAME)
+    def comformant_value_length(self, other_value):
+        results = False
+        for vlm in self.value_level_metadata:
+            results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["length_check"](row), axis=1)
+        return pd.Series(results.values)
 
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:

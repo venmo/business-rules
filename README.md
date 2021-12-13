@@ -334,6 +334,10 @@ Note: to compare floating point equality we just check that the difference is le
 * `is_valid_relationship`
 * `is_not_valid_reference`
 * `is_valid_reference`
+* `non_conformant_value_data_type`
+* `conformant_value_data_type`
+* `non_conformant_value_length`
+* `conformant_value_length`
 
 ### Returning data to your client
 

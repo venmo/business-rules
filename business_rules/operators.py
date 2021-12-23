@@ -698,6 +698,28 @@ class DataframeType(BaseType):
             results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["length_check"](row), axis=1)
         return pd.Series(results.values)
 
+    @type_operator(FIELD_DATAFRAME)
+    def next_corresponding_element_is_the_same(self, other_value: dict):
+        """
+        The operator ensures that value of target in current row
+        is the same as value of comparator in the next row.
+        In order to achieve this, we just remove last row from target
+        and first row from comparator and compare the resulting contents.
+        The result is reported for target.
+        """
+        target = self.replace_prefix(other_value.get("target"))
+        comparator = self.replace_prefix(other_value.get("comparator"))
+        group_by_column = self.replace_prefix(other_value.get("group_by"))
+        results = []
+        for group_by_value in self.value[group_by_column].unique():
+            df_part = self.value[self.value[group_by_column] == group_by_value]
+            target_without_last_row = df_part[target].drop(df_part[target].tail(1).index)
+            comparator_without_first_row = df_part[comparator].drop(df_part[comparator].head(1).index)
+            # for each grouped part, we are unable to validate last row of the target, so appending None
+            group_results = np.where(target_without_last_row.values == comparator_without_first_row.values, True, False)
+            results.extend([*group_results, None])
+        return pd.Series(results)
+
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:
             target_data = self.relationship_data.get(row[context], {}).get(row[target_column], pd.Series([]).values)

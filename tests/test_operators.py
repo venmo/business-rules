@@ -1419,6 +1419,32 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": invalid_df}).next_corresponding_element_is_the_same(other_value)
         self.assertTrue(result.equals(pandas.Series([False, False, False, None, True, True, True, None])))
 
+    def test_next_corresponding_element_is_not_the_same(self):
+        """
+        Test for next_corresponding_element_is_not_the_same operator.
+        """
+        valid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "group_by": "USUBJID"}
+        result = DataframeType({"value": valid_df}).next_corresponding_element_is_not_the_same(other_value)
+        self.assertTrue(result.equals(pandas.Series([False, False, False, None, False, False, False, None])))
+
+        invalid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2010-08-03", "2008-08", "2006-06-17T10:20", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "group_by": "USUBJID"}
+        result = DataframeType({"value": invalid_df}).next_corresponding_element_is_not_the_same(other_value)
+        self.assertTrue(result.equals(pandas.Series([True, True, True, None, False, False, False, None])))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

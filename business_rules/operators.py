@@ -723,7 +723,7 @@ class DataframeType(BaseType):
         target_without_last_row = df[target].drop(df[target].tail(1).index)
         comparator_without_first_row = df[comparator].drop(df[comparator].head(1).index)
         results = np.where(target_without_last_row.values == comparator_without_first_row.values, True, False)
-        return [*results, None]  # we can't compare last row of the target
+        return [*results, None]  # appending None here to make the length of results list the same as length of df
 
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:

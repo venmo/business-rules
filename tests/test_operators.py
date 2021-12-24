@@ -1393,9 +1393,9 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
-    def test_next_element_is_the_same(self):
+    def test_next_corresponding_element_is_the_same(self):
         """
-        Test for next_element_is_the_same operator.
+        Test for next_corresponding_element_is_the_same operator.
         """
         valid_df = DataFrame.from_dict(
             {

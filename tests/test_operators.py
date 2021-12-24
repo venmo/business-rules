@@ -1,4 +1,3 @@
-from pandas.core.frame import DataFrame
 from business_rules.operators import (DataframeType, StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType, GenericType)
@@ -1392,6 +1391,63 @@ class DataframeOperatorTests(TestCase):
 
         result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
+
+    def test_present_on_multiple_rows_within(self):
+        """
+        Unit test for present_on_multiple_rows_within operator.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df}).present_on_multiple_rows_within(
+            {"target": "RELID", "group_by": "USUBJID"}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, 3],
+                "SEQ": [1, 2, 3, 4, 5, 6, 7],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2", "AEHOSP3"]
+            }
+        )
+        result = DataframeType({"value": invalid_df}).present_on_multiple_rows_within(
+            {"target": "RELID", "group_by": "USUBJID"}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True, False])))
+
+    def test_not_present_on_multiple_rows_within(self):
+        """
+        Unit test for not_present_on_multiple_rows_within operator.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df}).not_present_on_multiple_rows_within(
+            {"target": "RELID", "group_by": "USUBJID"}
+        )
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, 3],
+                "SEQ": [1, 2, 3, 4, 5, 6, 7],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2", "AEHOSP3"]
+            }
+        )
+        result = DataframeType({"value": invalid_df}).not_present_on_multiple_rows_within(
+            {"target": "RELID", "group_by": "USUBJID"}
+        )
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False, True])))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

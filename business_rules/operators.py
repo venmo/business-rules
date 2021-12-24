@@ -698,6 +698,27 @@ class DataframeType(BaseType):
             results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["length_check"](row), axis=1)
         return pd.Series(results.values)
 
+    @type_operator(FIELD_DATAFRAME)
+    def present_on_multiple_rows_within(self, other_value: dict):
+        """
+        The operator ensures that the target is present on multiple rows.
+        """
+        target = self.replace_prefix(other_value.get("target"))
+        group_by_column = self.replace_prefix(other_value.get("group_by"))
+        grouped = self.value.groupby(group_by_column)
+        results = grouped.apply(lambda x: self.validate_series_length(x[target]))
+        return pd.Series(results.explode().tolist())
+
+    def validate_series_length(self, ser: pd.Series):
+        if len(ser) > 1:
+            return [True] * len(ser)
+        else:
+            return [False]
+
+    @type_operator(FIELD_DATAFRAME)
+    def not_present_on_multiple_rows_within(self, other_value: dict):
+        return ~self.present_on_multiple_rows_within(other_value)
+
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:
             target_data = self.relationship_data.get(row[context], {}).get(row[target_column], pd.Series([]).values)

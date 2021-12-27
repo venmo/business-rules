@@ -701,7 +701,9 @@ class DataframeType(BaseType):
     @type_operator(FIELD_DATAFRAME)
     def present_on_multiple_rows_within(self, other_value: dict):
         """
-        The operator ensures that the target is present on multiple rows.
+        The operator ensures that the target is present on multiple rows
+        within a group_by column. The dataframe is grouped by a certain column
+        and the check is applied to each group.
         """
         target = self.replace_prefix(other_value.get("target"))
         group_by_column = self.replace_prefix(other_value.get("group_by"))

@@ -1392,6 +1392,63 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
+    def test_has_next_corresponding_record(self):
+        """
+        Test for has_next_corresponding_record operator.
+        """
+        valid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
+        result = DataframeType({"value": valid_df}).has_next_corresponding_record(other_value)
+        self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, True, True, True, pandas.NA])))
+
+        invalid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2010-08-03", "2008-08", "2006-06-17T10:20", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
+        result = DataframeType({"value": invalid_df}).has_next_corresponding_record(other_value)
+        self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, True, True, True, pandas.NA])))
+
+    def test_does_not_have_next_corresponding_record(self):
+        """
+        Test for does_not_have_next_corresponding_record operator.
+        """
+        valid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
+        result = DataframeType({"value": valid_df}).does_not_have_next_corresponding_record(other_value)
+        self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, False, False, False, pandas.NA])))
+
+        invalid_df = DataFrame.from_dict(
+            {
+                "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
+                "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
+                "SEENDTC": ["2006-06-03T10:32", "2006-06-10T09:47", "2006-06-17", "2006-06-17", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17", "2006-06-17"],
+                "SESTDTC": ["2006-06-01", "2010-08-03", "2008-08", "2006-06-17T10:20", "2006-06-01", "2006-06-03T10:14", "2006-06-10T10:32", "2006-06-17"],
+            }
+        )
+        other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
+        result = DataframeType({"value": invalid_df}).does_not_have_next_corresponding_record(other_value)
+        self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, False, False, False, pandas.NA])))
+
+
     def test_present_on_multiple_rows_within(self):
         """
         Unit test for present_on_multiple_rows_within operator.

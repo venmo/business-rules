@@ -229,7 +229,8 @@ class DataframeOperatorTests(TestCase):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
             "var2": [3,5,6],
-            "var3": [1,3,8]
+            "var3": [1,3,8],
+            "var4": ["test", "issue", "one"]
         })
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
@@ -250,6 +251,11 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": 20
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).equal_to({
+            "target": "var4",
+            "comparator": "var1",
+            "value_is_literal": True
         }).equals(pandas.Series([False, False, False])))
 
     def test_not_equal_to(self):
@@ -294,9 +300,14 @@ class DataframeOperatorTests(TestCase):
             "target": "var1",
             "comparator": "var2"
         }).equals(pandas.Series([True, False, True])))
-        self.assertTrue(DataframeType({"value": df}).equal_to({
+        self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var3"
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "var1",
+            "value_is_literal": True
         }).equals(pandas.Series([False, False, False])))
 
     def test_not_equal_to_case_insensitive(self):
@@ -314,6 +325,11 @@ class DataframeOperatorTests(TestCase):
             "target": "var1",
             "comparator": "var2"
         }).equals(pandas.Series([False, True, False])))
+        self.assertTrue(DataframeType({"value": df}).not_equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": "var1",
+            "value_is_literal": True
+        }).equals(pandas.Series([True, True, True])))
 
     def test_less_than(self):
         df = pandas.DataFrame.from_dict({
@@ -428,7 +444,8 @@ class DataframeOperatorTests(TestCase):
             "var1": [1,2,4],
             "var2": [3,5,6],
             "var3": [1,3,8],
-            "var4": [1,2,4]
+            "var4": [1,2,4],
+            "string_var": ["hj", "word", "c"]
         })
         self.assertTrue(DataframeType({"value": df}).contains({
             "target": "var1",
@@ -446,13 +463,23 @@ class DataframeOperatorTests(TestCase):
             "target": "var1",
             "comparator": "var2"
         }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).contains({
+            "target": "string_var",
+            "comparator": "string_var"
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).contains({
+            "target": "string_var",
+            "comparator": "string_var",
+            "value_is_literal": True
+        }).equals(pandas.Series([False, False, False])))
 
     def test_does_not_contain(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
             "var2": [3,5,6],
             "var3": [1,3,8],
-            "var4": [1,2,4]
+            "var4": [1,2,4],
+            "string_var": ["hj", "word", "c"]
         })
         self.assertTrue(DataframeType({"value": df}).does_not_contain({
             "target": "var1",
@@ -470,6 +497,16 @@ class DataframeOperatorTests(TestCase):
             "target": "var1",
             "comparator": "var2"
         }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain({
+            "target": "string_var",
+            "comparator": "string_var",
+            "value_is_literal": True
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain({
+            "target": "string_var",
+            "comparator": "string_var"
+        }).equals(pandas.Series([False, False, False])))
+
 
     def test_contains_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -493,6 +530,15 @@ class DataframeOperatorTests(TestCase):
             "target": "var1",
             "comparator": "var3"
         }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).contains_case_insensitive({
+            "target": "var3",
+            "comparator": "var3"
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).contains_case_insensitive({
+            "target": "var3",
+            "comparator": "var3",
+            "value_is_literal": True
+        }).equals(pandas.Series([False, False, False])))
 
     def test_does_not_contain_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
@@ -507,6 +553,15 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df}).does_not_contain_case_insensitive({
             "target": "var3",
             "comparator": "var2"
+        }).equals(pandas.Series([False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain_case_insensitive({
+            "target": "var3",
+            "comparator": "var3",
+            "value_is_literal": True
+        }).equals(pandas.Series([True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).does_not_contain_case_insensitive({
+            "target": "var3",
+            "comparator": "var3"
         }).equals(pandas.Series([False, False, False])))
 
     def test_is_contained_by(self):

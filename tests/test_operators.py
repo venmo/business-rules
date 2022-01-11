@@ -1404,7 +1404,19 @@ class DataframeOperatorTests(TestCase):
             }
         )
         result = DataframeType({"value": valid_df}).present_on_multiple_rows_within(
-            {"target": "RELID", "group_by": "USUBJID"}
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True])))
+
+        valid_df_1 = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [5, 5, 5, 7, 7, 7, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df_1}).present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 2}
         )
         self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True])))
 
@@ -1416,7 +1428,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         result = DataframeType({"value": invalid_df}).present_on_multiple_rows_within(
-            {"target": "RELID", "group_by": "USUBJID"}
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
         )
         self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True, False])))
 
@@ -1432,7 +1444,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         result = DataframeType({"value": valid_df}).not_present_on_multiple_rows_within(
-            {"target": "RELID", "group_by": "USUBJID"}
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
         )
         self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False])))
 
@@ -1444,7 +1456,7 @@ class DataframeOperatorTests(TestCase):
             }
         )
         result = DataframeType({"value": invalid_df}).not_present_on_multiple_rows_within(
-            {"target": "RELID", "group_by": "USUBJID"}
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
         )
         self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False, True])))
 

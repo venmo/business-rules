@@ -1,6 +1,7 @@
 import inspect
 import re
 from functools import wraps
+from typing import Union, Any
 from uuid import uuid4
 
 import pandas
@@ -280,7 +281,7 @@ class DataframeType(BaseType):
             data = data.lower()
         return data
 
-    def replace_prefix(self, value: str) -> str:
+    def replace_prefix(self, value: str) -> Union[str, Any]:
         if isinstance(value, str):
             for prefix, replacement in self.column_prefix_map.items():
                 if value.startswith(prefix):
@@ -706,16 +707,17 @@ class DataframeType(BaseType):
         and the check is applied to each group.
         """
         target = self.replace_prefix(other_value.get("target"))
-        group_by_column = self.replace_prefix(other_value.get("group_by"))
+        min_count: int = self.replace_prefix(other_value.get("comparator"))
+        group_by_column = self.replace_prefix(other_value.get("within"))
         grouped = self.value.groupby(group_by_column)
-        results = grouped.apply(lambda x: self.validate_series_length(x[target]))
+        results = grouped.apply(lambda x: self.validate_series_length(x[target], min_count))
         return pd.Series(results.explode().tolist())
 
-    def validate_series_length(self, ser: pd.Series):
-        if len(ser) > 1:
+    def validate_series_length(self, ser: pd.Series, min_length: int):
+        if len(ser) > min_length:
             return [True] * len(ser)
         else:
-            return [False]
+            return [False] * min_length
 
     @type_operator(FIELD_DATAFRAME)
     def not_present_on_multiple_rows_within(self, other_value: dict):

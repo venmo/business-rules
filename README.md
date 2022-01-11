@@ -340,6 +340,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `conformant_value_length`
 * `has_next_corresponding_record`
 * `does_not_have_next_corresponding_record`
+* `present_on_multiple_rows_within`
+* `not_present_on_multiple_rows_within`
 
 ### Returning data to your client
 

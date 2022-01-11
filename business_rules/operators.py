@@ -1,6 +1,7 @@
 import inspect
 import re
 from functools import wraps
+from typing import Union, Any
 from uuid import uuid4
 
 import pandas
@@ -280,7 +281,7 @@ class DataframeType(BaseType):
             data = data.lower()
         return data
 
-    def replace_prefix(self, value: str) -> str:
+    def replace_prefix(self, value: str) -> Union[str, Any]:
         if isinstance(value, str):
             for prefix, replacement in self.column_prefix_map.items():
                 if value.startswith(prefix):
@@ -730,6 +731,30 @@ class DataframeType(BaseType):
         comparator_without_first_row = df[comparator].drop(df[comparator].head(1).index)
         results = np.where(target_without_last_row.values == comparator_without_first_row.values, True, False)
         return [*results, pandas.NA]  # appending NA here to make the length of results list the same as length of df
+
+    @type_operator(FIELD_DATAFRAME)
+    def present_on_multiple_rows_within(self, other_value: dict):
+        """
+        The operator ensures that the target is present on multiple rows
+        within a group_by column. The dataframe is grouped by a certain column
+        and the check is applied to each group.
+        """
+        target = self.replace_prefix(other_value.get("target"))
+        min_count: int = other_value.get("comparator") or 1
+        group_by_column = self.replace_prefix(other_value.get("within"))
+        grouped = self.value.groupby(group_by_column)
+        results = grouped.apply(lambda x: self.validate_series_length(x[target], min_count))
+        return pd.Series(results.explode().tolist())
+
+    def validate_series_length(self, ser: pd.Series, min_length: int):
+        if len(ser) > min_length:
+            return [True] * len(ser)
+        else:
+            return [False] * min_length
+
+    @type_operator(FIELD_DATAFRAME)
+    def not_present_on_multiple_rows_within(self, other_value: dict):
+        return ~self.present_on_multiple_rows_within(other_value)
 
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:

@@ -1,4 +1,3 @@
-from pandas.core.frame import DataFrame
 from business_rules.operators import (DataframeType, StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType, GenericType)
@@ -1397,7 +1396,7 @@ class DataframeOperatorTests(TestCase):
         """
         Test for has_next_corresponding_record operator.
         """
-        valid_df = DataFrame.from_dict(
+        valid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1409,7 +1408,7 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": valid_df}).has_next_corresponding_record(other_value)
         self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, True, True, True, pandas.NA])))
 
-        invalid_df = DataFrame.from_dict(
+        invalid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1425,7 +1424,7 @@ class DataframeOperatorTests(TestCase):
         """
         Test for does_not_have_next_corresponding_record operator.
         """
-        valid_df = DataFrame.from_dict(
+        valid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1437,7 +1436,7 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": valid_df}).does_not_have_next_corresponding_record(other_value)
         self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, False, False, False, pandas.NA])))
 
-        invalid_df = DataFrame.from_dict(
+        invalid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1448,6 +1447,75 @@ class DataframeOperatorTests(TestCase):
         other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
         result = DataframeType({"value": invalid_df}).does_not_have_next_corresponding_record(other_value)
         self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, False, False, False, pandas.NA])))
+
+
+    def test_present_on_multiple_rows_within(self):
+        """
+        Unit test for present_on_multiple_rows_within operator.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df}).present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True])))
+
+        valid_df_1 = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [5, 5, 5, 7, 7, 7, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df_1}).present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 2}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, 3],
+                "SEQ": [1, 2, 3, 4, 5, 6, 7],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2", "AEHOSP3"]
+            }
+        )
+        result = DataframeType({"value": invalid_df}).present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
+        )
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, True, False])))
+
+    def test_not_present_on_multiple_rows_within(self):
+        """
+        Unit test for not_present_on_multiple_rows_within operator.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, ],
+                "SEQ": [1, 2, 3, 4, 5, 6],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2"]
+            }
+        )
+        result = DataframeType({"value": valid_df}).not_present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
+        )
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 2, 2, 2, 3],
+                "SEQ": [1, 2, 3, 4, 5, 6, 7],
+                "RELID": ["AEHOSP1", "AEHOSP1", "AEHOSP1", "AEHOSP2", "AEHOSP2", "AEHOSP2", "AEHOSP3"]
+            }
+        )
+        result = DataframeType({"value": invalid_df}).not_present_on_multiple_rows_within(
+            {"target": "RELID", "within": "USUBJID", "comparator": 1}
+        )
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False, True])))
 
 
 class GenericOperatorTests(TestCase):

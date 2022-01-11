@@ -707,7 +707,7 @@ class DataframeType(BaseType):
         and the check is applied to each group.
         """
         target = self.replace_prefix(other_value.get("target"))
-        min_count: int = self.replace_prefix(other_value.get("comparator"))
+        min_count: int = self.replace_prefix(other_value.get("comparator")) or 1
         group_by_column = self.replace_prefix(other_value.get("within"))
         grouped = self.value.groupby(group_by_column)
         results = grouped.apply(lambda x: self.validate_series_length(x[target], min_count))

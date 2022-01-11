@@ -1396,7 +1396,7 @@ class DataframeOperatorTests(TestCase):
         """
         Test for has_next_corresponding_record operator.
         """
-        valid_df = DataFrame.from_dict(
+        valid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1408,7 +1408,7 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": valid_df}).has_next_corresponding_record(other_value)
         self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, True, True, True, pandas.NA])))
 
-        invalid_df = DataFrame.from_dict(
+        invalid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1424,7 +1424,7 @@ class DataframeOperatorTests(TestCase):
         """
         Test for does_not_have_next_corresponding_record operator.
         """
-        valid_df = DataFrame.from_dict(
+        valid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],
@@ -1436,7 +1436,7 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": valid_df}).does_not_have_next_corresponding_record(other_value)
         self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, False, False, False, pandas.NA])))
 
-        invalid_df = DataFrame.from_dict(
+        invalid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [789, 789, 789, 789, 790, 790, 790, 790, ],
                 "SESEQ": [1, 2, 3, 4, 5, 6, 7, 8, ],

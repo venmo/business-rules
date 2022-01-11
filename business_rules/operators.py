@@ -699,7 +699,7 @@ class DataframeType(BaseType):
         return pd.Series(results.values)
 
     @type_operator(FIELD_DATAFRAME)
-    def next_corresponding_element_is_the_same(self, other_value: dict):
+    def has_next_corresponding_record(self, other_value: dict):
         """
         The operator ensures that value of target in current row
         is the same as value of comparator in the next row.
@@ -709,21 +709,27 @@ class DataframeType(BaseType):
         """
         target = self.replace_prefix(other_value.get("target"))
         comparator = self.replace_prefix(other_value.get("comparator"))
-        group_by_column = self.replace_prefix(other_value.get("group_by"))
-        grouped = self.value.groupby(group_by_column)
-        results = grouped.apply(lambda x: self.compare_target_with_comparator_next_row(x, target, comparator))
+        group_by_column: str = self.replace_prefix(other_value.get("within"))
+        order_by_column: str = self.replace_prefix(other_value.get("ordering"))
+        ordered_df = self.value.sort_values(by=[order_by_column])
+        grouped_df = ordered_df.groupby(group_by_column)
+        results = grouped_df.apply(lambda x: self.compare_target_with_comparator_next_row(x, target, comparator))
         return pd.Series(results.explode().tolist())
 
     @type_operator(FIELD_DATAFRAME)
-    def next_corresponding_element_is_not_the_same(self, other_value: dict):
+    def does_not_have_next_corresponding_record(self, other_value: dict):
         target = self.replace_prefix(other_value.get("target"))
         comparator = self.replace_prefix(other_value.get("comparator"))
-        group_by_column = self.replace_prefix(other_value.get("group_by"))
-        grouped = self.value.groupby(group_by_column)
-        results = grouped.apply(lambda x: self.compare_target_with_comparator_next_row(x, target, comparator, False))
+        group_by_column: str = self.replace_prefix(other_value.get("within"))
+        order_by_column: str = self.replace_prefix(other_value.get("ordering"))
+        ordered_df = self.value.sort_values(by=[order_by_column])
+        grouped_df = ordered_df.groupby(group_by_column)
+        results = grouped_df.apply(lambda x: self.compare_target_with_comparator_next_row(x, target, comparator, False))
         return pd.Series(results.explode().tolist())
 
-    def compare_target_with_comparator_next_row(self, df: pd.DataFrame, target: str, comparator: str, equals: bool = True):
+    def compare_target_with_comparator_next_row(
+        self, df: pd.DataFrame, target: str, comparator: str, equals: bool = True
+    ):
         """
         Compares current row of a target with the next row of comparator.
         We can't compare last row of target with the next row of comparator

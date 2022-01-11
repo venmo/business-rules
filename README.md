@@ -338,8 +338,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `conformant_value_data_type`
 * `non_conformant_value_length`
 * `conformant_value_length`
-* `next_corresponding_element_is_the_same`
-* `next_corresponding_element_is_not_the_same`
+* `has_next_corresponding_record`
+* `does_not_have_next_corresponding_record`
 
 ### Returning data to your client
 

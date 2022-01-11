@@ -718,18 +718,9 @@ class DataframeType(BaseType):
 
     @type_operator(FIELD_DATAFRAME)
     def does_not_have_next_corresponding_record(self, other_value: dict):
-        target = self.replace_prefix(other_value.get("target"))
-        comparator = self.replace_prefix(other_value.get("comparator"))
-        group_by_column: str = self.replace_prefix(other_value.get("within"))
-        order_by_column: str = self.replace_prefix(other_value.get("ordering"))
-        ordered_df = self.value.sort_values(by=[order_by_column])
-        grouped_df = ordered_df.groupby(group_by_column)
-        results = grouped_df.apply(lambda x: self.compare_target_with_comparator_next_row(x, target, comparator, False))
-        return pd.Series(results.explode().tolist())
+        return ~self.has_next_corresponding_record(other_value)
 
-    def compare_target_with_comparator_next_row(
-        self, df: pd.DataFrame, target: str, comparator: str, equals: bool = True
-    ):
+    def compare_target_with_comparator_next_row(self, df: pd.DataFrame, target: str, comparator: str):
         """
         Compares current row of a target with the next row of comparator.
         We can't compare last row of target with the next row of comparator
@@ -737,11 +728,8 @@ class DataframeType(BaseType):
         """
         target_without_last_row = df[target].drop(df[target].tail(1).index)
         comparator_without_first_row = df[comparator].drop(df[comparator].head(1).index)
-        if equals:
-            results = np.where(target_without_last_row.values == comparator_without_first_row.values, True, False)
-        else:
-            results = np.where(target_without_last_row.values != comparator_without_first_row.values, True, False)
-        return [*results, None]  # appending None here to make the length of results list the same as length of df
+        results = np.where(target_without_last_row.values == comparator_without_first_row.values, True, False)
+        return [*results, pandas.NA]  # appending NA here to make the length of results list the same as length of df
 
     def detect_reference(self, row, value_column, target_column, context=None):
         if context:

@@ -1407,7 +1407,7 @@ class DataframeOperatorTests(TestCase):
         )
         other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
         result = DataframeType({"value": valid_df}).has_next_corresponding_record(other_value)
-        self.assertTrue(result.equals(pandas.Series([True, True, True, None, True, True, True, None])))
+        self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, True, True, True, pandas.NA])))
 
         invalid_df = DataFrame.from_dict(
             {
@@ -1419,7 +1419,7 @@ class DataframeOperatorTests(TestCase):
         )
         other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
         result = DataframeType({"value": invalid_df}).has_next_corresponding_record(other_value)
-        self.assertTrue(result.equals(pandas.Series([False, False, False, None, True, True, True, None])))
+        self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, True, True, True, pandas.NA])))
 
     def test_does_not_have_next_corresponding_record(self):
         """
@@ -1435,7 +1435,7 @@ class DataframeOperatorTests(TestCase):
         )
         other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
         result = DataframeType({"value": valid_df}).does_not_have_next_corresponding_record(other_value)
-        self.assertTrue(result.equals(pandas.Series([False, False, False, None, False, False, False, None])))
+        self.assertTrue(result.equals(pandas.Series([False, False, False, pandas.NA, False, False, False, pandas.NA])))
 
         invalid_df = DataFrame.from_dict(
             {
@@ -1447,7 +1447,7 @@ class DataframeOperatorTests(TestCase):
         )
         other_value: dict = {"target": "SEENDTC", "comparator": "SESTDTC", "within": "USUBJID", "ordering": "SESEQ"}
         result = DataframeType({"value": invalid_df}).does_not_have_next_corresponding_record(other_value)
-        self.assertTrue(result.equals(pandas.Series([True, True, True, None, False, False, False, None])))
+        self.assertTrue(result.equals(pandas.Series([True, True, True, pandas.NA, False, False, False, pandas.NA])))
 
 
 class GenericOperatorTests(TestCase):

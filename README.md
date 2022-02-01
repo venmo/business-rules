@@ -342,6 +342,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `does_not_have_next_corresponding_record`
 * `present_on_multiple_rows_within`
 * `not_present_on_multiple_rows_within`
+* `additional_columns_empty`
+* `additional_columns_not_empty`
 
 ### Returning data to your client
 

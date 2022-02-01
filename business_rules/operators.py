@@ -794,6 +794,7 @@ class DataframeType(BaseType):
         and ensures they are not empty.
         """
         target: str = self.replace_prefix(other_value.get("target"))
+        # regexp means starting from target, ending with integers and nothing is between them
         df = self.value.filter(regex=rf"^{target}\d+$")
         return df.isnull().any(axis=1)
 

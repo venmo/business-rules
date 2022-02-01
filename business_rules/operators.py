@@ -782,6 +782,26 @@ class DataframeType(BaseType):
         value = row[value_column]
         return (value in target_data) or (value in target_data.astype(int).astype(str)) or (value in target_data.astype(str))
 
+    @type_operator(FIELD_DATAFRAME)
+    def additional_columns_empty(self, other_value: dict):
+        """
+        The dataframe column might have some additional columns.
+        Example:
+            column - TSVAL
+            additional columns - TSVAL1, TSVAL2, ...
+        So, if these columns exist, they cannot be empty. Original column can be empty.
+        The operator extracts these additional columns from the DF
+        and ensures they are not empty.
+        """
+        target: str = self.replace_prefix(other_value.get("target"))
+        df = self.value.filter(regex=rf"^{target}\d+$")
+        return df.isnull().any(axis=1)
+
+    @type_operator(FIELD_DATAFRAME)
+    def additional_columns_not_empty(self, other_value: dict):
+        return ~self.additional_columns_empty(other_value)
+
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
 

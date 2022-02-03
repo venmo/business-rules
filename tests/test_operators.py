@@ -1580,8 +1580,8 @@ class DataframeOperatorTests(TestCase):
             {
                 "USUBJID": [1, 1, 1, 1, ],
                 "TSVAL": [None, None, "another value", None],  # original column may be empty
-                "TSVAL1": ["value", "value", "value", "value"],
-                "TSVAL2": [None, "value 2", "value 2", None],  # there is no next row
+                "TSVAL1": ["value", "value", "value", None],  # valid since TSVAL2 is also null in the same row
+                "TSVAL2": [None, "value 2", "value 2", None],
             }
         )
         result = DataframeType({"value": valid_df, }).additional_columns_empty({"target": "TSVAL", })

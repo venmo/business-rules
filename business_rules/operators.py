@@ -809,7 +809,7 @@ class DataframeType(BaseType):
 
     def next_column_exists_and_previous_is_null(self, row: pd.Series) -> bool:
         row.reset_index(drop=True, inplace=True)
-        for index in row[row.isnull()].index:
+        for index in row[row.isnull()].index:  # leaving null values only
             next_position: int = index + 1
             if next_position < len(row) and row[next_position] is not None:
                 return True

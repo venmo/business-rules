@@ -797,19 +797,21 @@ class DataframeType(BaseType):
         and ensures they are not empty.
         """
         target: str = self.replace_prefix(other_value.get("target"))
-        # regexp means starting from target, ending with integers and nothing is between them
-        df: pd.DataFrame = self.value.filter(regex=rf"^{target}\d+$")
-        for key, value in df.items():
-            next_column_exists: bool = len(df.columns) - 1 > df.columns.get_loc(key)
-            any_row_is_null: bool = value.isnull().any()
-            if next_column_exists and any_row_is_null:
-                return value.isnull()
-        return pd.Series([False] * len(df))
+        regex: str = rf"^{target}\d+$"  # starting from target, ending with integers and nothing is between them
+        df: pd.DataFrame = self.value.filter(regex=regex)
+        # applying a function to each row
+        result: pd.Series = df.apply(lambda row: self.next_column_exists_and_previous_is_null(row), axis=1)
+        return result
 
     @type_operator(FIELD_DATAFRAME)
     def additional_columns_not_empty(self, other_value: dict):
         return ~self.additional_columns_empty(other_value)
 
+    def next_column_exists_and_previous_is_null(self, row: pd.Series) -> bool:
+        for index in range(len(row) - 1):
+            if row[index] is None and row[index + 1] is not None:
+                return True
+        return False
 
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):

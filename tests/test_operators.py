@@ -1579,9 +1579,9 @@ class DataframeOperatorTests(TestCase):
         valid_df = pandas.DataFrame.from_dict(
             {
                 "USUBJID": [1, 1, 1, 1, ],
-                "TSVAL": ["value", None, "another value", None],  # original column may be empty
+                "TSVAL": [None, None, "another value", None],  # original column may be empty
                 "TSVAL1": ["value", "value", "value", "value"],
-                "TSVAL2": ["value 2", "value 2", "value 2", "value 2"],
+                "TSVAL2": [None, "value 2", "value 2", None],  # there is no next row
             }
         )
         result = DataframeType({"value": valid_df, }).additional_columns_empty({"target": "TSVAL", })
@@ -1592,11 +1592,12 @@ class DataframeOperatorTests(TestCase):
                 "USUBJID": [1, 1, 1, 1, ],
                 "TSVAL": ["value", None, "another value", None],  # original column may be empty
                 "TSVAL1": ["value", None, "value", "value"],  # invalid column
-                "TSVAL2": ["value 2", "value 2", "value 2", "value 2"],
+                "TSVAL2": ["value 2", "value 2", "value 2", None],
+                "TSVAL3": ["value 3", "value 3", None, "value 3"],
             }
         )
         result = DataframeType({"value": invalid_df, }).additional_columns_empty({"target": "TSVAL", })
-        self.assertTrue(result.equals(pandas.Series([False, True, False, False, ])))
+        self.assertTrue(result.equals(pandas.Series([False, True, False, True, ])))
 
     def test_additional_columns_not_empty(self):
         """

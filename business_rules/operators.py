@@ -808,8 +808,11 @@ class DataframeType(BaseType):
         return ~self.additional_columns_empty(other_value)
 
     def next_column_exists_and_previous_is_null(self, row: pd.Series) -> bool:
-        for index in range(len(row) - 1):
-            if row[index] is None and row[index + 1] is not None:
+        row.reset_index(drop=True, inplace=True)
+        none_index = row[row.isnull()].index
+        for ind in none_index:
+            next_pos: int = ind + 1
+            if next_pos < len(row) and row[next_pos] is not None:
                 return True
         return False
 

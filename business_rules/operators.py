@@ -786,17 +786,25 @@ class DataframeType(BaseType):
     def additional_columns_empty(self, other_value: dict):
         """
         The dataframe column might have some additional columns.
+        If the next additional column exists, the previous one cannot be empty.
         Example:
             column - TSVAL
             additional columns - TSVAL1, TSVAL2, ...
-        So, if these columns exist, they cannot be empty. Original column can be empty.
+            If TSVAL2 exists -> TSVAL1 cannot be empty.
+            Original column (TSVAL) can be empty.
+
         The operator extracts these additional columns from the DF
         and ensures they are not empty.
         """
         target: str = self.replace_prefix(other_value.get("target"))
         # regexp means starting from target, ending with integers and nothing is between them
-        df = self.value.filter(regex=rf"^{target}\d+$")
-        return df.isnull().any(axis=1)
+        df: pd.DataFrame = self.value.filter(regex=rf"^{target}\d+$")
+        for key, value in df.items():
+            next_column_exists: bool = len(df.columns) - 1 > df.columns.get_loc(key)
+            any_row_is_null: bool = value.isnull().any()
+            if next_column_exists and any_row_is_null:
+                return value.isnull()
+        return pd.Series([False] * len(df))
 
     @type_operator(FIELD_DATAFRAME)
     def additional_columns_not_empty(self, other_value: dict):

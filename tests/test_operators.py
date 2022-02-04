@@ -1572,6 +1572,59 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, False, True])))
 
+    def test_additional_columns_empty(self):
+        """
+        Unit test for additional_columns_empty operator.
+        """
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 1, ],
+                "TSVAL": [None, None, "another value", None],  # original column may be empty
+                "TSVAL1": ["value", "value", "value", None],  # valid since TSVAL2 is also null in the same row
+                "TSVAL2": [None, "value 2", "value 2", None],
+            }
+        )
+        result = DataframeType({"value": valid_df, }).additional_columns_empty({"target": "TSVAL", })
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, ])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 1, ],
+                "TSVAL": ["value", None, "another value", None],  # original column may be empty
+                "TSVAL1": ["value", None, "value", "value"],  # invalid column
+                "TSVAL2": ["value 2", "value 2", "value 2", None],
+                "TSVAL3": ["value 3", "value 3", None, "value 3"],
+            }
+        )
+        result = DataframeType({"value": invalid_df, }).additional_columns_empty({"target": "TSVAL", })
+        self.assertTrue(result.equals(pandas.Series([False, True, False, True, ])))
+
+    def test_additional_columns_not_empty(self):
+        """
+        Unit test for additional_columns_not_empty operator.
+        """
+        df_with_empty_rows = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 1, ],
+                "TSVAL": ["value", None, "another value", None],  # original column may be empty
+                "TSVAL1": ["value", None, "value", "value"],
+                "TSVAL2": ["value 2", "value 2", "value 2", "value 2"],
+            }
+        )
+        result = DataframeType({"value": df_with_empty_rows, }).additional_columns_not_empty({"target": "TSVAL", })
+        self.assertTrue(result.equals(pandas.Series([True, False, True, True, ])))
+
+        df_without_empty_rows = pandas.DataFrame.from_dict(
+            {
+                "USUBJID": [1, 1, 1, 1, ],
+                "TSVAL": ["value", None, "another value", None],  # original column may be empty
+                "TSVAL1": ["value", "value", "value", "value"],
+                "TSVAL2": ["value 2", "value 2", "value 2", "value 2"],
+            }
+        )
+        result = DataframeType({"value": df_without_empty_rows, }).additional_columns_not_empty({"target": "TSVAL", })
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, ])))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

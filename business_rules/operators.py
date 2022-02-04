@@ -782,6 +782,39 @@ class DataframeType(BaseType):
         value = row[value_column]
         return (value in target_data) or (value in target_data.astype(int).astype(str)) or (value in target_data.astype(str))
 
+    @type_operator(FIELD_DATAFRAME)
+    def additional_columns_empty(self, other_value: dict):
+        """
+        The dataframe column might have some additional columns.
+        If the next additional column exists, the previous one cannot be empty.
+        Example:
+            column - TSVAL
+            additional columns - TSVAL1, TSVAL2, ...
+            If TSVAL2 exists -> TSVAL1 cannot be empty.
+            Original column (TSVAL) can be empty.
+
+        The operator extracts these additional columns from the DF
+        and ensures they are not empty.
+        """
+        target: str = self.replace_prefix(other_value.get("target"))
+        regex: str = rf"^{target}\d+$"  # starting from target, ending with integers and nothing is between them
+        df: pd.DataFrame = self.value.filter(regex=regex)
+        # applying a function to each row
+        result: pd.Series = df.apply(lambda row: self.next_column_exists_and_previous_is_null(row), axis=1)
+        return result
+
+    @type_operator(FIELD_DATAFRAME)
+    def additional_columns_not_empty(self, other_value: dict):
+        return ~self.additional_columns_empty(other_value)
+
+    def next_column_exists_and_previous_is_null(self, row: pd.Series) -> bool:
+        row.reset_index(drop=True, inplace=True)
+        for index in row[row.isnull()].index:  # leaving null values only
+            next_position: int = index + 1
+            if next_position < len(row) and row[next_position] is not None:
+                return True
+        return False
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
 

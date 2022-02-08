@@ -815,6 +815,20 @@ class DataframeType(BaseType):
                 return True
         return False
 
+    @type_operator(FIELD_DATAFRAME)
+    def has_different_values(self, other_value: dict):
+        """
+        The operator ensures that the target columns has different values.
+        """
+        target: str = self.replace_prefix(other_value.get("target"))
+        is_valid: bool = len(self.value[target].unique()) > 1
+        return pandas.Series([is_valid] * len(self.value[target]))
+
+    @type_operator(FIELD_DATAFRAME)
+    def has_same_values(self, other_value: dict):
+        return ~self.has_different_values(other_value)
+
+
 @export_type
 class GenericType(SelectMultipleType, SelectType, StringType, NumericType, BooleanType):
 

@@ -344,6 +344,8 @@ Note: to compare floating point equality we just check that the difference is le
 * `not_present_on_multiple_rows_within`
 * `additional_columns_empty`
 * `additional_columns_not_empty`
+* `has_different_values`
+* `has_same_values`
 
 ### Returning data to your client
 

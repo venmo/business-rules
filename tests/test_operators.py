@@ -1625,6 +1625,40 @@ class DataframeOperatorTests(TestCase):
         result = DataframeType({"value": df_without_empty_rows, }).additional_columns_not_empty({"target": "TSVAL", })
         self.assertTrue(result.equals(pandas.Series([True, True, True, True, ])))
 
+    def test_has_different_values(self):
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "MHCAT": [1, 2, 3, 1, 1, ]
+            }
+        )
+        result = DataframeType({"value": valid_df, }).has_different_values({"target": "MHCAT", })
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, ])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "MHCAT": [1, 1, 1, 1, 1, ]
+            }
+        )
+        result = DataframeType({"value": invalid_df, }).has_different_values({"target": "MHCAT", })
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, ])))
+
+    def test_has_same_values(self):
+        valid_df = pandas.DataFrame.from_dict(
+            {
+                "MHCAT": [1, 2, 3, 1, 1, ]
+            }
+        )
+        result = DataframeType({"value": valid_df, }).has_same_values({"target": "MHCAT", })
+        self.assertTrue(result.equals(pandas.Series([False, False, False, False, False, ])))
+
+        invalid_df = pandas.DataFrame.from_dict(
+            {
+                "MHCAT": [1, 1, 1, 1, 1, ]
+            }
+        )
+        result = DataframeType({"value": invalid_df, }).has_same_values({"target": "MHCAT", })
+        self.assertTrue(result.equals(pandas.Series([True, True, True, True, True, ])))
+
 
 class GenericOperatorTests(TestCase):
     def test_shares_no_elements_with(self):

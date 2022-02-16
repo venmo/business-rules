@@ -851,6 +851,8 @@ class DataframeType(BaseType):
         return True
     
     def valid_terms(self, codelist, terms_list):
+        if not codelist:
+            return True
         valid_term = False
         for codelist_term_map in self.codelist_term_maps:
             if codelist in codelist_term_map:

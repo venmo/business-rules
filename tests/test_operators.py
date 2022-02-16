@@ -1624,6 +1624,194 @@ class DataframeOperatorTests(TestCase):
         )
         result = DataframeType({"value": df_without_empty_rows, }).additional_columns_not_empty({"target": "TSVAL", })
         self.assertTrue(result.equals(pandas.Series([True, True, True, True, ])))
+    
+    def test_references_valid_codelist(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "define_variable_name": ["TEST", "COOLVAR", "ANOTHERVAR" ],
+                "define_variable_controlled_terms": ["C123", "C456", "C789"],
+                "define_variable_invalid_terms": ["C123", "C456", "C786"]
+            }
+        )
+
+        column_codelist_map = {
+            "TEST": ["C123", "C456"],
+            "COOLVAR": ["C123", "C456"],
+            "ANOTHERVAR": ["C789"]
+        }
+        dft = DataframeType({
+            "value": df,
+            "column_codelist_map": column_codelist_map
+        })
+
+        result = dft.references_correct_codelist({"target": "define_variable_name", "comparator": "define_variable_controlled_terms"})
+        self.assertTrue(result.equals(pandas.Series([True, True, True ])))
+        
+        bad_result = dft.references_correct_codelist({"target": "define_variable_name", "comparator": "define_variable_invalid_terms"})
+        self.assertTrue(bad_result.equals(pandas.Series([True, True, False])))
+
+
+    def test_does_not_reference_valid_codelist(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "define_variable_name": ["TEST", "COOLVAR", "ANOTHERVAR" ],
+                "define_variable_controlled_terms": ["C123", "C456", "C789"],
+                "define_variable_invalid_terms": ["C123", "C456", "C786"]
+            }
+        )
+
+        column_codelist_map = {
+            "TEST": ["C123", "C456"],
+            "--OLVAR": ["C123", "C456"],
+            "ANOTHERVAR": ["C789"]
+        }
+        dft = DataframeType({
+            "value": df,
+            "column_codelist_map": column_codelist_map,
+            "column_prefix_map": {
+                "--": "CO"
+            }
+        })
+
+        result = dft.does_not_reference_correct_codelist({"target": "define_variable_name", "comparator": "define_variable_controlled_terms"})
+        self.assertTrue(result.equals(pandas.Series([False, False, False ])))
+        
+        bad_result = dft.does_not_reference_correct_codelist({"target": "define_variable_name", "comparator": "define_variable_invalid_terms"})
+        self.assertTrue(bad_result.equals(pandas.Series([False, False, True])))
+
+    def test_uses_valid_codelist_terms(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "define_variable_name": ["TEST", "COOLVAR", "ANOTHERVAR" ],
+                "define_variable_controlled_terms": ["C123", "C456", "C789"],
+                "define_variable_allowed_terms": [
+                    ["A", "B"],
+                    ["C", "D"],
+                    ["E", "F"]
+                ],
+                "define_variable_invalid_allowed_terms": [
+                    ["A", "L"],
+                    ["C", "Z"],
+                    ["E", "F"]
+                ]
+            }
+        )
+
+        extensible_codelist_term_map = [{
+            "C123": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C"],
+            },
+            "C456": {
+                "extensible": True,
+                "allowed_terms": ["A", "B", "b", "C", "D"]
+            },
+            "C789": {
+                "extensible": False,
+                "allowed_terms": ["E", "F", "b", "C"]
+            }
+        }]
+
+        codelist_term_map = [{
+            "C123": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C"],
+            },
+            "C456": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C", "D"]
+            },
+            "C789": {
+                "extensible": False,
+                "allowed_terms": ["E", "F", "b", "C"]
+            }
+        }]
+        dft = DataframeType({
+            "value": df,
+            "codelist_term_maps": codelist_term_map
+        })
+
+        result = dft.uses_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_allowed_terms"})
+        self.assertTrue(result.equals(pandas.Series([True, True, True])))
+        
+        bad_result = dft.uses_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_invalid_allowed_terms"})
+        self.assertTrue(bad_result.equals(pandas.Series([False, False, True])))
+
+        # Test extensible flag
+        dft = DataframeType({
+            "value": df,
+            "codelist_term_maps": extensible_codelist_term_map
+        })
+        
+        result = dft.uses_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_invalid_allowed_terms"})
+        self.assertTrue(result.equals(pandas.Series([False, True, True])))
+
+    def test_does_not_use_valid_terms(self):
+        df = pandas.DataFrame.from_dict(
+            {
+                "define_variable_name": ["TEST", "COOLVAR", "ANOTHERVAR" ],
+                "define_variable_controlled_terms": ["C123", "C456", "C789"],
+                "define_variable_allowed_terms": [
+                    ["A", "B"],
+                    ["C", "D"],
+                    ["E", "F"]
+                ],
+                "define_variable_invalid_allowed_terms": [
+                    ["A", "L"],
+                    ["C", "Z"],
+                    ["E", "F"]
+                ]
+            }
+        )
+
+        extensible_codelist_term_map = [{
+            "C123": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C"],
+            },
+            "C456": {
+                "extensible": True,
+                "allowed_terms": ["A", "B", "b", "C", "D"]
+            },
+            "C789": {
+                "extensible": False,
+                "allowed_terms": ["E", "F", "b", "C"]
+            }
+        }]
+
+        codelist_term_map = [{
+            "C123": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C"],
+            },
+            "C456": {
+                "extensible": False,
+                "allowed_terms": ["A", "B", "b", "C", "D"]
+            },
+            "C789": {
+                "extensible": False,
+                "allowed_terms": ["E", "F", "b", "C"]
+            }
+        }]
+        dft = DataframeType({
+            "value": df,
+            "codelist_term_maps": codelist_term_map
+        })
+
+        result = dft.does_not_use_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_allowed_terms"})
+        self.assertTrue(result.equals(pandas.Series([False, False, False])))
+        
+        bad_result = dft.does_not_use_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_invalid_allowed_terms"})
+        self.assertTrue(bad_result.equals(pandas.Series([True, True, False])))
+
+        # Test extensible flag
+        dft = DataframeType({
+            "value": df,
+            "codelist_term_maps": extensible_codelist_term_map
+        })
+        
+        result = dft.does_not_use_valid_codelist_terms({"target": "define_variable_controlled_terms", "comparator": "define_variable_invalid_allowed_terms"})
+        self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
     def test_has_different_values(self):
         valid_df = pandas.DataFrame.from_dict(

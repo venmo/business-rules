@@ -847,7 +847,8 @@ class DataframeType(BaseType):
             for key in self.column_prefix_map:
                 if column_name.startswith(self.column_prefix_map[key]):
                     generic_column_name = column_name.replace(self.column_prefix_map[key], key, 1)
-                    return codelist in self.column_codelist_map.get(generic_column_name)
+                    if generic_column_name in self.column_codelist_map:
+                        return codelist in self.column_codelist_map.get(generic_column_name)
         return True
     
     def valid_terms(self, codelist, terms_list):

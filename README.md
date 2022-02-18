@@ -346,6 +346,10 @@ Note: to compare floating point equality we just check that the difference is le
 * `additional_columns_not_empty`
 * `has_different_values`
 * `has_same_values`
+* `references_correct_codelist`
+* `does_not_reference_correct_codelist`
+* `does_not_use_valid_codelist_terms`
+* `uses_valid_codelist_terms`
 
 ### Returning data to your client
 

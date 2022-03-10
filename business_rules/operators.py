@@ -316,7 +316,7 @@ class DataframeType(BaseType):
         value_is_literal = other_value.get("value_is_literal", False)
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
-        results = np.where(self.value.get(target) == comparison_data, True, False)
+        results = np.where(self.value[target] == comparison_data, True, False)
         return pd.Series(results)
 
     @type_operator(FIELD_DATAFRAME)
@@ -326,7 +326,7 @@ class DataframeType(BaseType):
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
-        results = np.where(self.value.get(target).str.lower() == comparison_data, True, False)
+        results = np.where(self.value[target].str.lower() == comparison_data, True, False)
         return pd.Series(results)
 
     @type_operator(FIELD_DATAFRAME)
@@ -351,7 +351,7 @@ class DataframeType(BaseType):
         value_is_literal = other_value.get("value_is_literal", False)
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
-        results = np.where(self.value.get(target) >= comparison_data, True, False)
+        results = np.where(self.value[target] >= comparison_data, True, False)
         return pd.Series(results)
     
     @type_operator(FIELD_DATAFRAME)
@@ -360,7 +360,7 @@ class DataframeType(BaseType):
         value_is_literal = other_value.get("value_is_literal", False)
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
-        results = np.where(self.value.get(target) > comparison_data, True, False)
+        results = np.where(self.value[target] > comparison_data, True, False)
         return pd.Series(results)
     
     @type_operator(FIELD_DATAFRAME)
@@ -574,7 +574,7 @@ class DataframeType(BaseType):
         target = self.replace_prefix(other_value.get("target"))
         comparator = self.replace_prefix(other_value.get("comparator"))
         component = other_value.get("date_component")
-        results = np.where(operator(vectorized_date_component(component, self.value.get(target)), vectorized_date_component(component, self.value.get(comparator, comparator))), True, False)
+        results = np.where(operator(vectorized_date_component(component, self.value[target]), vectorized_date_component(component, self.value.get(comparator, comparator))), True, False)
         return pd.Series(results)
     
     @type_operator(FIELD_DATAFRAME)

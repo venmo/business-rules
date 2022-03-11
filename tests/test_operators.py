@@ -359,6 +359,16 @@ class DataframeOperatorTests(TestCase):
             "comparator": 3
         }).equals(pandas.Series([True, True, False])))
 
+        another_df = pandas.DataFrame.from_dict(
+            {
+                "LBDY": [4, None, None, None, None]
+            }
+        )
+        self.assertTrue(DataframeType({"value": another_df}).less_than({
+            "target": "LBDY",
+            "comparator": 5
+        }).equals(pandas.Series([True, False, False, False, False, ])))
+
     def test_less_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
@@ -386,6 +396,16 @@ class DataframeOperatorTests(TestCase):
             "target": "var2",
             "comparator": "var3"
         }).equals(pandas.Series([False, False, True])))
+
+        another_df = pandas.DataFrame.from_dict(
+            {
+                "LBDY": [4, 5, None, None, None]
+            }
+        )
+        self.assertTrue(DataframeType({"value": another_df}).less_than_or_equal_to({
+            "target": "LBDY",
+            "comparator": 5
+        }).equals(pandas.Series([True, True, False, False, False, ])))
 
     def test_greater_than(self):
         df = pandas.DataFrame.from_dict({
@@ -415,6 +435,16 @@ class DataframeOperatorTests(TestCase):
             "comparator": 5000
         }).equals(pandas.Series([False, False, False])))
 
+        another_df = pandas.DataFrame.from_dict(
+            {
+                "LBDY": [4, None, None, None, None]
+            }
+        )
+        self.assertTrue(DataframeType({"value": another_df}).greater_than({
+            "target": "LBDY",
+            "comparator": 3
+        }).equals(pandas.Series([True, False, False, False, False, ])))
+
     def test_greater_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict({
             "var1": [1,2,4],
@@ -438,6 +468,16 @@ class DataframeOperatorTests(TestCase):
             "target": "var2",
             "comparator": 2
         }).equals(pandas.Series([True, True, True])))
+
+        another_df = pandas.DataFrame.from_dict(
+            {
+                "LBDY": [4, 3, None, None, None]
+            }
+        )
+        self.assertTrue(DataframeType({"value": another_df}).greater_than_or_equal_to({
+            "target": "LBDY",
+            "comparator": 3
+        }).equals(pandas.Series([True, True, False, False, False, ])))
 
     def test_contains(self):
         df = pandas.DataFrame.from_dict({

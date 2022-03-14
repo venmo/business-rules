@@ -286,7 +286,15 @@ Note: to compare floating point equality we just check that the difference is le
 Open up a pull request, making sure to add tests for any new functionality. To set up the dev environment (assuming you're using [virtualenvwrapper](http://docs.python-guide.org/en/latest/dev/virtualenvs/#virtualenvwrapper)):
 
 ```bash
-$ mkvirtualenv business-rules
-$ pip install -r dev-requirements.txt
-$ nosetests
+$ python -m virtualenv venv
+$ source ./venv/bin/activate
+$ pip install -r dev-requirements.txt -e .
+$ pytest
+```
+
+Alternatively, you can also use Tox:
+
+```bash
+$ pip install "tox<4"
+$ tox -p auto --skip-missing-interpreters
 ```

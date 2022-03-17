@@ -120,8 +120,16 @@ def is_complete_date(date_string: str) -> bool:
 def get_dict_key_val(dict_to_get: dict, key):
     return dict_to_get.get(key)
 
+def is_in(value, values):
+    return value in values
+
+def case_insensitive_is_in(value, values):
+    return value in map(str.lower, values)
+
 vectorized_is_complete_date = np.vectorize(is_complete_date)
 vectorized_date_component = np.vectorize(get_date_component)
 vectorized_is_valid = np.vectorize(is_valid_date)
 vectorized_get_dict_key = np.vectorize(get_dict_key_val)
+vectorized_is_in = np.vectorize(is_in)
+vectorized_case_insensitive_is_in = np.vectorize(case_insensitive_is_in)
 vectorized_len = np.vectorize(len)

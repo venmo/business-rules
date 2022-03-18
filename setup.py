@@ -1,18 +1,20 @@
 #! /usr/bin/env python
-
 from setuptools import setup
 
 from business_rules import __version__ as version
 
-with open('HISTORY.rst') as f:
-    history = f.read()
+with open('README.md') as f:
+    readme = f.read()
 
-description = 'Python DSL for setting up business intelligence rules that can be configured without code'
+with open('HISTORY.md') as f:
+    history = f.read()
 
 setup(
     name='business-rules',
     version=version,
-    description='{0}\n\n{1}'.format(description, history),
+    description='Python DSL for setting up business intelligence rules that can be configured without code',
+    long_description='{}\n\n{}'.format(readme, history),
+    long_description_content_type='text/markdown',
     author='Venmo',
     author_email='open-source@venmo.com',
     url='https://github.com/venmo/business-rules',

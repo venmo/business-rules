@@ -1,8 +1,6 @@
 business-rules
 ==============
 
-[![Build Status](https://travis-ci.org/venmo/business-rules.svg?branch=master)](https://travis-ci.org/venmo/business-rules)
-
 As a software system grows in complexity and usage, it can become burdensome if
 every change to the logic/behavior of the system also requires you to write and
 deploy new code. The goal of this business rules engine is to provide a simple
@@ -13,10 +11,6 @@ You might, for example, find this is a useful way for analysts to define
 marketing logic around when certain customers or items are eligible for a
 discount or to automate emails after users enter a certain state or go through
 a particular sequence of events.
-
-<p align="center">
-    <img src="http://cdn.memegenerator.net/instances/400x/36514579.jpg" />
-</p>
 
 ## Usage
 

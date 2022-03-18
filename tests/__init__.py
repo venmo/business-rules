@@ -1,6 +1,5 @@
-try:
-    from unittest2 import TestCase
-except ImportError:
-    from unittest import TestCase
+from unittest import TestCase
 
-assert TestCase
+# Allow us to use Python 3's `assertRaisesRegex` to avoid "DeprecationWarning: Please use assertRaisesRegex instead."
+if not hasattr(TestCase, 'assertRaisesRegex'):
+    TestCase.assertRaisesRegex = TestCase.assertRaisesRegexp

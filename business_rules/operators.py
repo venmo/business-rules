@@ -1,7 +1,7 @@
 import inspect
 import re
 from functools import wraps
-from .six import string_types, integer_types
+from six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)

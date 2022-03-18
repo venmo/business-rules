@@ -4,7 +4,7 @@ from business_rules.actions import rule_action, BaseActions
 from business_rules.variables import BaseVariables, string_rule_variable, numeric_rule_variable, boolean_rule_variable
 from business_rules.fields import FIELD_TEXT, FIELD_NUMERIC, FIELD_SELECT
 
-from . import TestCase
+from unittest import TestCase
 
 class SomeVariables(BaseVariables):
 
@@ -76,7 +76,7 @@ class IntegrationTests(TestCase):
                      'operator': 'equal_to',
                      'value': 'm'}
         err_string = 'Variable food is not defined in class SomeVariables'
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             check_condition(condition, SomeVariables())
 
     def test_check_incorrect_operator_name(self):

@@ -2,7 +2,7 @@ from business_rules.operators import (StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType)
 
-from . import TestCase
+from unittest import TestCase
 from decimal import Decimal
 import sys
 
@@ -51,7 +51,7 @@ class NumericOperatorTests(TestCase):
 
     def test_instantiate(self):
         err_string = "foo is not a valid numeric type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             NumericType("foo")
 
     def test_numeric_type_validates_and_casts_decimal(self):
@@ -83,7 +83,7 @@ class NumericOperatorTests(TestCase):
 
     def test_other_value_not_numeric(self):
         error_string = "10 is not a valid numeric type"
-        with self.assertRaisesRegexp(AssertionError, error_string):
+        with self.assertRaisesRegex(AssertionError, error_string):
             NumericType(10).equal_to("10")
 
     def test_numeric_greater_than(self):
@@ -121,10 +121,10 @@ class BooleanOperatorTests(TestCase):
 
     def test_instantiate(self):
         err_string = "foo is not a valid boolean type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             BooleanType("foo")
         err_string = "None is not a valid boolean type"
-        with self.assertRaisesRegexp(AssertionError, err_string):
+        with self.assertRaisesRegex(AssertionError, err_string):
             BooleanType(None)
 
     def test_boolean_is_true_and_is_false(self):

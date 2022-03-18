@@ -24,7 +24,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
-nosetests.xml
+.pytest_cache
 
 # Translations
 *.mo
@@ -36,3 +36,6 @@ nosetests.xml
 
 # Vim
 *.sw[po]
+
+# Virtual environments
+venv*/

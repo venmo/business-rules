@@ -657,10 +657,18 @@ class DataframeType(BaseType):
             comparator = self.replace_all_prefixes(comparator)
         else:
             comparator = self.replace_prefix(comparator)
-        grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
-        results = np.where(
-            vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
-        )
+        columns_list: List[str] = self.value.columns.tolist()
+        comparator_is_to_the_right_of_target: bool = columns_list.index(comparator) > columns_list.index(target)
+        if comparator_is_to_the_right_of_target:
+            grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
+            results = np.where(
+                vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
+            )
+        else:
+            grouped_dict = self.value.groupby([target])[comparator].apply(set).to_dict()
+            results = np.where(
+                vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[target])) <= 1, True, False
+            )
         return pd.Series(results)
 
     @type_operator(FIELD_DATAFRAME)

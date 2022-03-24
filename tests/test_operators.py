@@ -1225,7 +1225,7 @@ class DataframeOperatorTests(TestCase):
     def test_is_unique_relationship(self):
         """
         Test validates one-to-one relationship against a dataset.
-        One-to-one means that a pir of columns can be duplicated
+        One-to-one means that a pair of columns can be duplicated
         but its integrity should not be violated.
         """
         one_to_one_related_df = pandas.DataFrame.from_dict(
@@ -1240,8 +1240,18 @@ class DataframeOperatorTests(TestCase):
             ).equals(pandas.Series([True, True, True, True, True]))
         )
         self.assertTrue(
+            DataframeType({"value": one_to_one_related_df}).is_unique_relationship(
+                {"target": "STUDYDESC", "comparator": "STUDYID"}
+            ).equals(pandas.Series([True, True, True, True, True]))
+        )
+        self.assertTrue(
             DataframeType({"value": one_to_one_related_df, "column_prefix_map":{"--": "STUDY"}}).is_unique_relationship(
                 {"target": "--ID", "comparator": "--DESC"}
+            ).equals(pandas.Series([True, True, True, True, True]))
+        )
+        self.assertTrue(
+            DataframeType({"value": one_to_one_related_df, "column_prefix_map":{"--": "STUDY"}}).is_unique_relationship(
+                {"target": "--DESC", "comparator": "--ID"}
             ).equals(pandas.Series([True, True, True, True, True]))
         )
 
@@ -1254,11 +1264,14 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_unique_relationship(
             {"target": "TESTID", "comparator": "TESTNAME"}).equals(pandas.Series([True, False, True, False]))
         )
+        self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_unique_relationship(
+            {"target": "TESTNAME", "comparator": "TESTID"}).equals(pandas.Series([True, False, True, False]))
+        )
 
     def test_is_not_unique_relationship(self):
         """
         Test validates one-to-one relationship against a dataset.
-        One-to-one means that a pir of columns can be duplicated
+        One-to-one means that a pair of columns can be duplicated
         but its integrity should not be violated.
         """
         valid_df = pandas.DataFrame.from_dict(
@@ -1269,6 +1282,9 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(DataframeType({"value": valid_df}).is_not_unique_relationship(
             {"target": "VISITNUM", "comparator": "VISIT"}).equals(pandas.Series([False, False, False, False]))
+        )
+        self.assertTrue(DataframeType({"value": valid_df}).is_not_unique_relationship(
+            {"target": "VISIT", "comparator": "VISITNUM"}).equals(pandas.Series([False, False, False, False]))
         )
 
         valid_df_1 = pandas.DataFrame.from_dict(
@@ -1282,6 +1298,9 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": valid_df_1}).is_not_unique_relationship(
             {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([False, False, False, False]))
         )
+        self.assertTrue(DataframeType({"value": valid_df_1}).is_not_unique_relationship(
+            {"target": "VISITDESC", "comparator": "VISIT"}).equals(pandas.Series([False, False, False, False]))
+        )
 
         df_violates_one_to_one = pandas.DataFrame.from_dict(
             {
@@ -1291,6 +1310,9 @@ class DataframeOperatorTests(TestCase):
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_not_unique_relationship(
             {"target": "VISITNUM", "comparator": "VISIT"}).equals(pandas.Series([True, False, True, True]))
+        )
+        self.assertTrue(DataframeType({"value": df_violates_one_to_one}).is_not_unique_relationship(
+            {"target": "VISIT", "comparator": "VISITNUM"}).equals(pandas.Series([True, False, True, True]))
         )
 
         df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
@@ -1302,8 +1324,14 @@ class DataframeOperatorTests(TestCase):
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1}).is_not_unique_relationship(
             {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([False, True, True, False]))
         )
+        self.assertTrue(DataframeType({"value": df_violates_one_to_one_1}).is_not_unique_relationship(
+            {"target": "VISITDESC", "comparator": "VISIT"}).equals(pandas.Series([False, True, True, False]))
+        )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1, "column_prefix_map": {"--": "VI"}}).is_not_unique_relationship(
             {"target": "--SIT", "comparator": "--SITDESC"}).equals(pandas.Series([False, True, True, False]))
+        )
+        self.assertTrue(DataframeType({"value": df_violates_one_to_one_1, "column_prefix_map": {"--": "VI"}}).is_not_unique_relationship(
+            {"target": "--SITDESC", "comparator": "--SIT"}).equals(pandas.Series([False, True, True, False]))
         )
 
     def test_empty_within_except_last_row(self):

@@ -1,7 +1,7 @@
 import inspect
 import re
 from functools import wraps
-from typing import Union, Any
+from typing import Union, Any, List
 from uuid import uuid4
 
 import pandas

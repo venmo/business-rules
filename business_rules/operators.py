@@ -650,30 +650,53 @@ class DataframeType(BaseType):
         return pd.Series(results)
 
     @type_operator(FIELD_DATAFRAME)
-    def is_unique_relationship(self, other_value):
+    def is_not_unique_relationship(self, other_value) -> pd.Series:
+        """
+        Validates one-to-one relationship between two columns (target and comparator) against a dataset.
+        One-to-one means that a pair of columns can be duplicated but its integrity must not be violated:
+        one value of target always corresponds to one value of comparator. Examples:
+
+        Valid dataset:
+        STUDYID  STUDYDESC
+        1        A
+        2        B
+        3        C
+        1        A
+        2        B
+
+        Invalid dataset:
+        STUDYID  STUDYDESC
+        1        A
+        2        A
+        3        C
+        """
         target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         if isinstance(comparator, list):
             comparator = self.replace_all_prefixes(comparator)
         else:
             comparator = self.replace_prefix(comparator)
-        columns_list: List[str] = self.value.columns.tolist()
-        comparator_is_to_the_right_of_target: bool = columns_list.index(comparator) > columns_list.index(target)
-        if comparator_is_to_the_right_of_target:
-            grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
-            results = np.where(
-                vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
-            )
+        df_without_duplicates: pd.DataFrame = self.value.drop_duplicates()  # remove repeating rows
+        duplicated_comparator: pd.Series = df_without_duplicates[comparator].duplicated(keep=False)
+        duplicated_target: pd.Series = df_without_duplicates[target].duplicated(keep=False)
+        if duplicated_comparator.any() and not duplicated_target.any():
+            # flag errors in all rows where comparator is duplicated
+            duplicated_comparator_values = set(df_without_duplicates[duplicated_comparator][comparator])
+            return self.value[comparator].isin(duplicated_comparator_values)
+        elif duplicated_target.any() and not duplicated_comparator.any():
+            # flag errors in all rows where target is duplicated
+            duplicated_target_values = set(df_without_duplicates[duplicated_target][target])
+            return self.value[target].isin(duplicated_target_values)
+        elif duplicated_target.any() and duplicated_comparator.any():
+            # both target and comparator contain duplicates, such rows are invalid
+            return duplicated_target + duplicated_comparator
         else:
-            grouped_dict = self.value.groupby([target])[comparator].apply(set).to_dict()
-            results = np.where(
-                vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[target])) <= 1, True, False
-            )
-        return pd.Series(results)
+            # no errors have been found
+            return pd.Series([False] * len(self.value))
 
     @type_operator(FIELD_DATAFRAME)
-    def is_not_unique_relationship(self, other_value):
-        return ~self.is_unique_relationship(other_value)
+    def is_unique_relationship(self, other_value) -> pd.Series:
+        return ~self.is_not_unique_relationship(other_value)
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_unique_set(self, other_value):

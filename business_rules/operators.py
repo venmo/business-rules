@@ -680,25 +680,14 @@ class DataframeType(BaseType):
         # we need to check if ANY of the columns (target or comparator) is duplicated
         duplicated_comparator: pd.Series = df_without_duplicates[comparator].duplicated(keep=False)
         duplicated_target: pd.Series = df_without_duplicates[target].duplicated(keep=False)
-        if duplicated_comparator.any() and not duplicated_target.any():
-            # flag errors in all rows where comparator is duplicated
+        result = pd.Series([False] * len(self.value))
+        if duplicated_comparator.any():
             duplicated_comparator_values = set(df_without_duplicates[duplicated_comparator][comparator])
-            return self.value[comparator].isin(duplicated_comparator_values)
-        elif duplicated_target.any() and not duplicated_comparator.any():
-            # flag errors in all rows where target is duplicated
+            result += self.value[comparator].isin(duplicated_comparator_values)
+        if duplicated_target.any():
             duplicated_target_values = set(df_without_duplicates[duplicated_target][target])
-            return self.value[target].isin(duplicated_target_values)
-        elif duplicated_target.any() and duplicated_comparator.any():
-            # both target and comparator contain duplicates, such rows are invalid
-            duplicated_target_values = set(df_without_duplicates[duplicated_target][target])
-            duplicated_comparator_values = set(df_without_duplicates[duplicated_comparator][comparator])
-            return (
-                self.value[target].isin(duplicated_target_values) +
-                self.value[comparator].isin(duplicated_comparator_values)
-            )
-        else:
-            # no errors have been found
-            return pd.Series([False] * len(self.value))
+            result += self.value[target].isin(duplicated_target_values)
+        return result
 
     @type_operator(FIELD_DATAFRAME)
     def is_unique_relationship(self, other_value) -> pd.Series:

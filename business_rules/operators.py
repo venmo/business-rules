@@ -690,7 +690,12 @@ class DataframeType(BaseType):
             return self.value[target].isin(duplicated_target_values)
         elif duplicated_target.any() and duplicated_comparator.any():
             # both target and comparator contain duplicates, such rows are invalid
-            return duplicated_target + duplicated_comparator
+            duplicated_target_values = set(df_without_duplicates[duplicated_target][target])
+            duplicated_comparator_values = set(df_without_duplicates[duplicated_comparator][comparator])
+            return (
+                self.value[target].isin(duplicated_target_values) +
+                self.value[comparator].isin(duplicated_comparator_values)
+            )
         else:
             # no errors have been found
             return pd.Series([False] * len(self.value))

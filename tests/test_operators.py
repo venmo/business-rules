@@ -1317,21 +1317,21 @@ class DataframeOperatorTests(TestCase):
 
         df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
             {
-                "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
-                "VISITDESC": ["Doctor Consultation", "Heart Surgery", "Heart Surgery", "Long Lasting Treatment", ],
+                "VISIT": ["Consulting", "Consulting", "Surgery", "Consulting", "Treatment", ],
+                "VISITDESC": ["Doctor Consultation", "Doctor Consultation", "Heart Surgery", "Heart Surgery", "Long Lasting Treatment", ],
             }
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1}).is_not_unique_relationship(
-            {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([True, True, True, False]))
+            {"target": "VISIT", "comparator": "VISITDESC"}).equals(pandas.Series([True, True, True, True, False]))
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1}).is_not_unique_relationship(
-            {"target": "VISITDESC", "comparator": "VISIT"}).equals(pandas.Series([True, True, True, False]))
+            {"target": "VISITDESC", "comparator": "VISIT"}).equals(pandas.Series([True, True, True, True, False]))
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1, "column_prefix_map": {"--": "VI"}}).is_not_unique_relationship(
-            {"target": "--SIT", "comparator": "--SITDESC"}).equals(pandas.Series([True, True, True, False]))
+            {"target": "--SIT", "comparator": "--SITDESC"}).equals(pandas.Series([True, True, True, True, False]))
         )
         self.assertTrue(DataframeType({"value": df_violates_one_to_one_1, "column_prefix_map": {"--": "VI"}}).is_not_unique_relationship(
-            {"target": "--SITDESC", "comparator": "--SIT"}).equals(pandas.Series([True, True, True, False]))
+            {"target": "--SITDESC", "comparator": "--SIT"}).equals(pandas.Series([True, True, True, True, False]))
         )
 
     def test_empty_within_except_last_row(self):

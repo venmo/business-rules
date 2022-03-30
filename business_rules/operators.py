@@ -11,7 +11,7 @@ from .six import string_types, integer_types
 
 from .fields import (FIELD_DATAFRAME, FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
                      FIELD_SELECT, FIELD_SELECT_MULTIPLE)
-from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_date_component, \
+from .utils import fn_name_to_pretty_label, float_to_decimal, vectorized_is_valid, vectorized_compare_dates, \
     vectorized_is_complete_date, vectorized_len, vectorized_get_dict_key, vectorized_is_in, vectorized_case_insensitive_is_in
 from decimal import Decimal, Inexact, Context
 import operator
@@ -598,7 +598,7 @@ class DataframeType(BaseType):
         target = self.replace_prefix(other_value.get("target"))
         comparator = self.replace_prefix(other_value.get("comparator"))
         component = other_value.get("date_component")
-        results = np.where(operator(vectorized_date_component(component, self.value[target]), vectorized_date_component(component, self.value.get(comparator, comparator))), True, False)
+        results = np.where(vectorized_compare_dates(component, self.value[target], self.value.get(comparator, comparator), operator), True, False)
         return pd.Series(results)
     
     @type_operator(FIELD_DATAFRAME)

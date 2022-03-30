@@ -1008,7 +1008,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var1", "comparator": '2021'})
@@ -1035,6 +1036,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([False, False, False, False, False])))
         self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var6", "date_component": "month"})
             .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_equal_to({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
     
     def test_date_not_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -1044,7 +1049,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var1", "comparator": '2022'})
@@ -1057,6 +1063,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([False, False, False, False, False])))
         self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var6", "date_component": "hour"})
             .equals(pandas.Series([False, False, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_not_equal_to({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
     
     def test_date_less_than(self):
         df = pandas.DataFrame.from_dict(
@@ -1066,7 +1076,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var1", "comparator": '2022'})
@@ -1079,6 +1090,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([False, False, False, False, False])))
         self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var6", "date_component": "hour"})
             .equals(pandas.Series([False, False, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
 
     def test_date_greater_than(self):
         df = pandas.DataFrame.from_dict(
@@ -1088,7 +1103,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var1", "comparator": '2020'})
@@ -1101,6 +1117,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([False, False, False, False, False])))
         self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var6", "comparator": "var3", "date_component": "hour"})
             .equals(pandas.Series([False, False, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
     
     def test_date_greater_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -1110,7 +1130,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var1", "comparator": '2020'})
@@ -1125,6 +1146,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([True, True, True, True, True])))
         self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"})
             .equals(pandas.Series([True, True, True, True, True])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_greater_than_or_equal_to({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
     
     def test_date_less_than_or_equal_to(self):
         df = pandas.DataFrame.from_dict(
@@ -1134,7 +1159,8 @@ class DataframeOperatorTests(TestCase):
                 "var3": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var4": ["1997-07", "1997-07-16", "1997-07-16T19:20:30.45+01:00", "1997-07-16T19:20:30+01:00", "1997-07-16T19:20+01:00"],
                 "var5": ["1997-08", "1997-08-16", "1997-08-16T19:20:30.45+01:00", "1997-08-16T19:20:30+01:00", "1997-08-16T19:20+01:00"],
-                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"]
+                "var6": ["1998-08", "1998-08-11", "1998-08-17T20:21:31.46+01:00", "1998-08-17T20:21:31+01:00", "1998-08-17T20:21+01:00"],
+                "var7": ["", None, "", "", ""]
             }
         )
         self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var1", "comparator": '2022'})
@@ -1149,6 +1175,10 @@ class DataframeOperatorTests(TestCase):
             .equals(pandas.Series([True, True, True, True, True])))
         self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var6", "comparator": "var3", "date_component": "hour"})
             .equals(pandas.Series([True, True, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var3", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
+        self.assertTrue(DataframeType({"value": df}).date_less_than_or_equal_to({"target": "var7", "comparator": "var7", "date_component": "month"})
+            .equals(pandas.Series([False, False, False, False, False])))
         
     def test_is_incomplete_date(self):
         df = pandas.DataFrame.from_dict(

@@ -126,8 +126,15 @@ def is_in(value, values):
 def case_insensitive_is_in(value, values):
     return value in map(str.lower, values)
 
+def compare_dates(component, target, comparator, operator):
+    if not target or not comparator:
+        # Comparison should return false if either is empty or None
+        return False
+    else:
+        return operator(get_date_component(component, target), get_date_component(component, comparator))
+
 vectorized_is_complete_date = np.vectorize(is_complete_date)
-vectorized_date_component = np.vectorize(get_date_component)
+vectorized_compare_dates = np.vectorize(compare_dates)
 vectorized_is_valid = np.vectorize(is_valid_date)
 vectorized_get_dict_key = np.vectorize(get_dict_key_val)
 vectorized_is_in = np.vectorize(is_in)

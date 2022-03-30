@@ -1,7 +1,7 @@
 import inspect
 import re
 from functools import wraps
-from typing import Union, Any
+from typing import Union, Any, List
 from uuid import uuid4
 
 import pandas
@@ -650,22 +650,48 @@ class DataframeType(BaseType):
         return pd.Series(results)
 
     @type_operator(FIELD_DATAFRAME)
-    def is_unique_relationship(self, other_value):
+    def is_not_unique_relationship(self, other_value) -> pd.Series:
+        """
+        Validates one-to-one relationship between two columns (target and comparator) against a dataset.
+        One-to-one means that a pair of columns can be duplicated but its integrity must not be violated:
+        one value of target always corresponds to one value of comparator. Examples:
+
+        Valid dataset:
+        STUDYID  STUDYDESC
+        1        A
+        2        B
+        3        C
+        1        A
+        2        B
+
+        Invalid dataset:
+        STUDYID  STUDYDESC
+        1        A
+        2        A
+        3        C
+        """
         target = self.replace_prefix(other_value.get("target"))
         comparator = other_value.get("comparator")
         if isinstance(comparator, list):
             comparator = self.replace_all_prefixes(comparator)
         else:
             comparator = self.replace_prefix(comparator)
-        grouped_dict = self.value.groupby([comparator])[target].apply(set).to_dict()
-        results = np.where(
-            vectorized_len(vectorized_get_dict_key(grouped_dict, self.value[comparator])) <= 1, True, False
-        )
-        return pd.Series(results)
+        df_without_duplicates: pd.DataFrame = self.value.drop_duplicates()  # remove repeating rows
+        # we need to check if ANY of the columns (target or comparator) is duplicated
+        duplicated_comparator: pd.Series = df_without_duplicates[comparator].duplicated(keep=False)
+        duplicated_target: pd.Series = df_without_duplicates[target].duplicated(keep=False)
+        result = pd.Series([False] * len(self.value))
+        if duplicated_comparator.any():
+            duplicated_comparator_values = set(df_without_duplicates[duplicated_comparator][comparator])
+            result += self.value[comparator].isin(duplicated_comparator_values)
+        if duplicated_target.any():
+            duplicated_target_values = set(df_without_duplicates[duplicated_target][target])
+            result += self.value[target].isin(duplicated_target_values)
+        return result
 
     @type_operator(FIELD_DATAFRAME)
-    def is_not_unique_relationship(self, other_value):
-        return ~self.is_unique_relationship(other_value)
+    def is_unique_relationship(self, other_value) -> pd.Series:
+        return ~self.is_not_unique_relationship(other_value)
 
     @type_operator(FIELD_DATAFRAME)
     def is_not_unique_set(self, other_value):

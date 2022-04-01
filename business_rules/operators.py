@@ -328,8 +328,7 @@ class DataframeType(BaseType):
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
         comparison_data = self.convert_string_data_to_lower(comparison_data)
-        results = np.where(self.value[target].str.lower() == comparison_data, True, False)
-        return pd.Series(results)
+        return (self.value[target].str.lower() == comparison_data) & ~self.value[target].isin(["", None])
 
     @type_operator(FIELD_DATAFRAME)
     def not_equal_to_case_insensitive(self, other_value):

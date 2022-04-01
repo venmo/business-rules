@@ -263,7 +263,7 @@ class DataframeType(BaseType):
     name = "dataframe"
 
     def __init__(self, data):
-        self.value = self._assert_valid_value_and_cast(data["value"])
+        self.value: pd.DataFrame = self._assert_valid_value_and_cast(data["value"])
         self.column_prefix_map = data.get("column_prefix_map", {})
         self.relationship_data = data.get("relationship_data", {})
         self.value_level_metadata = data.get("value_level_metadata", [])
@@ -300,7 +300,7 @@ class DataframeType(BaseType):
             return comparator
         else:
             return self.value.get(comparator, comparator)
-    
+
     def is_column_of_iterables(self, column):
         return isinstance(column, pandas.core.series.Series) and (isinstance(column.iloc[0], list) or  isinstance(column.iloc[0], set))
 
@@ -314,13 +314,12 @@ class DataframeType(BaseType):
         return not self.exists(other_value)
     
     @type_operator(FIELD_DATAFRAME)
-    def equal_to(self, other_value):
+    def equal_to(self, other_value) -> pd.Series:
         target = self.replace_prefix(other_value.get("target"))
         value_is_literal = other_value.get("value_is_literal", False)
         comparator = self.replace_prefix(other_value.get("comparator")) if not value_is_literal else other_value.get("comparator")
         comparison_data = self.get_comparator_data(comparator, value_is_literal)
-        results = np.where(self.value[target] == comparison_data, True, False)
-        return pd.Series(results)
+        return self.value[target].eq(comparison_data) & ~self.value[target].isin(["", None])
 
     @type_operator(FIELD_DATAFRAME)
     def equal_to_case_insensitive(self, other_value):

@@ -227,36 +227,40 @@ class DataframeOperatorTests(TestCase):
 
     def test_equal_to(self):
         df = pandas.DataFrame.from_dict({
-            "var1": [1,2,4],
-            "var2": [3,5,6],
-            "var3": [1,3,8],
-            "var4": ["test", "issue", "one"]
+            "var1": [1, 2, 4, "", 7, ],
+            "var2": [3, 5, 6, "", 2, ],
+            "var3": [1, 3, 8, "", 7, ],
+            "var4": ["test", "issue", "one", "", "two", ]
         })
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
+            "comparator": ""
+        }).equals(pandas.Series([False, False, False, False, False, ])))
+        self.assertTrue(DataframeType({"value": df}).equal_to({
+            "target": "var1",
             "comparator": 2
-        }).equals(pandas.Series([False, True, False])))
+        }).equals(pandas.Series([False, True, False, False, False, ])))
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": "var3"
-        }).equals(pandas.Series([True, False, False])))
+        }).equals(pandas.Series([True, False, False, False, True, ])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).equal_to({
             "target": "--r1",
             "comparator": "--r3"
-        }).equals(pandas.Series([True, False, False])))
+        }).equals(pandas.Series([True, False, False, False, True, ])))
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": "var2"
-        }).equals(pandas.Series([False, False, False])))
+        }).equals(pandas.Series([False, False, False, False, False, ])))
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var1",
             "comparator": 20
-        }).equals(pandas.Series([False, False, False])))
+        }).equals(pandas.Series([False, False, False, False, False, ])))
         self.assertTrue(DataframeType({"value": df}).equal_to({
             "target": "var4",
             "comparator": "var1",
             "value_is_literal": True
-        }).equals(pandas.Series([False, False, False])))
+        }).equals(pandas.Series([False, False, False, False, False, ])))
 
     def test_not_equal_to(self):
         df = pandas.DataFrame.from_dict({
@@ -284,31 +288,35 @@ class DataframeOperatorTests(TestCase):
 
     def test_equal_to_case_insensitive(self):
         df = pandas.DataFrame.from_dict({
-            "var1": ["word", "new", "val"],
-            "var2": ["WORD", "test", "VAL"],
-            "var3": ["LET", "GO", "read"]
+            "var1": ["word", "", "new", "val"],
+            "var2": ["WORD", "", "test", "VAL"],
+            "var3": ["LET", "", "GO", "read"]
         })
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "NEW"
-        }).equals(pandas.Series([False, True, False])))
+        }).equals(pandas.Series([False, False, True, False])))
+        self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
+            "target": "var1",
+            "comparator": ""
+        }).equals(pandas.Series([False, False, False, False])))
         self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).equal_to_case_insensitive({
             "target": "--r1",
             "comparator": "--r2"
-        }).equals(pandas.Series([True, False, True])))
+        }).equals(pandas.Series([True, False, False, True])))
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var2"
-        }).equals(pandas.Series([True, False, True])))
+        }).equals(pandas.Series([True, False, False, True])))
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var3"
-        }).equals(pandas.Series([False, False, False])))
+        }).equals(pandas.Series([False, False, False, False])))
         self.assertTrue(DataframeType({"value": df}).equal_to_case_insensitive({
             "target": "var1",
             "comparator": "var1",
             "value_is_literal": True
-        }).equals(pandas.Series([False, False, False])))
+        }).equals(pandas.Series([False, False, False, False])))
 
     def test_not_equal_to_case_insensitive(self):
         df = pandas.DataFrame.from_dict({

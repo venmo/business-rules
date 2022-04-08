@@ -674,7 +674,8 @@ class DataframeType(BaseType):
             comparator = self.replace_all_prefixes(comparator)
         else:
             comparator = self.replace_prefix(comparator)
-        df_without_duplicates: pd.DataFrame = self.value.drop_duplicates()  # remove repeating rows
+        # remove repeating rows
+        df_without_duplicates: pd.DataFrame = self.value[[target, comparator]].drop_duplicates()
         # we need to check if ANY of the columns (target or comparator) is duplicated
         duplicated_comparator: pd.Series = df_without_duplicates[comparator].duplicated(keep=False)
         duplicated_target: pd.Series = df_without_duplicates[target].duplicated(keep=False)

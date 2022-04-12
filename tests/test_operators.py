@@ -1538,7 +1538,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_length({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_conformant_value_length({})
         self.assertTrue(result.equals(pandas.Series([False, True, False])))
 
     def test_non_conformant_value_data_type(self):
@@ -1563,7 +1563,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_data_type({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_conformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([False, True, False])))
 
     def test_conformant_value_length(self):
@@ -1588,7 +1588,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_length({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).conformant_value_length({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
     def test_conformant_value_data_type(self):
@@ -1613,7 +1613,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).conformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
     def test_has_next_corresponding_record(self):

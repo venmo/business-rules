@@ -1269,6 +1269,7 @@ class DataframeOperatorTests(TestCase):
         one_to_one_related_df = pandas.DataFrame.from_dict(
             {
                 "STUDYID": [1, 2, 3, 1, 2],
+                "USUBJID": ["TEST", "TEST-1", "TEST-2", "TEST-3", "TEST-4", ],
                 "STUDYDESC": ["Russia", "USA", "China", "Russia", "USA", ],
             }
         )
@@ -1295,6 +1296,7 @@ class DataframeOperatorTests(TestCase):
 
         df_violates_one_to_one = pandas.DataFrame.from_dict(
             {
+                "STUDYID": ["TEST", "TEST-1", "TEST-2", "TEST-3", ],
                 "TESTID": [1, 2, 1, 3],
                 "TESTNAME": ["Functional", "Stress", "Functional", "Stress", ],
             }
@@ -1314,6 +1316,7 @@ class DataframeOperatorTests(TestCase):
         """
         valid_df = pandas.DataFrame.from_dict(
             {
+                "STUDYID": ["TEST", "TEST-1", "TEST-2", "TEST-3", ],
                 "VISITNUM": [1, 2, 1, 3],
                 "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
             }
@@ -1327,6 +1330,7 @@ class DataframeOperatorTests(TestCase):
 
         valid_df_1 = pandas.DataFrame.from_dict(
             {
+                "STUDYID": ["TEST", "TEST-1", "TEST-2", "TEST-3", ],
                 "VISIT": ["Consulting", "Surgery", "Consulting", "Treatment", ],
                 "VISITDESC": [
                     "Doctor Consultation", "Heart Surgery", "Doctor Consultation", "Long Lasting Treatment",
@@ -1342,6 +1346,7 @@ class DataframeOperatorTests(TestCase):
 
         df_violates_one_to_one = pandas.DataFrame.from_dict(
             {
+                "STUDYID": ["TEST", "TEST-1", "TEST-2", "TEST-3", ],
                 "VISITNUM": [1, 2, 1, 3],
                 "VISIT": ["Consulting", "Surgery", "Consulting", "Consulting", ],
             }
@@ -1355,6 +1360,7 @@ class DataframeOperatorTests(TestCase):
 
         df_violates_one_to_one_1 = pandas.DataFrame.from_dict(
             {
+                "STUDYID": ["TEST", "TEST-1", "TEST-2", "TEST-3", "TEST-4", ],
                 "VISIT": ["Consulting", "Consulting", "Surgery", "Consulting", "Treatment", ],
                 "VISITDESC": ["Doctor Consultation", "Doctor Consultation", "Heart Surgery", "Heart Surgery", "Long Lasting Treatment", ],
             }
@@ -1532,7 +1538,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_length({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_conformant_value_length({})
         self.assertTrue(result.equals(pandas.Series([False, True, False])))
 
     def test_non_conformant_value_data_type(self):
@@ -1557,7 +1563,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_comformant_value_data_type({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).non_conformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([False, True, False])))
 
     def test_conformant_value_length(self):
@@ -1582,7 +1588,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_length({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).conformant_value_length({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
     def test_conformant_value_data_type(self):
@@ -1607,7 +1613,7 @@ class DataframeOperatorTests(TestCase):
             }
         ]
 
-        result = DataframeType({"value": df, "value_level_metadata": vlm }).comformant_value_data_type({})
+        result = DataframeType({"value": df, "value_level_metadata": vlm }).conformant_value_data_type({})
         self.assertTrue(result.equals(pandas.Series([True, False, False])))
 
     def test_has_next_corresponding_record(self):

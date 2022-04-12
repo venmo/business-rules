@@ -674,7 +674,8 @@ class DataframeType(BaseType):
             comparator = self.replace_all_prefixes(comparator)
         else:
             comparator = self.replace_prefix(comparator)
-        df_without_duplicates: pd.DataFrame = self.value.drop_duplicates()  # remove repeating rows
+        # remove repeating rows
+        df_without_duplicates: pd.DataFrame = self.value[[target, comparator]].drop_duplicates()
         # we need to check if ANY of the columns (target or comparator) is duplicated
         duplicated_comparator: pd.Series = df_without_duplicates[comparator].duplicated(keep=False)
         duplicated_target: pd.Series = df_without_duplicates[target].duplicated(keep=False)
@@ -740,28 +741,28 @@ class DataframeType(BaseType):
         return ~self.is_valid_relationship(other_value)
 
     @type_operator(FIELD_DATAFRAME)
-    def non_comformant_value_data_type(self, other_value):
+    def non_conformant_value_data_type(self, other_value):
         results = False
         for vlm in self.value_level_metadata:
             results |= self.value.apply(lambda row: vlm["filter"](row) and not vlm["type_check"](row), axis=1)
         return pd.Series(results.values)
 
     @type_operator(FIELD_DATAFRAME)
-    def non_comformant_value_length(self, other_value):
+    def non_conformant_value_length(self, other_value):
         results = False
         for vlm in self.value_level_metadata:
             results |= self.value.apply(lambda row: vlm["filter"](row) and not vlm["length_check"](row), axis=1)
         return pd.Series(results.values)
     
     @type_operator(FIELD_DATAFRAME)
-    def comformant_value_data_type(self, other_value):
+    def conformant_value_data_type(self, other_value):
         results = False
         for vlm in self.value_level_metadata:
             results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["type_check"](row), axis=1)
         return pd.Series(results.values)
 
     @type_operator(FIELD_DATAFRAME)
-    def comformant_value_length(self, other_value):
+    def conformant_value_length(self, other_value):
         results = False
         for vlm in self.value_level_metadata:
             results |= self.value.apply(lambda row: vlm["filter"](row) and vlm["length_check"](row), axis=1)

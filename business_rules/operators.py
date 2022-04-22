@@ -305,13 +305,13 @@ class DataframeType(BaseType):
         return isinstance(column, pandas.core.series.Series) and (isinstance(column.iloc[0], list) or  isinstance(column.iloc[0], set))
 
     @type_operator(FIELD_DATAFRAME)
-    def exists(self, other_value):
+    def exists(self, other_value) -> pd.Series:
         target_column = self.replace_prefix(other_value.get("target"))
-        return target_column in self.value
+        return pd.Series([target_column in self.value] * len(self.value))
 
     @type_operator(FIELD_DATAFRAME)
     def not_exists(self, other_value):
-        return not self.exists(other_value)
+        return ~self.exists(other_value)
     
     @type_operator(FIELD_DATAFRAME)
     def equal_to(self, other_value) -> pd.Series:

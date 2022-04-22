@@ -1,3 +1,5 @@
+import pandas as pd
+
 from business_rules.operators import (DataframeType, StringType,
                                       NumericType, BooleanType, SelectType,
                                       SelectMultipleType, GenericType)
@@ -209,21 +211,31 @@ class SelectMultipleOperatorTests(TestCase):
 class DataframeOperatorTests(TestCase):
     def test_exists(self):
         df = pandas.DataFrame.from_dict({
-            "var1": [1,2,4],
-            "var2": [3,5,6],
+            "var1": [1, 2, 4, ],
+            "var2": [3, 5, 6, ],
         })
-        self.assertTrue(DataframeType({"value": df}).exists({"target": "var1"}))
-        self.assertTrue(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).exists({"target": "--r1"}))
-        self.assertFalse(DataframeType({"value": df}).exists({"target": "invalid"}))
+        result: pd.Series = DataframeType({"value": df}).exists({"target": "var1"})
+        self.assertTrue(result.equals(pd.Series([True, True, True, ])))
+
+        result: pd.Series = DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).exists({"target": "--r1"})
+        self.assertTrue(result.equals(pd.Series([True, True, True, ])))
+
+        result: pd.Series = DataframeType({"value": df}).exists({"target": "invalid"})
+        self.assertTrue(result.equals(pd.Series([False, False, False, ])))
 
     def test_not_exists(self):
         df = pandas.DataFrame.from_dict({
-            "var1": [1,2,4],
-            "var2": [3,5,6]
+            "var1": [1, 2, 4, ],
+            "var2": [3, 5, 6, ]
         })
-        self.assertTrue(DataframeType({"value": df}).not_exists({"target": "invalid"}))
-        self.assertFalse(DataframeType({"value": df}).not_exists({"target": "var1"}))
-        self.assertFalse(DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_exists({"target": "--r1"}))
+        result: pd.Series = DataframeType({"value": df}).not_exists({"target": "invalid"})
+        self.assertTrue(result.equals(pd.Series([True, True, True, ])))
+
+        result: pd.Series = DataframeType({"value": df}).not_exists({"target": "var1"})
+        self.assertTrue(result.equals(pd.Series([False, False, False, ])))
+
+        result: pd.Series = DataframeType({"value": df, "column_prefix_map": {"--": "va"}}).not_exists({"target": "--r1"})
+        self.assertTrue(result.equals(pd.Series([False, False, False, ])))
 
     def test_equal_to(self):
         df = pandas.DataFrame.from_dict({

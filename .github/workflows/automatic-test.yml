@@ -30,7 +30,7 @@ jobs:
       - name: Setup venv
         run: |
           python3 -m venv myvenv
-          .\myvenv\Scripts\activate
+          source ./myvenv/Scripts/activate
           
     # Installing all dependencies
       - name: Install requirements

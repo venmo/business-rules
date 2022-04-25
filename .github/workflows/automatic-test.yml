@@ -1,0 +1,50 @@
+# This workflow will create venv, install requirements & run nosetests.
+# The purpose is to run unit tests automatically when we push a remote branch to business-rule repo
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches:
+      -master
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.10'
+
+      # Installing virtual environment
+      - name: Setup venv
+        run: |
+        python -m venv myvenv
+        .\myvenv\Scripts\activate
+        
+
+      # Installing all dependencies
+      - name: Install requirements
+        run: |
+          pip install -r dev-requirements.txt
+      
+      # running the tests
+      -name: Running tests
+        run: |
+          cd tests
+          nosetests test_operators.py
+          
+          

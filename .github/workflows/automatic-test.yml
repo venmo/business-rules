@@ -29,9 +29,8 @@ jobs:
     # Installing virtual environment
       - name: Setup venv
         run: |
-          pip install venv
-          python -m venv venv386
-          .\venv386\Scripts\activate
+          python3 -m venv myvenv
+          .\myvenv\Scripts\activate
           
     # Installing all dependencies
       - name: Install requirements

@@ -1630,7 +1630,7 @@ class DataframeOperatorTests(TestCase):
 
     def test_has_next_corresponding_record(self):
         """
-        Test for has_next_corresponding_record operator and trial.
+        Test for has_next_corresponding_record operator.
         """
         valid_df = pandas.DataFrame.from_dict(
             {

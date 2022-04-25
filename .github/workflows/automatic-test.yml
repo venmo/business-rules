@@ -4,19 +4,16 @@
 name: CI
 
 # Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches:
-      -master
+#Triggers the workflow on push or pull request events but only for the master branch
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [push]
 
+
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -29,20 +26,19 @@ jobs:
         with:
           python-version: '3.8.10'
 
-      # Installing virtual environment
+    # Installing virtual environment
       - name: Setup venv
         run: |
-        python -m venv myvenv
-        .\myvenv\Scripts\activate
-        
-
-      # Installing all dependencies
+         python -m venv venv386
+          .\venv386\Scripts\activate
+          
+    # Installing all dependencies
       - name: Install requirements
         run: |
           pip install -r dev-requirements.txt
       
-      # running the tests
-      -name: Running tests
+    # running the tests
+      - name: Running Tests
         run: |
           cd tests
           nosetests test_operators.py

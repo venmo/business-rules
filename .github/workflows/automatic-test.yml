@@ -29,8 +29,9 @@ jobs:
     # Installing virtual environment
       - name: Setup venv
         run: |
-          python3 -m venv myvenv
-          source ./myvenv/Scripts/activate
+          pip install --upgrade pip
+          python3.8 -m venv env
+          source env/Scripts/activate
           
     # Installing all dependencies
       - name: Install requirements

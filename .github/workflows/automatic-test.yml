@@ -29,7 +29,8 @@ jobs:
     # Installing virtual environment
       - name: Setup venv
         run: |
-         python -m venv venv386
+          pip install venv
+          python -m venv venv386
           .\venv386\Scripts\activate
           
     # Installing all dependencies

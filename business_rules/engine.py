@@ -26,14 +26,19 @@ def run(rule, defined_variables, defined_actions):
 def check_conditions_recursively(conditions, defined_variables):
     keys = list(conditions.keys())
     if keys == ['all']:
-        assert len(conditions['all']) >= 1
+        if len(conditions['all']) == 0:
+            # All 0 of 0 conditions, i.e. unconditional.
+            return True
         for condition in conditions['all']:
             if not check_conditions_recursively(condition, defined_variables):
                 return False
         return True
 
     elif keys == ['any']:
-        assert len(conditions['any']) >= 1
+        if len(conditions['any']) == 0:
+            # Any 0 of 0 conditions: Could argue this is always false,
+            # but treating it as unconditional:
+            return True
         for condition in conditions['any']:
             if check_conditions_recursively(condition, defined_variables):
                 return True

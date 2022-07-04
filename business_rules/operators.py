@@ -1,10 +1,12 @@
 import inspect
 import re
+from datetime import datetime
 from functools import wraps
 from six import string_types, integer_types
 
 from .fields import (FIELD_TEXT, FIELD_NUMERIC, FIELD_NO_INPUT,
-                     FIELD_SELECT, FIELD_SELECT_MULTIPLE)
+                     FIELD_SELECT, FIELD_SELECT_MULTIPLE,
+                     FIELD_DATETIME)
 from .utils import fn_name_to_pretty_label, float_to_decimal
 from decimal import Decimal, Inexact, Context
 
@@ -235,3 +237,40 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+
+@export_type
+class DateTimeType(BaseType):
+    # This implementation handles only naive datetimes, as provided by
+    # HTML5 datetime-local inputs. For another approach, see:
+    #  business_rules in https://github.com/TencentBlueKing/bk-itsm/
+
+    name = "datetime"
+    # HTML5 datetime-local text format:
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M"
+
+    def _assert_valid_value_and_cast(self, value):
+        """
+        Parse string into datetime.datetime instance.
+        """
+        if isinstance(value, datetime):
+            return value
+
+        try:
+            return datetime.strptime(value, self.DATETIME_FORMAT)
+        except (ValueError, TypeError):
+            raise AssertionError("{0} is not a valid date/time.".format(value))
+
+    @type_operator(FIELD_DATETIME, label="Equal To")
+    def equal_to(self, other_datetime):
+        return self.value == other_datetime
+
+    @type_operator(FIELD_DATETIME, label="After")
+    def after_than_or_equal_to(self, other_datetime):
+        print(f'after_than_or_equal_to {self.value} {other_datetime}')
+        return self.value >= other_datetime
+
+    @type_operator(FIELD_DATETIME, label="Before")
+    def before_than_or_equal_to(self, other_datetime):
+        print(f'before_than_or_equal_to {self.value} {other_datetime}')
+        return self.value <= other_datetime

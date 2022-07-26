@@ -1,3 +1,5 @@
+import pytest
+
 from business_rules.engine import check_condition
 from business_rules import export_rule_data
 from business_rules.actions import rule_action, BaseActions
@@ -45,7 +47,6 @@ class IntegrationTests(TestCase):
         condition = {
             'name': 'true_bool',
             'operator': 'is_true',
-            'value': ''
         }
         res = check_condition(condition, SomeVariables())
         self.assertTrue(res)
@@ -54,10 +55,18 @@ class IntegrationTests(TestCase):
         condition = {
             'name': 'true_bool',
             'operator': 'is_false',
-            'value': ''
         }
         res = check_condition(condition, SomeVariables())
         self.assertFalse(res)
+
+    def test_check_when_incomplete_rule(self):
+        condition = {'name': 'foo',
+                     'operator': 'contains'}
+        with pytest.raises(AssertionError) as exc_info:
+            self.assertTrue(check_condition(condition, SomeVariables()))
+
+        assert str(exc_info.value) == "Operator 'contains' needs a value property"
+
 
     def test_check_true_condition_happy_path(self):
         condition = {'name': 'foo',

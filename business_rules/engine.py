@@ -50,7 +50,7 @@ def check_condition(condition, defined_variables):
     variables, values, and the comparison operator. The defined_variables
     object must have a variable defined for any variables in this condition.
     """
-    name, op, value = condition['name'], condition['operator'], condition['value']
+    name, op, value = condition['name'], condition['operator'], condition.get('value', ValueError)
     operator_type = _get_variable_value(defined_variables, name)
     return _do_operator_comparison(operator_type, op, value)
 
@@ -82,6 +82,8 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
     method = getattr(operator_type, operator_name, fallback)
     if getattr(method, 'input_type', '') == FIELD_NO_INPUT:
         return method()
+    if comparison_value == ValueError:
+        raise AssertionError("Operator '{0}' needs a value property".format(operator_name))
     return method(comparison_value)
 
 

@@ -96,7 +96,7 @@ class StringType(BaseType):
         return bool(self.value)
 
     @type_operator(FIELD_TEXT)
-    def contains_in(self, other_string):
+    def is_in(self, other_string):
         return self.value in other_string
 
 

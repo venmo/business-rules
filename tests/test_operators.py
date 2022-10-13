@@ -46,6 +46,9 @@ class StringOperatorTests(TestCase):
         self.assertFalse(StringType("").non_empty())
         self.assertFalse(StringType(None).non_empty())
 
+    def test_string_is_in(self):
+        self.assertTrue(StringType("hello").is_in("hello world"))
+        self.assertFalse(StringType("word").is_in("hello world"))
 
 class NumericOperatorTests(TestCase):
 

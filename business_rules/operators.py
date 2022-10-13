@@ -95,6 +95,10 @@ class StringType(BaseType):
     def non_empty(self):
         return bool(self.value)
 
+    @type_operator(FIELD_TEXT)
+    def contains_in(self, other_string):
+        return self.value in other_string
+
 
 @export_type
 class NumericType(BaseType):

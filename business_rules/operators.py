@@ -88,7 +88,7 @@ class StringType(BaseType):
         return other_string in self.value
     
     @type_operator(FIELD_TEXT)
-    def contains(self, other_string):
+    def not_contains(self, other_string):
         return other_string not in self.value
 
     @type_operator(FIELD_TEXT)

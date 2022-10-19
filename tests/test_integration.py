@@ -71,6 +71,30 @@ class IntegrationTests(TestCase):
                      'value': 'm'}
         self.assertFalse(check_condition(condition, SomeVariables()))
 
+    def test_check_false_condition_not_contains_test1(self):
+        condition = {'name': 'foo',
+                     'operator': 'does_not_contain',
+                     'value': 'o'}
+        self.assertFalse(check_condition(condition, SomeVariables()))
+    
+    def test_check_true_condition_not_contains_test2(self):
+        condition = {'name': 'foo',
+                     'operator': 'does_not_contain',
+                     'value': 'OO'}
+        self.assertTrue(check_condition(condition, SomeVariables()))
+    
+    def test_check_false_condition_not_contains_test1(self):
+        condition = {'name': 'foo',
+                     'operator': 'does_not_contain_case_insensitive',
+                     'value': 'FO'}
+        self.assertFalse(check_condition(condition, SomeVariables()))
+    
+    def test_check_true_condition_not_contains_test2(self):
+        condition = {'name': 'foo',
+                     'operator': 'does_not_contain',
+                     'value': '$$'}
+        self.assertTrue(check_condition(condition, SomeVariables()))
+
     def test_check_incorrect_method_name(self):
         condition = {'name': 'food',
                      'operator': 'equal_to',

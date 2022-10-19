@@ -46,14 +46,23 @@ class StringOperatorTests(TestCase):
         self.assertFalse(StringType("").non_empty())
         self.assertFalse(StringType(None).non_empty())
 
-    def test_not_contains(self):
-        string1 = StringType("hello")
-        string2 = StringType("t")
-        string3 = StringType("helloworld")
+    def test_does_not_contain(self):
+        self.assertTrue(StringType("hello").does_not_contain("helloworld"))
+        self.assertTrue(StringType("hello").does_not_contain("t"))
+        self.assertFalse(StringType("hello").does_not_contain("hello"))
+        self.assertFalse(StringType("10010 Testing dr $$").does_not_contain("$$"))
+        self.assertTrue(StringType("10010 Testing dr $$").does_not_contain("Ca"))
+        self.assertTrue(StringType("10010 Testing dr CA").does_not_contain("Ca"))
+        self.assertFalse(StringType("10010 Testing dr CA").does_not_contain("CA"))
 
-        self.assertTrue(string1.not_contain(string2))
-        self.assertTrue(string1.not_contain(string3))
-        self.assertFalse(string3.not_contain(string1))
+    def test_does_not_contain_case_insensitive(self):
+        self.assertTrue(StringType("hello").does_not_contain_case_insensitive("helloworld"))
+        self.assertTrue(StringType("hello").does_not_contain_case_insensitive("t"))
+        self.assertFalse(StringType("hello").does_not_contain_case_insensitive("HEllO"))
+        self.assertFalse(StringType("10010 Testing dr $$").does_not_contain_case_insensitive("$$"))
+        self.assertFalse(StringType("10010 Testing dr CA").does_not_contain_case_insensitive("Ca"))
+        self.assertFalse(StringType("10010 Testing dr CA").does_not_contain_case_insensitive("CA"))
+
 
 class NumericOperatorTests(TestCase):
 

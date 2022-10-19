@@ -46,6 +46,14 @@ class StringOperatorTests(TestCase):
         self.assertFalse(StringType("").non_empty())
         self.assertFalse(StringType(None).non_empty())
 
+    def test_not_contains(self):
+        string1 = StringType("hello")
+        string2 = StringType("t")
+        string3 = StringType("helloworld")
+
+        self.assertTrue(string1.not_contain(string2))
+        self.assertTrue(string1.not_contain(string3))
+        self.assertFalse(string3.not_contain(string1))
 
 class NumericOperatorTests(TestCase):
 

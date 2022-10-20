@@ -1,11 +1,5 @@
 History
 -------
-1.0.6
-+++++
-released 2022-10-19
-
-- Adds String Variable Operator "Does not Contain" and respective tests
-
 1.0.5
 +++++
 released 2020-01-21

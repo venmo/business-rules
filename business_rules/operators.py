@@ -86,14 +86,6 @@ class StringType(BaseType):
     @type_operator(FIELD_TEXT)
     def contains(self, other_string):
         return other_string in self.value
-    
-    @type_operator(FIELD_TEXT)
-    def does_not_contain(self, other_string):
-        return other_string not in self.value
-
-    @type_operator(FIELD_TEXT)
-    def does_not_contain_case_insensitive(self, other_string):
-        return other_string.lower() not in self.value.lower()
 
     @type_operator(FIELD_TEXT)
     def matches_regex(self, regex):

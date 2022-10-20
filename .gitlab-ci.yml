@@ -7,8 +7,8 @@ upload_egg:
     # Check if the package is actually installable
     - apt-get install -y python curl
     - apt-get install -y python-dev libffi-dev
-    - curl "https://bootstrap.pypa.io/pip/2.7/get-pip.py" -o "get-pip.py"
-    - python get-pip.py 'pip==20.3.4'
+    - curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+    - python get-pip.py
     - pip install pyOpenSSL ndg-httpsclient pyasn1
 
     # make sure there's only 1 "version=" line in the business_rules/__init__.py file

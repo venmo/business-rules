@@ -87,6 +87,10 @@ class StringType(BaseType):
     def contains(self, other_string):
         return other_string in self.value
 
+    @type_operator(FIELD_TEXT, label="Contains (case insensitive)")
+    def contains_case_insensitive(self, other_string):
+        return other_string.lower() in self.value.lower()
+
     @type_operator(FIELD_TEXT)
     def matches_regex(self, regex):
         return re.search(regex, self.value)
@@ -94,6 +98,10 @@ class StringType(BaseType):
     @type_operator(FIELD_NO_INPUT)
     def non_empty(self):
         return bool(self.value)
+
+    @type_operator(FIELD_NO_INPUT)
+    def is_empty(self):
+        return self.value is None or self.value.strip() == ""
 
 
 @export_type
@@ -118,6 +126,10 @@ class NumericType(BaseType):
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
         return abs(self.value - other_numeric) <= self.EPSILON
+
+    @type_operator(FIELD_NUMERIC)
+    def not_equal_to(self, other_numeric):
+        return abs(self.value - other_numeric) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than(self, other_numeric):

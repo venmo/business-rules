@@ -133,6 +133,10 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).less_than_or_equal_to(10.000002))
         self.assertTrue(NumericType(10).less_than_or_equal_to(10))
 
+    def test_numeric_not_equal_to(self):
+        self.assertFalse(NumericType(1).not_equal_to(1))
+        self.assertTrue(NumericType(1).not_equal_to(2))
+        self.assertFalse(NumericType(10).not_equal_to(10.000001))
 
 class BooleanOperatorTests(TestCase):
 

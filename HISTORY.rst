@@ -1,5 +1,11 @@
 History
 -------
+1.0.6
++++++
+released 2023-01-06
+
+- Added not equal to numeric operator
+
 1.0.5
 +++++
 released 2020-01-21

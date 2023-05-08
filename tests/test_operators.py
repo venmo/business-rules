@@ -15,20 +15,39 @@ class StringOperatorTests(TestCase):
         self.assertTrue(StringType("foo").equal_to("foo"))
         self.assertFalse(StringType("foo").equal_to("Foo"))
 
+    def test_string_not_equal_to(self):
+        self.assertFalse(StringType("foo").not_equal_to("foo"))
+        self.assertTrue(StringType("foo").not_equal_to("Foo"))
+
     def test_string_equal_to_case_insensitive(self):
         self.assertTrue(StringType("foo").equal_to_case_insensitive("FOo"))
         self.assertTrue(StringType("foo").equal_to_case_insensitive("foo"))
         self.assertFalse(StringType("foo").equal_to_case_insensitive("blah"))
+
+    def test_string_not_equal_to_case_insensitive(self):
+        self.assertFalse(StringType("foo").not_equal_to_case_insensitive("FOo"))
+        self.assertFalse(StringType("foo").not_equal_to_case_insensitive("foo"))
+        self.assertTrue(StringType("foo").not_equal_to_case_insensitive("blah"))
 
     def test_string_starts_with(self):
         self.assertTrue(StringType("hello").starts_with("he"))
         self.assertFalse(StringType("hello").starts_with("hey"))
         self.assertFalse(StringType("hello").starts_with("He"))
 
+    def test_string_does_not_start_with(self):
+        self.assertFalse(StringType("hello").does_not_start_with("he"))
+        self.assertTrue(StringType("hello").does_not_start_with("hey"))
+        self.assertTrue(StringType("hello").does_not_start_with("He"))
+
     def test_string_ends_with(self):
         self.assertTrue(StringType("hello").ends_with("lo"))
         self.assertFalse(StringType("hello").ends_with("boom"))
         self.assertFalse(StringType("hello").ends_with("Lo"))
+
+    def test_string_does_not_end_with(self):
+        self.assertFalse(StringType("hello").does_not_end_with("lo"))
+        self.assertTrue(StringType("hello").does_not_end_with("boom"))
+        self.assertTrue(StringType("hello").does_not_end_with("Lo"))
 
     def test_string_contains(self):
         self.assertTrue(StringType("hello").contains("ell"))
@@ -37,9 +56,20 @@ class StringOperatorTests(TestCase):
         self.assertFalse(StringType("hello").contains("asdf"))
         self.assertFalse(StringType("hello").contains("ElL"))
 
+    def test_string_does_not_contain(self):
+        self.assertFalse(StringType("hello").does_not_contain("ell"))
+        self.assertFalse(StringType("hello").does_not_contain("he"))
+        self.assertFalse(StringType("hello").does_not_contain("lo"))
+        self.assertTrue(StringType("hello").does_not_contain("asdf"))
+        self.assertTrue(StringType("hello").does_not_contain("ElL"))
+
     def test_string_matches_regex(self):
         self.assertTrue(StringType("hello").matches_regex(r"^h"))
         self.assertFalse(StringType("hello").matches_regex(r"^sh"))
+
+    def test_string_does_not_match_regex(self):
+        self.assertFalse(StringType("hello").does_not_match_regex(r"^h"))
+        self.assertTrue(StringType("hello").does_not_match_regex(r"^sh"))
 
     def test_non_empty(self):
         self.assertTrue(StringType("hello").non_empty())

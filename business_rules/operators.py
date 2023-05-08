@@ -71,29 +71,55 @@ class StringType(BaseType):
     def equal_to(self, other_string):
         return self.value == other_string
 
+    @type_operator(FIELD_TEXT)
+    def not_equal_to(self, other_string):
+        return self.value != other_string
+
     @type_operator(FIELD_TEXT, label="Equal To (case insensitive)")
     def equal_to_case_insensitive(self, other_string):
         return self.value.lower() == other_string.lower()
+
+    @type_operator(FIELD_TEXT, label="Not Equal To (case insensitive)")
+    def not_equal_to_case_insensitive(self, other_string):
+        return self.value.lower() != other_string.lower()
 
     @type_operator(FIELD_TEXT)
     def starts_with(self, other_string):
         return self.value.startswith(other_string)
 
     @type_operator(FIELD_TEXT)
+    def does_not_start_with(self, other_string):
+        return not self.value.startswith(other_string)
+
+    @type_operator(FIELD_TEXT)
     def ends_with(self, other_string):
         return self.value.endswith(other_string)
+
+    @type_operator(FIELD_TEXT)
+    def does_not_end_with(self, other_string):
+        return not self.value.endswith(other_string)
 
     @type_operator(FIELD_TEXT)
     def contains(self, other_string):
         return other_string in self.value
 
     @type_operator(FIELD_TEXT)
+    def does_not_contain(self, other_string):
+        return other_string not in self.value
+
+    @type_operator(FIELD_TEXT)
     def matches_regex(self, regex):
         return re.search(regex, self.value)
+
+    @type_operator(FIELD_TEXT)
+    def does_not_match_regex(self, regex):
+        return not re.search(regex, self.value)
 
     @type_operator(FIELD_NO_INPUT)
     def non_empty(self):
         return bool(self.value)
+
+
 
 
 @export_type

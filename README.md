@@ -48,7 +48,7 @@ class ProductVariables(BaseVariables):
 
 ### 2. Define your set of actions
 
-These are the actions that are available to be taken when a condition is triggered.
+These are the actions that are available to be taken when a condition is triggered. Actions can either persist the changes directly, or can return an updated state back for any downstream use cases, or do both. 
 
 For example:
 
@@ -62,6 +62,7 @@ class ProductActions(BaseActions):
     def put_on_sale(self, sale_percentage):
         self.product.price = (1.0 - sale_percentage) * self.product.price
         self.product.save()
+        return self.product # in case of any downstream use case
 
     @rule_action(params={"number_to_order": FIELD_NUMERIC})
     def order_more(self, number_to_order):
@@ -213,6 +214,7 @@ for product in Products.objects.all():
            )
 ```
 
+Alternatively, `run_all_with_results` can be used to get the updated state for applied actions of triggered rules.
 ## API
 
 #### Variable Types and Decorators:

@@ -46,10 +46,52 @@ class EngineTests(TestCase):
         actions = BaseActions()
 
         result = engine.run_all([rule1, rule2], variables, actions,
-                stop_on_first_trigger=True)
+                                stop_on_first_trigger=True)
         self.assertEqual(result, True)
         self.assertEqual(engine.run.call_count, 1)
         engine.run.assert_called_once_with(rule1, variables, actions)
+
+    @patch.object(engine, 'run_and_get_results')
+    def test_run_all_with_results_some_rule_triggered(self, *args):
+        """ By default, does not stop on first triggered rule. Returns True if
+        any rule was triggered, otherwise False
+        """
+        rule1 = {'name': 'rule 1', 'conditions': 'condition1', 'actions': 'action name 1'}
+        rule2 = {'name': 'rule 2', 'conditions': 'condition2', 'actions': 'action name 2'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        def return_action1(rule, *args, **kwargs):
+            if rule['name'] == 'rule 1':
+                return True, {'action name 1': None}
+            return False, None
+
+        engine.run_and_get_results.side_effect = return_action1
+
+        result = engine.run_all_with_results([rule1, rule2], variables, actions)
+
+        self.assertDictEqual(result, {'rule 1': {'action name 1': None}})
+        self.assertEqual(engine.run_and_get_results.call_count, 2)
+
+        # switch order and try again
+        engine.run_and_get_results.reset_mock()
+
+        result = engine.run_all_with_results([rule2, rule1], variables, actions)
+        self.assertDictEqual(result, {'rule 1': {'action name 1': None}})
+        self.assertEqual(engine.run_and_get_results.call_count, 2)
+
+    @patch.object(engine, 'run_and_get_results', return_value=(True, {'action name 1': None}))
+    def test_run_all_with_results_stop_on_first(self, *args):
+        rule1 = {'name': 'rule 1', 'conditions': 'condition1', 'actions': 'action name 1'}
+        rule2 = {'name': 'rule 2', 'conditions': 'condition2', 'actions': 'action name 2'}
+        variables = BaseVariables()
+        actions = BaseActions()
+
+        result = engine.run_all_with_results([rule1, rule2], variables, actions,
+                stop_on_first_trigger=True)
+        self.assertDictEqual(result, {'rule 1': {'action name 1': None}})
+        self.assertEqual(engine.run_and_get_results.call_count, 1)
+        engine.run_and_get_results.assert_called_once_with(rule1, variables, actions)
 
     @patch.object(engine, 'check_conditions_recursively', return_value=True)
     @patch.object(engine, 'do_actions')
@@ -77,7 +119,6 @@ class EngineTests(TestCase):
         engine.check_conditions_recursively.assert_called_once_with(
                 rule['conditions'], variables)
         self.assertEqual(engine.do_actions.call_count, 0)
-
 
     @patch.object(engine, 'check_condition', return_value=True)
     def test_check_all_conditions_with_all_true(self, *args):

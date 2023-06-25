@@ -20,7 +20,6 @@ class ActionsResultsClassTests(TestCase):
                 return False
 
         class SomeActions(BaseActions):
-
             @rule_action(params={'foo': FIELD_TEXT})
             def some_action_1(self, foo):
                 return foo
@@ -33,31 +32,44 @@ class ActionsResultsClassTests(TestCase):
             def some_action_3(self):
                 pass
 
-        rule1 = {'conditions': {'all': [
-            {
-                'name': 'this_is_rule_1',
-                'value': True,
-                'operator': 'is_true'
-            }]},
+        rule1 = {
+            'conditions': {
+                'all': [
+                    {'name': 'this_is_rule_1', 'value': True, 'operator': 'is_true'}
+                ]
+            },
+            'actions': [{'name': 'some_action_1', 'params': {'foo': 'fooValue'}}],
+        }
+        rule2 = {
+            'conditions': {
+                'all': [
+                    {'name': 'this_is_rule_2', 'value': True, 'operator': 'is_false'}
+                ]
+            },
             'actions': [
-                {'name': 'some_action_1',
-                 'params': {'foo': 'fooValue'}
-                 }]}
-        rule2 = {'conditions': {'all': [
-            {
-                'name': 'this_is_rule_2',
-                'value': True,
-                'operator': 'is_false'
-            }]},
-            'actions': [
-                {'name': 'some_action_2',
-                 'params': {'foobar': 'foobarValue'}
-                 },
-                {'name': 'some_action_3'
-                 }]}
+                {'name': 'some_action_2', 'params': {'foobar': 'foobarValue'}},
+                {'name': 'some_action_3'},
+            ],
+        }
 
         variables = SomeVariables()
         actions = SomeActions()
         result = run_all_with_results([rule1, rule2], variables, actions)
-        self.assertCountEqual(result,
-                              [{'some_action_1': 'fooValue'}, {'some_action_2': 'foobarValue', 'some_action_3': None}])
+        self.assertDictEqual(
+            result,
+            {
+                0: {'some_action_1': 'fooValue'},
+                1: {'some_action_2': 'foobarValue', 'some_action_3': None},
+            },
+        )
+
+        # with rule name
+        rule1['name'] = 'rule 1'
+        result = run_all_with_results([rule1, rule2], variables, actions)
+        self.assertDictEqual(
+            result,
+            {
+                'rule 1': {'some_action_1': 'fooValue'},
+                1: {'some_action_2': 'foobarValue', 'some_action_3': None},
+            },
+        )

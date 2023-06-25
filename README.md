@@ -62,7 +62,7 @@ class ProductActions(BaseActions):
     def put_on_sale(self, sale_percentage):
         self.product.price = (1.0 - sale_percentage) * self.product.price
         self.product.save()
-        return self.product # in case of any downstream use case
+        return self.product.price # optionally return some state
 
     @rule_action(params={"number_to_order": FIELD_NUMERIC})
     def order_more(self, number_to_order):
@@ -101,48 +101,59 @@ An example of the resulting python lists/dicts is:
 
 ```python
 rules = [
-# expiration_days < 5 AND current_inventory > 20
-{ "conditions": { "all": [
-      { "name": "expiration_days",
-        "operator": "less_than",
-        "value": 5,
-      },
-      { "name": "current_inventory",
-        "operator": "greater_than",
-        "value": 20,
-      },
-  ]},
-  "actions": [
-      { "name": "put_on_sale",
-        "params": {"sale_percentage": 0.25},
-      },
-  ],
-},
-
-# current_inventory < 5 OR (current_month = "December" AND current_inventory < 20)
-{ "conditions": { "any": [
-      { "name": "current_inventory",
-        "operator": "less_than",
-        "value": 5,
-      },
-    ]},
-      { "all": [
-        {  "name": "current_month",
-          "operator": "equal_to",
-          "value": "December",
+    # expiration_days < 5 AND current_inventory > 20
+    {
+        "name": "Rule for Putting Product on Sale",  # name is optional
+        "conditions": {
+            "all": [
+                {
+                    "name": "expiration_days",
+                    "operator": "less_than",
+                    "value": 5,
+                },
+                {
+                    "name": "current_inventory",
+                    "operator": "greater_than",
+                    "value": 20,
+                },
+            ]
         },
-        { "name": "current_inventory",
-          "operator": "less_than",
-          "value": 20,
-        }
-      ]},
-  },
-  "actions": [
-    { "name": "order_more",
-      "params":{"number_to_order": 40},
+        "actions": [
+            {"name": "put_on_sale", "params": {"sale_percentage": 0.25}},
+        ],
     },
-  ],
-}]
+
+    # current_inventory < 5 OR (current_month = "December" AND current_inventory < 20)
+    {
+        "name": "Rule for restocking",  # name is optional
+        "conditions": {
+            "any": [
+                {
+                    "name": "current_inventory",
+                    "operator": "less_than",
+                    "value": 5,
+                },
+                {
+                    "all": [
+                        {
+                            "name": "current_month",
+                            "operator": "equal_to",
+                            "value": "December",
+                        },
+                        {
+                            "name": "current_inventory",
+                            "operator": "less_than",
+                            "value": 20,
+                        }
+                    ]
+                }
+            ],
+            "actions": [
+                {"name": "order_more", "params": {"number_to_order": 40}},
+            ],
+        }
+    }
+]
 ```
 
 ### Export the available variables, operators and actions
@@ -215,6 +226,22 @@ for product in Products.objects.all():
 ```
 
 Alternatively, `run_all_with_results` can be used to get the updated state for applied actions of triggered rules.
+
+```python
+from business_rules import run_all_with_results
+
+rules = _some_function_to_receive_from_client()
+
+for product in Products.objects.all():
+    rules_action_results = run_all_with_results(
+        rule_list=rules,
+        defined_variables=ProductVariables(product),
+        defined_actions=ProductActions(product),
+        stop_on_first_trigger=True
+    )
+    
+```
+
 ## API
 
 #### Variable Types and Decorators:
@@ -272,10 +299,6 @@ Note: to compare floating point equality we just check that the difference is le
 * `shares_at_least_one_element_with`
 * `shares_exactly_one_element_with`
 * `shares_no_elements_with`
-
-### Returning data to your client
-
-
 
 ## Contributing
 

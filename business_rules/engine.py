@@ -15,19 +15,21 @@ def run_all(rule_list,
     return rule_was_triggered
 
 
-def run_all_with_results(rule_list, defined_variables, defined_actions,
-                         stop_on_first_trigger=False):
-    """Run all Rules and return the rules actions results
-    Returns:
-        rule_results(list): list of dictionaries. Each dictionary is a rule
-        actions' results
+def run_all_with_results(rule_list, defined_variables, defined_actions, stop_on_first_trigger=False):
     """
-    rule_results = []
-    for rule in rule_list:
-        actions_results = run_and_get_results(rule, defined_variables,
-                                              defined_actions)
-        if actions_results:
-            rule_results.append(actions_results)
+        Runs all the rules and returns the results returned by actions of triggered rule(s).
+
+        Returns:
+            rule_results(dict): dictionary with results of actions for every triggered rule. {} if no rule triggered.
+            Uses rule's `name` as key if available, otherwise rule's index is used as key.
+        """
+    rule_results = {}
+    for ix, rule in enumerate(rule_list):
+        triggered, actions_results = run_and_get_results(rule, defined_variables,
+                                                         defined_actions)
+        if triggered:
+            rule_name = rule.get('name', ix)
+            rule_results[rule_name] = actions_results
             if stop_on_first_trigger:
                 return rule_results
     return rule_results
@@ -40,13 +42,12 @@ def run_and_get_results(rule, defined_variables, defined_actions):
         defined_variables(BaseVariables): the defined set of variables object
         defined_actions(BaseActions): the actions object
     """
-    actions_results = {}
+    actions_results = None
     conditions, actions = rule.get('conditions'), rule.get('actions')
-    if conditions and actions:
-        rule_triggered = check_conditions_recursively(conditions, defined_variables)
-        if rule_triggered:
-            actions_results = do_actions(actions, defined_actions)
-    return actions_results
+    rule_triggered = check_conditions_recursively(conditions, defined_variables)
+    if rule_triggered:
+        actions_results = do_actions(actions, defined_actions)
+    return rule_triggered, actions_results
 
 
 def run(rule, defined_variables, defined_actions):

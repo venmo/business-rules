@@ -40,3 +40,4 @@ pip-log.txt
 
 # Virtual environments
 venv*/
+.idea/

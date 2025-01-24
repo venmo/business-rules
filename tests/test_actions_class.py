@@ -16,6 +16,7 @@ class ActionsClassTests(TestCase):
 
             @rule_action(params={'foo':FIELD_TEXT})
             def some_action(self, foo):
+                """some docs"""
                 return "blah"
 
             def non_action(self):
@@ -25,6 +26,7 @@ class ActionsClassTests(TestCase):
         self.assertEqual(len(actions), 1)
         self.assertEqual(actions[0]['name'], 'some_action')
         self.assertEqual(actions[0]['label'], 'Some Action')
+        self.assertEqual(actions[0]['docs'], 'some docs')
         self.assertEqual(actions[0]['params'], [{'fieldType': FIELD_TEXT, 'name': 'foo', 'label': 'Foo'}])
 
         # should work on an instance of the class too

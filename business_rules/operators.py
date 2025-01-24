@@ -20,7 +20,8 @@ class BaseType(object):
         methods = inspect.getmembers(cls)
         return [{'name': m[0],
                  'label': m[1].label,
-                 'input_type': m[1].input_type}
+                 'input_type': m[1].input_type,
+                }
                 for m in methods if getattr(m[1], 'is_operator', False)]
 
 
@@ -87,6 +88,10 @@ class StringType(BaseType):
     def contains(self, other_string):
         return other_string in self.value
 
+    @type_operator(FIELD_TEXT, label="Contains (case insensitive)")
+    def contains_case_insensitive(self, other_string):
+        return other_string.lower() in self.value.lower()
+
     @type_operator(FIELD_TEXT)
     def matches_regex(self, regex):
         return re.search(regex, self.value)
@@ -94,6 +99,38 @@ class StringType(BaseType):
     @type_operator(FIELD_NO_INPUT)
     def non_empty(self):
         return bool(self.value)
+
+    @type_operator(FIELD_TEXT)
+    def not_equal_to(self, other_string):
+        return not (self.value == other_string)
+
+    @type_operator(FIELD_TEXT, label="Not equal To (case insensitive)")
+    def not_equal_to_case_insensitive(self, other_string):
+        return not (self.value.lower() == other_string.lower())
+
+    @type_operator(FIELD_TEXT)
+    def does_not_start_with(self, other_string):
+        return not (self.value.startswith(other_string))
+
+    @type_operator(FIELD_TEXT)
+    def does_not_end_with(self, other_string):
+        return not (self.value.endswith(other_string))
+
+    @type_operator(FIELD_TEXT)
+    def does_not_contain(self, other_string):
+        return not (other_string in self.value)
+
+    @type_operator(FIELD_TEXT, label="Does not contain (case insensitive)")
+    def does_not_contain_case_insensitive(self, other_string):
+        return not (other_string.lower() in self.value.lower())
+
+    @type_operator(FIELD_TEXT)
+    def does_not_match_regex(self, regex):
+        return not re.search(regex, self.value)
+
+    @type_operator(FIELD_NO_INPUT)
+    def is_empty(self):
+        return (self.value is None) or (self.value.strip() == "")
 
 
 @export_type
@@ -104,6 +141,8 @@ class NumericType(BaseType):
 
     @staticmethod
     def _assert_valid_value_and_cast(value):
+        if value == None: 
+            return None 
         if isinstance(value, float):
             # In python 2.6, casting float to Decimal doesn't work
             return float_to_decimal(value)
@@ -117,24 +156,43 @@ class NumericType(BaseType):
 
     @type_operator(FIELD_NUMERIC)
     def equal_to(self, other_numeric):
+        if self.does_not_exist(): 
+            return False 
         return abs(self.value - other_numeric) <= self.EPSILON
+       
+    @type_operator(FIELD_NUMERIC)
+    def not_equal_to(self, other_numeric):
+        if self.does_not_exist(): 
+            return False 
+        return abs(self.value - other_numeric) > self.EPSILON
 
     @type_operator(FIELD_NUMERIC)
     def greater_than(self, other_numeric):
-        return (self.value - other_numeric) > self.EPSILON
+        if self.does_not_exist(): 
+            return False 
+        return (self.value - other_numeric) > self.EPSILON 
 
     @type_operator(FIELD_NUMERIC)
     def greater_than_or_equal_to(self, other_numeric):
+        if self.does_not_exist():  
+            return False 
         return self.greater_than(other_numeric) or self.equal_to(other_numeric)
 
     @type_operator(FIELD_NUMERIC)
     def less_than(self, other_numeric):
-        return (other_numeric - self.value) > self.EPSILON
-
+        if self.does_not_exist(): 
+            return False
+        return (other_numeric - self.value) > self.EPSILON 
+        
     @type_operator(FIELD_NUMERIC)
     def less_than_or_equal_to(self, other_numeric):
+        if self.does_not_exist(): 
+            return False 
         return self.less_than(other_numeric) or self.equal_to(other_numeric)
-
+        
+    @type_operator(FIELD_NO_INPUT)
+    def does_not_exist(self):
+        return self.value == None 
 
 @export_type
 class BooleanType(BaseType):
@@ -180,6 +238,30 @@ class SelectType(BaseType):
             if self._case_insensitive_equal_to(val, other_value):
                 return True
         return False
+    
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def contains_any(self, other_value):
+        if not other_value or len(other_value) == 0:
+            return False
+        if not self.value or len(self.value) == 0:
+            return False
+        
+        self_set = set([val.lower() if isinstance(val, string_types) else val for val in self.value])
+        other_set = set([val.lower() if isinstance(val, string_types) else val for val in other_value])
+        
+        return len(self_set.intersection(other_set)) > 0
+    
+    @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
+    def contains_all(self, other_value):
+        if not other_value or len(other_value) == 0:
+            return False
+        if not self.value or len(self.value) == 0:
+            return False
+        
+        self_set = set([val.lower() if isinstance(val, string_types) else val for val in self.value])
+        other_set = set([val.lower() if isinstance(val, string_types) else val for val in other_value])
+        
+        return len(self_set.intersection(other_set)) == len(other_set)
 
     @type_operator(FIELD_SELECT, assert_type_for_arguments=False)
     def does_not_contain(self, other_value):
@@ -235,3 +317,13 @@ class SelectMultipleType(BaseType):
     @type_operator(FIELD_SELECT_MULTIPLE)
     def shares_no_elements_with(self, other_value):
         return not self.shares_at_least_one_element_with(other_value)
+
+
+    # This operator is only implemented for the posting rule engine at the moment
+    @type_operator(FIELD_SELECT_MULTIPLE, label="Compare State With Item (Only for Posting Rule Engine)")
+    def compare_state_with_item(self, other_value):            
+        other_value = set(other_value)
+        for state in self.value:
+            if other_value.issubset(state):
+                return True
+        return False

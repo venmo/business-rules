@@ -53,6 +53,9 @@ class NumericOperatorTests(TestCase):
         err_string = "foo is not a valid numeric type"
         with self.assertRaisesRegex(AssertionError, err_string):
             NumericType("foo")
+        
+        num = NumericType(None)
+        self.assertEqual(num.value, None )
 
     def test_numeric_type_validates_and_casts_decimal(self):
         ten_dec = Decimal(10)
@@ -80,6 +83,15 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).equal_to(Decimal('10.0')))
         self.assertFalse(NumericType(10).equal_to(10.00001))
         self.assertFalse(NumericType(10).equal_to(11))
+        self.assertFalse(NumericType(None).equal_to(10))
+        self.assertFalse(NumericType(None).equal_to(0))
+    
+    def test_numeric_not_equal_to(self):
+        self.assertTrue(NumericType(1).not_equal_to(10))
+        self.assertTrue(NumericType(10.1).not_equal_to(10))
+        self.assertFalse(NumericType(None).not_equal_to(10))
+        self.assertFalse(NumericType(None).not_equal_to(0))
+
 
     def test_other_value_not_numeric(self):
         error_string = "10 is not a valid numeric type"
@@ -92,6 +104,7 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10.1).greater_than(10))
         self.assertFalse(NumericType(10.000001).greater_than(10))
         self.assertTrue(NumericType(10.000002).greater_than(10))
+        self.assertFalse(NumericType(None).greater_than(10))
 
     def test_numeric_greater_than_or_equal_to(self):
         self.assertTrue(NumericType(10).greater_than_or_equal_to(1))
@@ -100,6 +113,7 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10.000001).greater_than_or_equal_to(10))
         self.assertTrue(NumericType(10.000002).greater_than_or_equal_to(10))
         self.assertTrue(NumericType(10).greater_than_or_equal_to(10))
+        self.assertFalse(NumericType(None).greater_than_or_equal_to(10))
 
     def test_numeric_less_than(self):
         self.assertTrue(NumericType(1).less_than(10))
@@ -107,6 +121,8 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).less_than(10.1))
         self.assertFalse(NumericType(10).less_than(10.000001))
         self.assertTrue(NumericType(10).less_than(10.000002))
+        self.assertFalse(NumericType(None).less_than(10))
+
 
     def test_numeric_less_than_or_equal_to(self):
         self.assertTrue(NumericType(1).less_than_or_equal_to(10))
@@ -115,6 +131,11 @@ class NumericOperatorTests(TestCase):
         self.assertTrue(NumericType(10).less_than_or_equal_to(10.000001))
         self.assertTrue(NumericType(10).less_than_or_equal_to(10.000002))
         self.assertTrue(NumericType(10).less_than_or_equal_to(10))
+        self.assertFalse(NumericType(None).less_than_or_equal_to(10))
+    
+    def test_does_not_exist(self):
+        self.assertFalse(NumericType(1).does_not_exist())
+        self.assertTrue(NumericType(None).does_not_exist())
 
 
 class BooleanOperatorTests(TestCase):
@@ -145,6 +166,22 @@ class SelectOperatorTests(TestCase):
         self.assertTrue(SelectType([1, 2]).does_not_contain(3))
         self.assertFalse(SelectType([1, 2]).does_not_contain(2))
         self.assertFalse(SelectType([1, 2, "a"]).does_not_contain("A"))
+
+    def test_contains_all(self):
+        self.assertTrue(SelectType([1, 2]).contains_all([2]))
+        self.assertTrue(SelectType([1, 2, "a"]).contains_all(["A"]))
+        self.assertTrue(SelectType([1, 2]).contains_all([1, 2, 1]))
+        self.assertFalse(SelectType([1, 2]).contains_all([]))
+        self.assertFalse(SelectType([1, 2]).contains_all([3]))
+        self.assertFalse(SelectType([1, 2]).contains_all([1, 2, 3]))
+
+    def test_contains_any(self):
+        self.assertTrue(SelectType([1, 2]).contains_any([2]))
+        self.assertTrue(SelectType([1, 2, "a"]).contains_any(["A"]))
+        self.assertTrue(SelectType([1, 2]).contains_any([1, 2, 1]))
+        self.assertFalse(SelectType([1, 2]).contains_any([3]))
+        self.assertFalse(SelectType([]).contains_any([3]))
+        self.assertFalse(SelectType([1, 2]).contains_any([]))
 
 
 class SelectMultipleOperatorTests(TestCase):
@@ -190,3 +227,21 @@ class SelectMultipleOperatorTests(TestCase):
                          shares_no_elements_with([2, 3]))
         self.assertFalse(SelectMultipleType([1, 2, "a"]).
                          shares_no_elements_with([4, "A"]))
+        
+        
+    def test_contains_all(self):
+        self.assertTrue(SelectMultipleType([1, 2]).
+                        contains_all([2, 1]))
+        self.assertFalse(SelectMultipleType([1, 2]).
+                         contains_all([2, 3]))
+        self.assertTrue(SelectMultipleType([1, 2, "a"]).
+                        contains_all([2, 1, "A"]))
+
+
+    def test_compare_state_with_item(self):
+        self.assertTrue(SelectMultipleType([["same_check_number", "same_check_date"], ["different_check_number", "different_check_date"]]).
+                        compare_state_with_item(["same_check_number", "same_check_date"]))
+        self.assertFalse(SelectMultipleType([["same_check_number", "same_check_date"], ["different_check_number", "different_check_date"]]).
+                         compare_state_with_item(["same_check_number", "different_check_date"]))
+        self.assertTrue(SelectMultipleType([["same_check_number", "same_check_date", "different_era_id"], ["different_check_number", "different_check_date, same_era_id"]]).
+                        compare_state_with_item(["same_check_number", "different_era_id"]))
